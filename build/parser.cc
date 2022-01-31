@@ -636,26 +636,38 @@ namespace Simples {
         {
           switch (yyn)
             {
-  case 5:
-#line 79 "parser.yy"
+  case 7:
+#line 83 "parser.yy"
                    { std::cout << "Inteiro: " << (yystack_[0].value.integerVal) << std::endl; }
 #line 643 "/home/michely/Documentos/UEM/compiladores/compiladores-trab/build/parser.cc"
     break;
 
-  case 6:
-#line 80 "parser.yy"
+  case 8:
+#line 84 "parser.yy"
                  { std::cout << "Real: " << (yystack_[0].value.doubleVal) << std::endl; }
 #line 649 "/home/michely/Documentos/UEM/compiladores/compiladores-trab/build/parser.cc"
     break;
 
-  case 7:
-#line 82 "parser.yy"
+  case 9:
+#line 86 "parser.yy"
                       {  std::cout << "Identificador: " << *(yystack_[0].value.stringVal) << std::endl; }
 #line 655 "/home/michely/Documentos/UEM/compiladores/compiladores-trab/build/parser.cc"
     break;
 
+  case 10:
+#line 88 "parser.yy"
+                 { std::cout << "Símbolo: " << (yystack_[0].value.simboloVal) << std::endl; }
+#line 661 "/home/michely/Documentos/UEM/compiladores/compiladores-trab/build/parser.cc"
+    break;
 
-#line 659 "/home/michely/Documentos/UEM/compiladores/compiladores-trab/build/parser.cc"
+  case 11:
+#line 90 "parser.yy"
+                            { std::cout << "Palavra Reservada: " << *(yystack_[0].value.stringVal) << std::endl; }
+#line 667 "/home/michely/Documentos/UEM/compiladores/compiladores-trab/build/parser.cc"
+    break;
+
+
+#line 671 "/home/michely/Documentos/UEM/compiladores/compiladores-trab/build/parser.cc"
 
             default:
               break;
@@ -933,55 +945,60 @@ namespace Simples {
   const signed char
   Parser::yypact_[] =
   {
-      -4,    -5,    -5,    -5,     3,    -5,    -5,    -5
+      -4,    -5,    -5,    -5,    -5,    -5,     5,    -5,    -5,    -5,
+      -5,    -5
   };
 
   const signed char
   Parser::yydefact_[] =
   {
-       2,     5,     6,     7,     0,     3,     4,     1
+       2,     7,     8,     9,    10,    11,     0,     3,     4,     5,
+       6,     1
   };
 
   const signed char
   Parser::yypgoto_[] =
   {
-      -5,    -5,    -5,    -5
+      -5,    -5,    -5,    -5,    -5,    -5
   };
 
   const signed char
   Parser::yydefgoto_[] =
   {
-      -1,     4,     5,     6
+      -1,     6,     7,     8,     9,    10
   };
 
   const signed char
   Parser::yytable_[] =
   {
-       1,     2,     3,     7
+       1,     2,     3,     4,     5,    11
   };
 
   const signed char
   Parser::yycheck_[] =
   {
-       4,     5,     6,     0
+       4,     5,     6,     7,     8,     0
   };
 
   const signed char
   Parser::yystos_[] =
   {
-       0,     4,     5,     6,     8,     9,    10,     0
+       0,     4,     5,     6,     7,     8,    10,    11,    12,    13,
+      14,     0
   };
 
   const signed char
   Parser::yyr1_[] =
   {
-       0,     7,     8,     8,     8,     9,     9,    10
+       0,     9,    10,    10,    10,    10,    10,    11,    11,    12,
+      13,    14
   };
 
   const signed char
   Parser::yyr2_[] =
   {
-       0,     2,     0,     1,     1,     1,     1,     1
+       0,     2,     0,     1,     1,     1,     1,     1,     1,     1,
+       1,     1
   };
 
 
@@ -992,15 +1009,17 @@ namespace Simples {
   const Parser::yytname_[] =
   {
   "\"end of file\"", "error", "$undefined", "\"end of line\"",
-  "\"integer\"", "\"real\"", "\"identifier\"", "$accept", "program",
-  "constant", "variable", YY_NULLPTR
+  "\"integer\"", "\"real\"", "\"identifier\"", "\"simbolo\"",
+  "\"palavra reservada\"", "$accept", "program", "constant", "variable",
+  "symbol", "keywords", YY_NULLPTR
   };
 
 #if YYDEBUG
   const signed char
   Parser::yyrline_[] =
   {
-       0,    75,    75,    76,    77,    79,    80,    82
+       0,    77,    77,    78,    79,    80,    81,    83,    84,    86,
+      88,    90
   };
 
   // Print the state stack on the debug stream.
@@ -1067,9 +1086,9 @@ namespace Simples {
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6
+       5,     6,     7,     8
     };
-    const int user_token_number_max_ = 261;
+    const int user_token_number_max_ = 263;
 
     if (t <= 0)
       return yyeof_;
@@ -1081,9 +1100,9 @@ namespace Simples {
 
 #line 44 "parser.yy"
 } // Simples
-#line 1085 "/home/michely/Documentos/UEM/compiladores/compiladores-trab/build/parser.cc"
+#line 1104 "/home/michely/Documentos/UEM/compiladores/compiladores-trab/build/parser.cc"
 
-#line 84 "parser.yy"
+#line 92 "parser.yy"
 
 
 namespace Simples {

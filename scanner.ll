@@ -29,6 +29,7 @@ typedef Simples::Parser::token_type token_type;
 %option c++
 /* we don’t need yywrap */
 %option noyywrap
+%x comentario
 /* you should not expect to be able to use the program interactively */
 %option never-interactive
 /* provide the global variable yylineno */
@@ -48,6 +49,7 @@ typedef Simples::Parser::token_type token_type;
 
 blank   [ \t]+
 eol     [\n\r]+
+tab     [\t]
 
 %%
 
@@ -69,10 +71,27 @@ eol     [\n\r]+
   return token::REAL;
 }
 
+pare|continue|para|enquanto|faça|fun|se|verdadeiro|falso|tipo|de|limite|var|inteiro|real|cadeia|ref|retorne|nulo|início|fim {
+  yylval->stringVal = new std::string(yytext, yyleng);
+  return token::PALAVRARESERVADA;
+}
+
 [A-Za-z][A-Za-z0-9_,.-]* {
   yylval->stringVal = new std::string(yytext, yyleng);
   return token::IDENTIFIER;
 }
+
+","|":"|";"|"("|")"|"["|"]"|"{"|"}"|"."|"+"|"-"|"*"|"/"|"<"|">"|"<"|"<="|">"|">="|"&"|"|"|":="|"="|"=="|"?" {
+  yylval->simboloVal = &yytext[0];
+  return token::SIMBOLO;
+}
+
+"/*"            { BEGIN(comentario); }
+<comentario>"*/" { BEGIN(INITIAL); }
+<comentario>.    { }
+<comentario>\n   { }
+
+{tab}+
 
 {blank} { STEP(); }
 

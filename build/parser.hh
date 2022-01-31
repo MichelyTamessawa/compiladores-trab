@@ -200,8 +200,9 @@ namespace Simples {
   int  			      integerVal;
   double 			    doubleVal;
   std::string*		stringVal;
+  char*           simboloVal;
 
-#line 205 "/home/michely/Documentos/UEM/compiladores/compiladores-trab/build/parser.hh"
+#line 206 "/home/michely/Documentos/UEM/compiladores/compiladores-trab/build/parser.hh"
 
     };
 #else
@@ -237,7 +238,9 @@ namespace Simples {
         EOL = 258,
         INTEGER = 259,
         REAL = 260,
-        IDENTIFIER = 261
+        IDENTIFIER = 261,
+        SIMBOLO = 262,
+        PALAVRARESERVADA = 263
       };
     };
 
@@ -698,10 +701,10 @@ namespace Simples {
     enum
     {
       yyeof_ = 0,
-      yylast_ = 3,     ///< Last index in yytable_.
-      yynnts_ = 4,  ///< Number of nonterminal symbols.
-      yyfinal_ = 7, ///< Termination state number.
-      yyntokens_ = 7  ///< Number of tokens.
+      yylast_ = 5,     ///< Last index in yytable_.
+      yynnts_ = 6,  ///< Number of nonterminal symbols.
+      yyfinal_ = 11, ///< Termination state number.
+      yyntokens_ = 9  ///< Number of tokens.
     };
 
 
@@ -712,7 +715,7 @@ namespace Simples {
 
 #line 44 "parser.yy"
 } // Simples
-#line 716 "/home/michely/Documentos/UEM/compiladores/compiladores-trab/build/parser.hh"
+#line 719 "/home/michely/Documentos/UEM/compiladores/compiladores-trab/build/parser.hh"
 
 
 
@@ -728,7 +731,7 @@ namespace Simples {
     }
   }
 
-#line 732 "/home/michely/Documentos/UEM/compiladores/compiladores-trab/build/parser.hh"
+#line 735 "/home/michely/Documentos/UEM/compiladores/compiladores-trab/build/parser.hh"
 
 
 #endif // !YY_YY_HOME_MICHELY_DOCUMENTOS_UEM_COMPILADORES_COMPILADORES_TRAB_BUILD_PARSER_HH_INCLUDED

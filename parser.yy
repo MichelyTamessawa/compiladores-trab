@@ -61,25 +61,33 @@
   int  			      integerVal;
   double 			    doubleVal;
   std::string*		stringVal;
+  char*           simboloVal;
 }
 
 /* Tokens */
 %token              TOK_EOF 0     "end of file"
 %token			        EOL		        "end of line"
 %token <integerVal> INTEGER		    "integer"
-%token <doubleVal> 	REAL		    "real"
+%token <doubleVal> 	REAL		      "real"
 %token <stringVal> 	IDENTIFIER    "identifier"
-
+%token <simboloVal> SIMBOLO       "simbolo"
+%token <stringVal>  PALAVRARESERVADA  "palavra reservada"
 %%
 
 program:  /* empty */
         | constant
         | variable
+        | symbol
+        | keywords
 
 constant : INTEGER { std::cout << "Inteiro: " << $1 << std::endl; }
          | REAL  { std::cout << "Real: " << $1 << std::endl; }
 
 variable : IDENTIFIER {  std::cout << "Identificador: " << *$1 << std::endl; }
+
+symbol : SIMBOLO { std::cout << "Símbolo: " << $1 << std::endl; }
+
+keywords : PALAVRARESERVADA { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
 
 %%
 
