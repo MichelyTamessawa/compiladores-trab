@@ -1,0 +1,1 @@
+/home/michely/Documentos/UEM/compiladores/compiladores-trab/build/CMakeFiles/sc.dir
