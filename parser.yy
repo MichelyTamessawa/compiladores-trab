@@ -61,16 +61,17 @@
   int  			      integerVal;
   double 			    doubleVal;
   std::string*		stringVal;
-  char*           simboloVal;
+  char*           charVal;
 }
 
 /* Tokens */
 %token              TOK_EOF 0     "end of file"
 %token			        EOL		        "end of line"
-%token <integerVal> INTEGER		    "integer"
+%token <integerVal> INTEIRO		    "inteiro"
 %token <doubleVal> 	REAL		      "real"
-%token <stringVal> 	IDENTIFIER    "identifier"
-%token <simboloVal> SIMBOLO       "simbolo"
+%token <stringVal>  CADEIA        "cadeia"
+%token <stringVal> 	IDENTIFICADOR "identificador"
+%token <charVal>    SIMBOLO       "simbolo"
 %token <stringVal>  PALAVRARESERVADA  "palavra reservada"
 %%
 
@@ -80,10 +81,11 @@ program:  /* empty */
         | symbol
         | keywords
 
-constant : INTEGER { std::cout << "Inteiro: " << $1 << std::endl; }
-         | REAL  { std::cout << "Real: " << $1 << std::endl; }
+constant : INTEIRO  { std::cout << "Inteiro: " << $1 << std::endl; }
+         | REAL     { std::cout << "Real: " << $1 << std::endl; }
+         | CADEIA   { std::cout << "Cadeia: " << *$1 << std::endl; }
 
-variable : IDENTIFIER {  std::cout << "Identificador: " << *$1 << std::endl; }
+variable :  IDENTIFICADOR {  std::cout << "Identificador: " << *$1 << std::endl; }
 
 symbol : SIMBOLO { std::cout << "Símbolo: " << $1 << std::endl; }
 

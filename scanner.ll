@@ -50,6 +50,7 @@ typedef Simples::Parser::token_type token_type;
 blank   [ \t]+
 eol     [\n\r]+
 tab     [\t]
+double_quotes ["]
 
 %%
 
@@ -63,7 +64,7 @@ tab     [\t]
 
 [0-9]+ {
      yylval->integerVal = atoi(yytext);
-     return token::INTEGER;
+     return token::INTEIRO;
  }
 
 [0-9]+"."[0-9]* {
@@ -78,12 +79,17 @@ pare|continue|para|enquanto|faça|fun|se|verdadeiro|falso|tipo|de|limite|var|int
 
 [A-Za-z][A-Za-z0-9_,.-]* {
   yylval->stringVal = new std::string(yytext, yyleng);
-  return token::IDENTIFIER;
+  return token::IDENTIFICADOR;
 }
 
 ","|":"|";"|"("|")"|"["|"]"|"{"|"}"|"."|"+"|"-"|"*"|"/"|"<"|">"|"<"|"<="|">"|">="|"&"|"|"|":="|"="|"=="|"?" {
-  yylval->simboloVal = &yytext[0];
+  yylval->charVal = &yytext[0];
   return token::SIMBOLO;
+}
+
+{double_quotes}[A-Za-z0-9_,.-]*{double_quotes} {
+  yylval->stringVal = new std::string(yytext, yyleng);
+  return token::CADEIA;
 }
 
 "/*"            { BEGIN(comentario); }
