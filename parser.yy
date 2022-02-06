@@ -61,7 +61,6 @@
   int  			      integerVal;
   double 			    doubleVal;
   std::string*		stringVal;
-  char*           charVal;
 }
 
 /* Tokens */

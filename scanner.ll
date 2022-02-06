@@ -20,6 +20,8 @@ typedef Simples::Parser::token_type token_type;
  * by default returns 0, which is not of token_type. */
 #define yyterminate() return token::TOK_EOF
 
+char string_buffer[1024]; /* auxilia na constante de cadeia */
+
 %}
 
 /*** Flex Declarations and Options ***/
@@ -31,8 +33,6 @@ typedef Simples::Parser::token_type token_type;
 %option c++
 /* we don’t need yywrap */
 %option noyywrap
-%x comentario
-%x cadeia
 /* you should not expect to be able to use the program interactively */
 %option never-interactive
 /* provide the global variable yylineno */
@@ -43,6 +43,9 @@ typedef Simples::Parser::token_type token_type;
 %option batch
 /* change the name of the scanner class. results in "SimplesFlexLexer" */
 %option prefix="Simples"
+
+%x comentario
+%x cadeia
 
 /*
 %option stack
@@ -310,20 +313,18 @@ fim {
   return token::IDENTIFICADOR;
 }
 
-{double_quotes}[A-Za-z0-9_,.-]*{double_quotes} {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::CADEIA;
-}
-
-{double_quotes} {
-BEGIN(cadeia); }
-<cadeia>{double_quotes} { BEGIN(INITIAL); }
-
+\" { 
+strcpy(string_buffer, ""); BEGIN(cadeia); }
+<cadeia>\" { 
+  yylval->stringVal = new std::string(string_buffer, strlen(string_buffer)); 
+  BEGIN(INITIAL); 
+  return token::TIPOCADEIA;}
+<cadeia>[^\"]+ {
+  strcat(string_buffer, yytext); }
 
 "/*"            { BEGIN(comentario); }
 <comentario>"*/" { BEGIN(INITIAL); }
-<comentario>.    { }
-<comentario>\n   { }
+<comentario>[^*/] {}
 
 {tab}+
 
