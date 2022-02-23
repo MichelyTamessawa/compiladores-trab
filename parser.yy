@@ -64,6 +64,7 @@
 }
 
 /* Tokens */
+
 %token              TOK_EOF 0       "end of file"
 %token			        EOL		          "end of line"
 %token <integerVal> TIPOINTEIRO		  "tipo inteiro"
@@ -75,19 +76,23 @@
 %token <stringVal>  PARE            "pare"
 %token <stringVal>  CONTINUE        "continue"
 %token <stringVal>  PARA            "para"
+%token <stringVal>  FPARA           "fpara"
 %token <stringVal>  ENQUANTO        "enquanto"
+%token <stringVal>  FENQUANTO       "fenquanto"
 %token <stringVal>  FACA            "faca"
-%token <stringVal>  FUN             "fun"
 %token <stringVal>  SE              "se"
+%token <stringVal>  FSE             "fse"
 %token <stringVal>  VERDADEIRO      "verdadeiro"
 %token <stringVal>  FALSO           "falso"
 %token <stringVal>  TIPO            "tipo"
 %token <stringVal>  DE              "de"
 %token <stringVal>  LIMITE          "limite"
-%token <stringVal>  VAR             "var"
+%token <stringVal>  GLOBAL          "global"
+%token <stringVal>  LOCAL           "local"
 %token <stringVal>  INTEIRO         "inteiro"
 %token <stringVal>  REAL            "real"
 %token <stringVal>  CADEIA          "cadeia"
+%token <stringVal>  VALOR           "valor"
 %token <stringVal>  REF             "ref"
 %token <stringVal>  RETORNE         "retorne"
 %token <stringVal>  NULO            "nulo"
@@ -109,6 +114,7 @@
 %token <stringVal>  SUBTRACAO       "subtracao"
 %token <stringVal>  MULTIPLICACAO   "multiplicacao"
 %token <stringVal>  DIVISAO         "divisao"
+%token <stringVal>  IGUALDADE       "igualdade"
 %token <stringVal>  DIFERENTE       "diferente"
 %token <stringVal>  MENOR           "menor"
 %token <stringVal>  MENORIGUAL      "menor igual"
@@ -118,8 +124,6 @@
 %token <stringVal>  OU              "ou"
 %token <stringVal>  ATRIBUICAO      "atribuicao"
 %token <stringVal>  IGUAL           "igual"
-%token <stringVal>  IGUALDADE       "igualdade"
-%token <stringVal>  INTERROGACAO    "interrogacao"
 
 %%
 
@@ -149,6 +153,7 @@ symbol: VIRGULA { std::cout << "Símbolo: " << *$1 << std::endl; }
       | SUBTRACAO { std::cout << "Símbolo: " << *$1 << std::endl; }
       | MULTIPLICACAO { std::cout << "Símbolo: " << *$1 << std::endl; }
       | DIVISAO { std::cout << "Símbolo: " << *$1 << std::endl; }
+      | IGUALDADE { std::cout << "Símbolo: " << *$1 << std::endl; }
       | DIFERENTE { std::cout << "Símbolo: " << *$1 << std::endl; }
       | MENOR { std::cout << "Símbolo: " << *$1 << std::endl; }
       | MENORIGUAL { std::cout << "Símbolo: " << *$1 << std::endl; }
@@ -158,22 +163,23 @@ symbol: VIRGULA { std::cout << "Símbolo: " << *$1 << std::endl; }
       | OU { std::cout << "Símbolo: " << *$1 << std::endl; }
       | ATRIBUICAO { std::cout << "Símbolo: " << *$1 << std::endl; }
       | IGUAL { std::cout << "Símbolo: " << *$1 << std::endl; }
-      | IGUALDADE { std::cout << "Símbolo: " << *$1 << std::endl; }
-      | INTERROGACAO { std::cout << "Símbolo: " << *$1 << std::endl; }
 
 keywords: PARE { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
         | CONTINUE { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
         | PARA { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
+        | FPARA { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
         | ENQUANTO { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
+        | FENQUANTO { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
         | FACA { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
-        | FUN { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
         | SE { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
+        | FSE { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
         | VERDADEIRO { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
         | FALSO { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
         | TIPO { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
         | DE { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
         | LIMITE { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
-        | VAR { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
+        | GLOBAL { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
+        | LOCAL { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
         | INTEIRO { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
         | REAL { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
         | CADEIA { std::cout << "Palavra Reservada: " << *$1 << std::endl; }

@@ -93,9 +93,19 @@ para {
   return token::PARA;
 }
 
+fpara {
+  yylval->stringVal = new std::string(yytext, yyleng);
+  return token::FPARA;
+}
+
 enquanto {
   yylval->stringVal = new std::string(yytext, yyleng);
   return token::ENQUANTO;
+}
+
+fenquanto {
+  yylval->stringVal = new std::string(yytext, yyleng);
+  return token::FENQUANTO;
 }
 
 faça {
@@ -103,14 +113,14 @@ faça {
   return token::FACA;
 }
 
-fun {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::FUN;
-}
-
 se {
   yylval->stringVal = new std::string(yytext, yyleng);
   return token::SE;
+}
+
+fse {
+  yylval->stringVal = new std::string(yytext, yyleng);
+  return token::FSE;
 }
 
 verdadeiro {
@@ -138,9 +148,14 @@ limite {
   return token::LIMITE;
 }
 
-var {
+global {
   yylval->stringVal = new std::string(yytext, yyleng);
-  return token::VAR;
+  return token::GLOBAL;
+}
+
+local {
+  yylval->stringVal = new std::string(yytext, yyleng);
+  return token::LOCAL;
 }
 
 inteiro {
@@ -156,6 +171,11 @@ real {
 cadeia {
   yylval->stringVal = new std::string(yytext, yyleng);
   return token::CADEIA;
+}
+
+valor {
+  yylval->stringVal = new std::string(yytext, yyleng);
+  return token::VALOR;
 }
 
 ref {
@@ -253,7 +273,12 @@ fim {
   return token::DIVISAO;
 } 
 
-"<>" {
+"==" {
+  yylval->stringVal = new std::string(yytext, yyleng);
+  return token::IGUALDADE;
+} 
+
+"!=" {
   yylval->stringVal = new std::string(yytext, yyleng);
   return token::DIFERENTE;
 } 
@@ -298,16 +323,6 @@ fim {
   return token::IGUAL;
 } 
 
-"==" {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::IGUALDADE;
-} 
-
-"?" {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::INTERROGACAO;
-} 
-
 [A-Za-z][A-Za-z0-9_,.-]* {
   yylval->stringVal = new std::string(yytext, yyleng);
   return token::IDENTIFICADOR;
@@ -322,7 +337,7 @@ strcpy(string_buffer, ""); BEGIN(cadeia); }
 <cadeia>[^\"]+ {
   strcat(string_buffer, yytext); }
 
-"/*"            { BEGIN(comentario); }
+"/*" { BEGIN(comentario); }
 <comentario>"*/" { BEGIN(INITIAL); }
 <comentario>[^*/] {}
 
