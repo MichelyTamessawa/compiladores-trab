@@ -98,6 +98,8 @@
 %token <stringVal>  NULO            "nulo"
 %token <stringVal>  INICIO          "inicio"
 %token <stringVal>  FIM             "fim"
+%token <stringVal>  ACAO            "ação"
+%token <stringVal>  FUNCAO          "funcao"
 
 /* simbolos */
 %token <stringVal>  VIRGULA         "virgula"
@@ -125,69 +127,151 @@
 %token <stringVal>  ATRIBUICAO      "atribuicao"
 %token <stringVal>  IGUAL           "igual"
 
+/* Precedência */
+%left E OU
+%left IGUALDADE DIFERENTE MAIOR MENOR MAIORIGUAL MENORIGUAL
+%left ADICAO SUBTRACAO
+%left MULTIPLICACAO DIVISAO
+
 %%
 
-program : /* empty */
-        | constant
-        | variable
-        | symbol
-        | keywords
+/* programa */
 
-constant : TIPOINTEIRO  { std::cout << "Inteiro: " << $1 << std::endl; }
-         | TIPOREAL     { std::cout << "Real: " << $1 << std::endl; }
-         | TIPOCADEIA   { std::cout << "Cadeia: " << *$1 << std::endl; }
+program : declaracoes
+  acao
 
-variable :  IDENTIFICADOR { std::cout << "Identificador: " << *$1 << std::endl; }
+declaracoes: lista_declaracao_de_tipo lista_declaracao_de_globais lista_declaracao_de_funcao
 
-symbol: VIRGULA { std::cout << "Símbolo: " << *$1 << std::endl; }
-      | DOISPONTOS { std::cout << "Símbolo: " << *$1 << std::endl; }
-      | PONTOVIRGULA { std::cout << "Símbolo: " << *$1 << std::endl; }
-      | ABREPARENTESE { std::cout << "Símbolo: " << *$1 << std::endl; }
-      | FECHAPARENTESE { std::cout << "Símbolo: " << *$1 << std::endl; }
-      | ABRECOLCHETE { std::cout << "Símbolo: " << *$1 << std::endl; }
-      | FECHACOLCHETE { std::cout << "Símbolo: " << *$1 << std::endl; }
-      | ABRECHAVE { std::cout << "Símbolo: " << *$1 << std::endl; }
-      | FECHACHAVE { std::cout << "Símbolo: " << *$1 << std::endl; }
-      | PONTO { std::cout << "Símbolo: " << *$1 << std::endl; }
-      | ADICAO { std::cout << "Símbolo: " << *$1 << std::endl; }
-      | SUBTRACAO { std::cout << "Símbolo: " << *$1 << std::endl; }
-      | MULTIPLICACAO { std::cout << "Símbolo: " << *$1 << std::endl; }
-      | DIVISAO { std::cout << "Símbolo: " << *$1 << std::endl; }
-      | IGUALDADE { std::cout << "Símbolo: " << *$1 << std::endl; }
-      | DIFERENTE { std::cout << "Símbolo: " << *$1 << std::endl; }
-      | MENOR { std::cout << "Símbolo: " << *$1 << std::endl; }
-      | MENORIGUAL { std::cout << "Símbolo: " << *$1 << std::endl; }
-      | MAIOR { std::cout << "Símbolo: " << *$1 << std::endl; }
-      | MAIORIGUAL { std::cout << "Símbolo: " << *$1 << std::endl; }
-      | E { std::cout << "Símbolo: " << *$1 << std::endl; }
-      | OU { std::cout << "Símbolo: " << *$1 << std::endl; }
-      | ATRIBUICAO { std::cout << "Símbolo: " << *$1 << std::endl; }
-      | IGUAL { std::cout << "Símbolo: " << *$1 << std::endl; }
+/* Tipos */
 
-keywords: PARE { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
-        | CONTINUE { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
-        | PARA { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
-        | FPARA { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
-        | ENQUANTO { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
-        | FENQUANTO { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
-        | FACA { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
-        | SE { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
-        | FSE { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
-        | VERDADEIRO { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
-        | FALSO { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
-        | TIPO { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
-        | DE { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
-        | LIMITE { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
-        | GLOBAL { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
-        | LOCAL { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
-        | INTEIRO { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
-        | REAL { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
-        | CADEIA { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
-        | REF { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
-        | RETORNE { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
-        | NULO { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
-        | INICIO { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
-        | FIM { std::cout << "Palavra Reservada: " << *$1 << std::endl; }
+lista_declaracao_de_tipo:
+  | TIPO DOISPONTOS lista_declaracao_tipo
+
+lista_declaracao_tipo: declaracao_tipo
+  | lista_declaracao_tipo declaracao_tipo
+
+declaracao_tipo: IDENTIFICADOR IGUAL descritor_tipo 
+
+descritor_tipo: IDENTIFICADOR                                     {std::cout << "declaração do tipo identificador: " << *$1 << std::endl;}
+  | ABRECHAVE tipo_campos FECHACHAVE                              {std::cout << "declaração do tipo registro" << std::endl;}
+  | ABRECOLCHETE tipo_constantes FECHACOLCHETE DE IDENTIFICADOR   {std::cout << "declaração do tipo vetor: " << *$1 << std::endl;}
+
+tipo_campos: tipo_campos VIRGULA tipo_campo
+  | tipo_campo
+
+tipo_campo: IDENTIFICADOR DOISPONTOS IDENTIFICADOR
+
+tipo_constantes: TIPOINTEIRO
+  | tipo_constantes VIRGULA TIPOINTEIRO
+
+/* Variáveis */
+
+lista_declaracao_de_globais:
+  | GLOBAL DOISPONTOS lista_declaracao_variavel
+
+lista_declaracao_variavel: declaracao_variavel
+  | lista_declaracao_variavel declaracao_variavel
+
+declaracao_variavel: IDENTIFICADOR DOISPONTOS IDENTIFICADOR ATRIBUICAO inicializacao {std::cout << "declaração da variável: " << *$1 << std::endl;}
+
+criacao_de_registro: campos
+  | criacao_de_registro VIRGULA campos
+
+campos: IDENTIFICADOR IGUAL literal
+  | IDENTIFICADOR IGUAL IDENTIFICADOR
+
+inicializacao: expr 
+  | ABRECHAVE criacao_de_registro FECHACHAVE
+
+/* Funções */
+
+lista_declaracao_de_funcao: /* empty */
+  | FUNCAO DOISPONTOS lista_declaracao_funcao 
+
+lista_declaracao_funcao: declaracao_funcao 
+  | lista_declaracao_funcao declaracao_funcao
+
+declaracao_funcao: IDENTIFICADOR ABREPARENTESE lista_args FECHAPARENTESE IGUAL corpo  {std::cout << "declaração de procedimento: " << *$1 << std::endl;}
+  | IDENTIFICADOR ABREPARENTESE lista_args FECHAPARENTESE DOISPONTOS IDENTIFICADOR IGUAL corpo  {std::cout << "declaração de função: " << *$1 <<  std::endl;}
+
+lista_args: /* empty */
+  | arg
+  | lista_args VIRGULA arg
+
+arg: modificador IDENTIFICADOR DOISPONTOS IDENTIFICADOR
+
+modificador: VALOR
+  | REF
+
+corpo: declaracoes_de_locais
+  acao
+
+declaracoes_de_locais: /* empty */
+  | LOCAL DOISPONTOS lista_declaracao_variavel
+
+/* ação */
+
+acao: ACAO DOISPONTOS lista_comandos
+
+/* Comandos */
+
+lista_comandos: comando
+  | lista_comandos PONTOVIRGULA comando
+
+comando: local_de_armazenamento ATRIBUICAO expr // atribuicao de variaveis
+  | local_de_armazenamento ATRIBUICAO ABRECHAVE criacao_de_registro FECHACHAVE // atribuicao de registros
+  | chamada_de_funcao
+  | SE expr VERDADEIRO lista_comandos FSE
+  | SE expr VERDADEIRO lista_comandos FALSO lista_comandos FSE
+  | PARA IDENTIFICADOR DE expr LIMITE expr FACA lista_comandos FPARA
+  | ENQUANTO expr FACA lista_comandos FENQUANTO
+  | PARE
+  | CONTINUE
+  | RETORNE expr
+
+local_de_armazenamento: IDENTIFICADOR
+  | local_de_armazenamento PONTO IDENTIFICADOR
+  | local_de_armazenamento ABRECOLCHETE expr FECHACOLCHETE
+
+chamada_de_funcao: IDENTIFICADOR ABREPARENTESE lista_parametros FECHAPARENTESE {std::cout << "chamada da função: " << *$1 << std::endl;}
+
+lista_parametros: /* empty */
+  | parametro
+  | lista_parametros VIRGULA parametro
+
+parametro: literal
+  | IDENTIFICADOR
+
+/* Expressões */
+
+expr: expressao_logica 
+  | expressao_relacional
+  | expressao_aritmetica
+  | NULO
+  | ABREPARENTESE expr FECHAPARENTESE // expressão_com_parênteses
+  | chamada_de_funcao
+  | local_de_armazenamento
+  | literal // inteiro, real ou cadeia
+
+expressao_logica: expr E expr {std::cout << "Op de and" << std::endl;}
+  | expr OU expr {std::cout << "Op de or" << std::endl;}
+
+expressao_relacional: expr IGUALDADE expr {std::cout << "Op de igualdade" << std::endl;}
+  | expr DIFERENTE expr {std::cout << "Op de diferença" << std::endl;}
+  | expr MAIOR expr {std::cout << "Op de maior" << std::endl;}
+  | expr MAIORIGUAL expr {std::cout << "Op de maior igual" << std::endl;}
+  | expr MENOR expr {std::cout << "Op de menor" << std::endl;}
+  | expr MENORIGUAL expr {std::cout << "Op de menor igual" << std::endl;}
+
+expressao_aritmetica: expr ADICAO expr {std::cout << "Op de adição" << std::endl;}
+  | expr SUBTRACAO expr {std::cout << "Op de subtração" << std::endl;}
+  | expr MULTIPLICACAO expr {std::cout << "Op de multiplicação" << std::endl;}
+  | expr DIVISAO expr {std::cout << "Op de divisão" << std::endl;}
+
+literal: TIPOINTEIRO
+  | TIPOREAL
+  | TIPOCADEIA
+
 %%
 
 namespace Simples {
