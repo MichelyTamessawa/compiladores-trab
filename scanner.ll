@@ -44,6 +44,8 @@ char string_buffer[1024]; /* auxilia na constante de cadeia */
 /* change the name of the scanner class. results in "SimplesFlexLexer" */
 %option prefix="Simples"
 
+%option case-insensitive
+
 %x comentario
 %x cadeia
 
@@ -70,276 +72,124 @@ double_quotes ["]
 
 [0-9]+ {
      yylval->integerVal = atoi(yytext);
-     return token::INTEIRO;
+     return token::TIPOINTEIRO;
  }
 
 [0-9]+"."[0-9]* {
   yylval->doubleVal = atof(yytext);
-  return token::REAL;
+  return token::TIPOREAL;
 }
 
-pare {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::PARE;
-}
+pare { return token::PARE; }
 
-continue {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::CONTINUE;
-}
+continue { return token::CONTINUE; }
 
-para {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::PARA;
-}
+para { return token::PARA; }
 
-fpara {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::FPARA;
-}
+fpara { return token::FPARA; }
 
-enquanto {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::ENQUANTO;
-}
+enquanto { return token::ENQUANTO; }
 
-fenquanto {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::FENQUANTO;
-}
+fenquanto { return token::FENQUANTO; }
 
-faça {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::FACA;
-}
+fa(ç|Ç)a { return token::FACA; }
 
-se {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::SE;
-}
+se { return token::SE; }
 
-fse {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::FSE;
-}
+fse { return token::FSE; }
 
-verdadeiro {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::VERDADEIRO;
-}
+verdadeiro { return token::VERDADEIRO; }
 
-falso {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::FALSO;
-}
+falso { return token::FALSO; }
 
-tipo {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::TIPO;
-}
+tipo { return token::TIPO; }
 
-de {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::DE;
-}
+de { return token::DE; }
 
-limite {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::LIMITE;
-}
+limite { return token::LIMITE; }
 
-global {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::GLOBAL;
-}
+global { return token::GLOBAL; }
 
-local {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::LOCAL;
-}
+local { return token::LOCAL; }
 
-inteiro {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::INTEIRO;
-}
+valor { return token::VALOR; }
 
-real {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::REAL;
-}
+ref { return token::REF; }
 
-cadeia {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::CADEIA;
-}
+retorne { return token::RETORNE; }
 
-valor {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::VALOR;
-}
+nulo { return token::NULO; }
 
-ref {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::REF;
-}
+início { return token::INICIO; }
 
-retorne {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::RETORNE;
-}
+fim { return token::FIM; }
 
-nulo {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::NULO;
-}
+a(ç|Ç)(ã|Ã)o { return token::ACAO; }
 
-início {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::INICIO;
-}
+fun(ç|Ç)(ã|Ã)o { return token::FUNCAO; }
 
-fim {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::FIM;
-}
+"," { return token::VIRGULA; }
 
-"," {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::VIRGULA;
-}
+";" { return token::PONTOVIRGULA; } 
 
-":" {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::DOISPONTOS;
-} 
+"(" { return token::ABREPARENTESE; } 
 
-";" {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::PONTOVIRGULA;
-} 
+")" { return token::FECHAPARENTESE; } 
 
-"(" {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::ABREPARENTESE;
-} 
+"[" { return token::ABRECOLCHETE; } 
 
-")" {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::FECHAPARENTESE;
-} 
+"]" { return token::FECHACOLCHETE; } 
 
-"[" {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::ABRECOLCHETE;
-} 
+"{" { return token::ABRECHAVE; } 
 
-"]" {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::FECHACOLCHETE;
-} 
+"}" { return token::FECHACHAVE; } 
 
-"{" {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::ABRECHAVE;
-} 
+"." { return token::PONTO; } 
 
-"}" {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::FECHACHAVE;
-} 
+"+" { return token::ADICAO; } 
 
-"." {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::PONTO;
-} 
+"-" { return token::SUBTRACAO; } 
 
-"+" {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::ADICAO;
-} 
+"*" { return token::MULTIPLICACAO; } 
 
-"-" {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::SUBTRACAO;
-} 
+"/" { return token::DIVISAO; } 
 
-"*" {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::MULTIPLICACAO;
-} 
+"==" { return token::IGUALDADE; } 
 
-"/" {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::DIVISAO;
-} 
+"!=" { return token::DIFERENTE; } 
 
-"==" {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::IGUALDADE;
-} 
+"<" { return token::MENOR; } 
 
-"!=" {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::DIFERENTE;
-} 
+"<=" { return token::MENORIGUAL; } 
 
-"<" {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::MENOR;
-} 
+">" { return token::MAIOR; } 
 
-"<=" {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::MENORIGUAL;
-} 
+">=" { return token::MAIORIGUAL; } 
 
-">" {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::MAIOR;
-} 
+"&" { return token::E; } 
 
-">=" {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::MAIORIGUAL;
-} 
+"|" { return token::OU; } 
 
-"&" {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::E;
-} 
+":=" { return token::ATRIBUICAO; } 
 
-"|" {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::OU;
-} 
+":" { return token::DOISPONTOS; } 
 
-":=" {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::ATRIBUICAO;
-} 
+"=" { return token::IGUAL; } 
 
-"=" {
-  yylval->stringVal = new std::string(yytext, yyleng);
-  return token::IGUAL;
-} 
-
-[A-Za-z][A-Za-z0-9_,.-]* {
+[A-Za-z][A-Za-z0-9_-]* {
   yylval->stringVal = new std::string(yytext, yyleng);
   return token::IDENTIFICADOR;
 }
 
-\" { 
-strcpy(string_buffer, ""); BEGIN(cadeia); }
-<cadeia>\" { 
-  yylval->stringVal = new std::string(string_buffer, strlen(string_buffer)); 
-  BEGIN(INITIAL); 
-  return token::TIPOCADEIA;}
-<cadeia>[^\"]+ {
-  strcat(string_buffer, yytext); }
+\" { strcpy(string_buffer, ""); BEGIN(cadeia); }
+<cadeia>\"      { yylval->stringVal = new std::string(string_buffer, strlen(string_buffer)); 
+                  BEGIN(INITIAL); 
+                  return token::TIPOCADEIA; }
+<cadeia>[^\"]+ { strcat(string_buffer, yytext); }
 
 "/*" { BEGIN(comentario); }
-<comentario>"*/" { BEGIN(INITIAL); }
-<comentario>[^*/] {}
+<comentario>"*/"   { BEGIN(INITIAL); }
+<comentario>[^*/]  {}
 
 {tab}+
 
