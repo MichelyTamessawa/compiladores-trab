@@ -1,0 +1,13 @@
+O que fazer:
+- construir AST
+- nao terminal -> insere na arvore (que é unica)
+- a raiz tera 4 nós filhos
+
+- tabelas de simbolos: escopo, nome, valor,  etc...
+  1. identificadores que o compilador precisa saber 
+  2. tipagem dos identificadores
+  3. identificadores globais
+- Função de adicionar identificador (insert)
+- Função de procurar identificador (lookup)
+- Remover (esconder) identificadores ou grupos de identificadores (para o gerenciamento de escopo)
+- Criar uma função HASH (pro nome do identificador)
