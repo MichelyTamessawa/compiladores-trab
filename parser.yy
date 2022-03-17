@@ -89,15 +89,10 @@
 %token <stringVal>  LIMITE          "limite"
 %token <stringVal>  GLOBAL          "global"
 %token <stringVal>  LOCAL           "local"
-%token <stringVal>  INTEIRO         "inteiro"
-%token <stringVal>  REAL            "real"
-%token <stringVal>  CADEIA          "cadeia"
 %token <stringVal>  VALOR           "valor"
 %token <stringVal>  REF             "ref"
 %token <stringVal>  RETORNE         "retorne"
 %token <stringVal>  NULO            "nulo"
-%token <stringVal>  INICIO          "inicio"
-%token <stringVal>  FIM             "fim"
 %token <stringVal>  ACAO            "ação"
 %token <stringVal>  FUNCAO          "funcao"
 
@@ -172,16 +167,12 @@ lista_declaracao_de_globais:
 lista_declaracao_variavel: declaracao_variavel
   | lista_declaracao_variavel declaracao_variavel
 
-declaracao_variavel: IDENTIFICADOR DOISPONTOS IDENTIFICADOR ATRIBUICAO inicializacao {std::cout << "declaração da variável: " << *$1 << std::endl;}
+declaracao_variavel: IDENTIFICADOR DOISPONTOS IDENTIFICADOR ATRIBUICAO expr {std::cout << "declaração da variável: " << *$1 << std::endl;}
 
 criacao_de_registro: campos
   | criacao_de_registro VIRGULA campos
 
-campos: IDENTIFICADOR IGUAL literal
-  | IDENTIFICADOR IGUAL IDENTIFICADOR
-
-inicializacao: expr 
-  | ABRECHAVE criacao_de_registro FECHACHAVE
+campos: IDENTIFICADOR IGUAL expr
 
 /* Funções */
 
@@ -191,7 +182,7 @@ lista_declaracao_de_funcao: /* empty */
 lista_declaracao_funcao: declaracao_funcao 
   | lista_declaracao_funcao declaracao_funcao
 
-declaracao_funcao: IDENTIFICADOR ABREPARENTESE lista_args FECHAPARENTESE IGUAL corpo  {std::cout << "declaração de procedimento: " << *$1 << std::endl;}
+declaracao_funcao: IDENTIFICADOR ABREPARENTESE lista_args FECHAPARENTESE IGUAL corpo            {std::cout << "declaração de procedimento: " << *$1 << std::endl;}
   | IDENTIFICADOR ABREPARENTESE lista_args FECHAPARENTESE DOISPONTOS IDENTIFICADOR IGUAL corpo  {std::cout << "declaração de função: " << *$1 <<  std::endl;}
 
 lista_args: /* empty */
@@ -219,7 +210,6 @@ lista_comandos: comando
   | lista_comandos PONTOVIRGULA comando
 
 comando: local_de_armazenamento ATRIBUICAO expr // atribuicao de variaveis
-  | local_de_armazenamento ATRIBUICAO ABRECHAVE criacao_de_registro FECHACHAVE // atribuicao de registros
   | chamada_de_funcao
   | SE expr VERDADEIRO lista_comandos FSE
   | SE expr VERDADEIRO lista_comandos FALSO lista_comandos FSE
@@ -231,7 +221,10 @@ comando: local_de_armazenamento ATRIBUICAO expr // atribuicao de variaveis
 
 local_de_armazenamento: IDENTIFICADOR
   | local_de_armazenamento PONTO IDENTIFICADOR
-  | local_de_armazenamento ABRECOLCHETE expr FECHACOLCHETE
+  | local_de_armazenamento ABRECOLCHETE lista_expr FECHACOLCHETE
+
+lista_expr: expr
+  | lista_expr VIRGULA expr
 
 chamada_de_funcao: IDENTIFICADOR ABREPARENTESE lista_parametros FECHAPARENTESE {std::cout << "chamada da função: " << *$1 << std::endl;}
 
@@ -239,14 +232,14 @@ lista_parametros: /* empty */
   | parametro
   | lista_parametros VIRGULA parametro
 
-parametro: literal
-  | IDENTIFICADOR
+parametro: expr
 
 /* Expressões */
 
 expr: expressao_logica 
   | expressao_relacional
   | expressao_aritmetica
+  | ABRECHAVE criacao_de_registro FECHACHAVE // retorna um ponteiro para o registro
   | NULO
   | ABREPARENTESE expr FECHAPARENTESE // expressão_com_parênteses
   | chamada_de_funcao
@@ -254,19 +247,19 @@ expr: expressao_logica
   | literal // inteiro, real ou cadeia
 
 expressao_logica: expr E expr {std::cout << "Op de and" << std::endl;}
-  | expr OU expr {std::cout << "Op de or" << std::endl;}
+  | expr OU expr              {std::cout << "Op de or" << std::endl;}
 
-expressao_relacional: expr IGUALDADE expr {std::cout << "Op de igualdade" << std::endl;}
-  | expr DIFERENTE expr {std::cout << "Op de diferença" << std::endl;}
-  | expr MAIOR expr {std::cout << "Op de maior" << std::endl;}
-  | expr MAIORIGUAL expr {std::cout << "Op de maior igual" << std::endl;}
-  | expr MENOR expr {std::cout << "Op de menor" << std::endl;}
-  | expr MENORIGUAL expr {std::cout << "Op de menor igual" << std::endl;}
+expressao_relacional: expr IGUALDADE expr   {std::cout << "Op de igualdade" << std::endl;}
+  | expr DIFERENTE expr                     {std::cout << "Op de diferença" << std::endl;}
+  | expr MAIOR expr                         {std::cout << "Op de maior" << std::endl;}
+  | expr MAIORIGUAL expr                    {std::cout << "Op de maior igual" << std::endl;}
+  | expr MENOR expr                         {std::cout << "Op de menor" << std::endl;}
+  | expr MENORIGUAL expr                    {std::cout << "Op de menor igual" << std::endl;}
 
 expressao_aritmetica: expr ADICAO expr {std::cout << "Op de adição" << std::endl;}
-  | expr SUBTRACAO expr {std::cout << "Op de subtração" << std::endl;}
-  | expr MULTIPLICACAO expr {std::cout << "Op de multiplicação" << std::endl;}
-  | expr DIVISAO expr {std::cout << "Op de divisão" << std::endl;}
+  | expr SUBTRACAO expr                {std::cout << "Op de subtração" << std::endl;}
+  | expr MULTIPLICACAO expr            {std::cout << "Op de multiplicação" << std::endl;}
+  | expr DIVISAO expr                  {std::cout << "Op de divisão" << std::endl;}
 
 literal: TIPOINTEIRO
   | TIPOREAL

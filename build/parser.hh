@@ -200,9 +200,8 @@ namespace Simples {
   int  			      integerVal;
   double 			    doubleVal;
   std::string*		stringVal;
-  char*           simboloVal;
 
-#line 206 "/home/michely/Documentos/UEM/compiladores/compiladores-trab/build/parser.hh"
+#line 205 "/home/michely/Documentos/UEM/compiladores/compiladores-trab/build/parser.hh"
 
     };
 #else
@@ -236,11 +235,56 @@ namespace Simples {
       {
         TOK_EOF = 0,
         EOL = 258,
-        INTEGER = 259,
-        REAL = 260,
-        IDENTIFIER = 261,
-        SIMBOLO = 262,
-        PALAVRARESERVADA = 263
+        TIPOINTEIRO = 259,
+        TIPOREAL = 260,
+        TIPOCADEIA = 261,
+        IDENTIFICADOR = 262,
+        PARE = 263,
+        CONTINUE = 264,
+        PARA = 265,
+        FPARA = 266,
+        ENQUANTO = 267,
+        FENQUANTO = 268,
+        FACA = 269,
+        SE = 270,
+        FSE = 271,
+        VERDADEIRO = 272,
+        FALSO = 273,
+        TIPO = 274,
+        DE = 275,
+        LIMITE = 276,
+        GLOBAL = 277,
+        LOCAL = 278,
+        VALOR = 279,
+        REF = 280,
+        RETORNE = 281,
+        NULO = 282,
+        ACAO = 283,
+        FUNCAO = 284,
+        VIRGULA = 285,
+        DOISPONTOS = 286,
+        PONTOVIRGULA = 287,
+        ABREPARENTESE = 288,
+        FECHAPARENTESE = 289,
+        ABRECOLCHETE = 290,
+        FECHACOLCHETE = 291,
+        ABRECHAVE = 292,
+        FECHACHAVE = 293,
+        PONTO = 294,
+        ADICAO = 295,
+        SUBTRACAO = 296,
+        MULTIPLICACAO = 297,
+        DIVISAO = 298,
+        IGUALDADE = 299,
+        DIFERENTE = 300,
+        MENOR = 301,
+        MENORIGUAL = 302,
+        MAIOR = 303,
+        MAIORIGUAL = 304,
+        E = 305,
+        OU = 306,
+        ATRIBUICAO = 307,
+        IGUAL = 308
       };
     };
 
@@ -403,7 +447,7 @@ namespace Simples {
     Parser& operator= (const Parser&);
 
     /// Stored state numbers (used for stacks).
-    typedef signed char state_type;
+    typedef unsigned char state_type;
 
     /// Generate an error message.
     /// \param yystate   the state where the error occurred.
@@ -435,7 +479,7 @@ namespace Simples {
     // Tables.
     // YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
     // STATE-NUM.
-    static const signed char yypact_[];
+    static const short yypact_[];
 
     // YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
     // Performed when YYTABLE does not specify something else to do.  Zero
@@ -443,17 +487,17 @@ namespace Simples {
     static const signed char yydefact_[];
 
     // YYPGOTO[NTERM-NUM].
-    static const signed char yypgoto_[];
+    static const short yypgoto_[];
 
     // YYDEFGOTO[NTERM-NUM].
-    static const signed char yydefgoto_[];
+    static const short yydefgoto_[];
 
     // YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
     // positive, shift that token.  If negative, reduce the rule whose
     // number is the opposite.  If YYTABLE_NINF, syntax error.
-    static const signed char yytable_[];
+    static const unsigned char yytable_[];
 
-    static const signed char yycheck_[];
+    static const unsigned char yycheck_[];
 
     // YYSTOS[STATE-NUM] -- The (internal number of the) accessing
     // symbol of state STATE-NUM.
@@ -474,7 +518,7 @@ namespace Simples {
     static const char* const yytname_[];
 #if YYDEBUG
     // YYRLINE[YYN] -- Source line where rule number YYN was defined.
-    static const signed char yyrline_[];
+    static const short yyrline_[];
     /// Report on the debug stream that the rule \a r is going to be reduced.
     virtual void yy_reduce_print_ (int r);
     /// Print the state stack on the debug stream.
@@ -701,10 +745,10 @@ namespace Simples {
     enum
     {
       yyeof_ = 0,
-      yylast_ = 5,     ///< Last index in yytable_.
-      yynnts_ = 6,  ///< Number of nonterminal symbols.
-      yyfinal_ = 11, ///< Termination state number.
-      yyntokens_ = 9  ///< Number of tokens.
+      yylast_ = 228,     ///< Last index in yytable_.
+      yynnts_ = 36,  ///< Number of nonterminal symbols.
+      yyfinal_ = 6, ///< Termination state number.
+      yyntokens_ = 54  ///< Number of tokens.
     };
 
 
@@ -715,7 +759,7 @@ namespace Simples {
 
 #line 44 "parser.yy"
 } // Simples
-#line 719 "/home/michely/Documentos/UEM/compiladores/compiladores-trab/build/parser.hh"
+#line 763 "/home/michely/Documentos/UEM/compiladores/compiladores-trab/build/parser.hh"
 
 
 
@@ -731,7 +775,7 @@ namespace Simples {
     }
   }
 
-#line 735 "/home/michely/Documentos/UEM/compiladores/compiladores-trab/build/parser.hh"
+#line 779 "/home/michely/Documentos/UEM/compiladores/compiladores-trab/build/parser.hh"
 
 
 #endif // !YY_YY_HOME_MICHELY_DOCUMENTOS_UEM_COMPILADORES_COMPILADORES_TRAB_BUILD_PARSER_HH_INCLUDED

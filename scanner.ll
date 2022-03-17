@@ -120,10 +120,6 @@ retorne { return token::RETORNE; }
 
 nulo { return token::NULO; }
 
-início { return token::INICIO; }
-
-fim { return token::FIM; }
-
 a(ç|Ç)(ã|Ã)o { return token::ACAO; }
 
 fun(ç|Ç)(ã|Ã)o { return token::FUNCAO; }
@@ -176,7 +172,7 @@ fun(ç|Ç)(ã|Ã)o { return token::FUNCAO; }
 
 "=" { return token::IGUAL; } 
 
-[A-Za-z][A-Za-z0-9_-]* {
+[A-Za-z][A-Za-z0-9]* {
   yylval->stringVal = new std::string(yytext, yyleng);
   return token::IDENTIFICADOR;
 }
