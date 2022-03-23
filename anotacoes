@@ -11,3 +11,15 @@ O que fazer:
 - Função de procurar identificador (lookup)
 - Remover (esconder) identificadores ou grupos de identificadores (para o gerenciamento de escopo)
 - Criar uma função HASH (pro nome do identificador)
+
+
+
+// Dúvidas
+Acessar posição de vetor é uma expressão ou uma lista de expressões?
+
+
+
+// Next steps
+- Inicializar árvore no parser
+- Construir nó raiz com os 4 nó filhos
+- Validar com o prof se nois nao ta fazendo merda

@@ -209,18 +209,18 @@ acao: ACAO DOISPONTOS lista_comandos
 lista_comandos: comando
   | lista_comandos PONTOVIRGULA comando
 
-comando: local_de_armazenamento ATRIBUICAO expr // atribuicao de variaveis
-  | chamada_de_funcao
-  | SE expr VERDADEIRO lista_comandos FSE
-  | SE expr VERDADEIRO lista_comandos FALSO lista_comandos FSE
-  | PARA IDENTIFICADOR DE expr LIMITE expr FACA lista_comandos FPARA
-  | ENQUANTO expr FACA lista_comandos FENQUANTO
-  | PARE
-  | CONTINUE
-  | RETORNE expr
+comando: local_de_armazenamento ATRIBUICAO expr {} // check
+  | chamada_de_funcao // check
+  | SE expr VERDADEIRO lista_comandos FSE // check
+  | SE expr VERDADEIRO lista_comandos FALSO lista_comandos FSE // check
+  | PARA IDENTIFICADOR DE expr LIMITE expr FACA lista_comandos FPARA // check
+  | ENQUANTO expr FACA lista_comandos FENQUANTO // check
+  | PARE  // check
+  | CONTINUE // check
+  | RETORNE expr // check
 
-local_de_armazenamento: IDENTIFICADOR
-  | local_de_armazenamento PONTO IDENTIFICADOR
+local_de_armazenamento: IDENTIFICADOR // check
+  | local_de_armazenamento PONTO IDENTIFICADOR {}
   | local_de_armazenamento ABRECOLCHETE lista_expr FECHACOLCHETE
 
 lista_expr: expr
@@ -236,15 +236,15 @@ parametro: expr
 
 /* Expressões */
 
-expr: expressao_logica 
-  | expressao_relacional
-  | expressao_aritmetica
-  | ABRECHAVE criacao_de_registro FECHACHAVE // retorna um ponteiro para o registro
-  | NULO
-  | ABREPARENTESE expr FECHAPARENTESE // expressão_com_parênteses
-  | chamada_de_funcao
-  | local_de_armazenamento
-  | literal // inteiro, real ou cadeia
+expr: expressao_logica // check
+  | expressao_relacional // check
+  | expressao_aritmetica // check
+  | ABRECHAVE criacao_de_registro FECHACHAVE // retorna um ponteiro para o registro -- check
+  | NULO // check
+  | ABREPARENTESE expr FECHAPARENTESE // expressão_com_parênteses -- check
+  | chamada_de_funcao // -- check
+  | local_de_armazenamento // -- check
+  | literal // inteiro, real ou cadeia - check
 
 expressao_logica: expr E expr {std::cout << "Op de and" << std::endl;}
   | expr OU expr              {std::cout << "Op de or" << std::endl;}
