@@ -7,7 +7,6 @@
 /*** C++ Declarations ***/
 #include "parser.hh"
 #include "scanner.hh"
-
 #define yylex driver.scanner_->yylex
 
 %}
@@ -17,6 +16,10 @@
   #include "driver.hh"
   #include "location.hh"
   #include "position.hh"
+  #include "ast_tree.h"
+
+  using namespace classes_arvore;
+
 }
 
 %code provides {
@@ -58,11 +61,61 @@
 %union
 {
  /* YYLTYPE */
-  int  			      integerVal;
-  double 			    doubleVal;
-  std::string*		stringVal;
+  int  			                            integerVal;
+  Corpo                                 *corpo;
+  double 			                          doubleVal;
+  Comando                               *comando; 
+  Programa                              *programa;
+  NodeExpr                              *nodeExpr;
+  TipoCampos                            *tipoCampo;
+  Declaracoes                           *declaracoes;
+  ArgRegistro                           *argRegistro;
+  ArgFunc                               *arcFunc;
+  std::string                           *modificador;
+  std::string                           *stringVal;
+  NodeCallFunc                          *nodeCallFunc;
+  DeclaracaoVar                         *declaracaoVar;
+  Literal                              *literal;
+  DescritorTipo                         *descritorTipo;
+  DeclaracaoTipo                        *declaracaoTipo;
+  LocalArmazenamento                    *localArmazenamento;
+  std::vector<Comando>                  *acao;
+  AbstractDeclacaoFuncao                *declaracaoFuncao;
+  std::vector<TipoCampos>               *tipoCampos;
+  std::vector<DeclaracaoVar>            *declaracoesGlobais;
+  std::vector<DeclaracaoTipo>           *declaracoesTipo;
+  std::vector<DeclaracaoFuncao>         *declaracoesFuncao;
+  NodeBinOp *nodeBinOp;
 }
 
+// TIPOS
+
+%type <programa> program;
+%type <declaracoes> declaracoes;
+%type <acao> acao;
+%type <declaracaoTipo> declaracao_tipo;
+%type <tipoCampo> tipo_campo;
+%type <corpo> corpo;
+%type <tipoCampos> tipo_campos;
+%type <descritorTipo> descritor_tipo;
+%type <declaracoesTipo> lista_declaracao_de_tipo;
+%type <declaracoesFuncao> lista_declaracao_de_funcao;
+%type <declaracoesGlobais> lista_declaracao_de_globais;
+%type <argRegistro> campos;
+%type <declaracaoVar> declaracao_variavel;
+%type <declaracaoFuncao> declaracao_funcao;
+%type <nodeExpr> parametro;
+%type <nodeCallFunc> chamada_de_funcao;
+%type <localArmazenamento> local_de_armazenamento;
+%type <comando> comando;
+%type <argRegistro> arg;
+%type <modificador> modificador;
+%type <nodeExpr> expr;
+%type <nodeBinOp> expressao_logica;
+%type <nodeBinOp> expressao_relacional;
+%type <nodeBinOp> expressao_aritmetica;
+%type <literal> literal;
+%
 /* Tokens */
 
 %token              TOK_EOF 0       "end of file"
@@ -127,36 +180,35 @@
 %left IGUALDADE DIFERENTE MAIOR MENOR MAIORIGUAL MENORIGUAL
 %left ADICAO SUBTRACAO
 %left MULTIPLICACAO DIVISAO
-
 %%
 
 /* programa */
 
-program : declaracoes
-  acao
+program : declaracoes 
+  acao {$$ = new Programa($1, $2);}
 
-declaracoes: lista_declaracao_de_tipo lista_declaracao_de_globais lista_declaracao_de_funcao
-
+declaracoes: lista_declaracao_de_tipo lista_declaracao_de_globais lista_declaracao_de_funcao {$$ = new Declaracoes($1, $2, $3);}
+// std::vector<DeclaracaoTipo>> declaracaoVector;
 /* Tipos */
 
 lista_declaracao_de_tipo:
-  | TIPO DOISPONTOS lista_declaracao_tipo
+  | TIPO DOISPONTOS lista_declaracao_tipo { } // ver
 
 lista_declaracao_tipo: declaracao_tipo
   | lista_declaracao_tipo declaracao_tipo
 
-declaracao_tipo: IDENTIFICADOR IGUAL descritor_tipo 
+declaracao_tipo: IDENTIFICADOR IGUAL descritor_tipo {$$ = new DeclaracaoTipo($1, $3)}
 
-descritor_tipo: IDENTIFICADOR                                     {std::cout << "declaração do tipo identificador: " << *$1 << std::endl;}
-  | ABRECHAVE tipo_campos FECHACHAVE                              {std::cout << "declaração do tipo registro" << std::endl;}
-  | ABRECOLCHETE tipo_constantes FECHACOLCHETE DE IDENTIFICADOR   {std::cout << "declaração do tipo vetor: " << *$1 << std::endl;}
+descritor_tipo: IDENTIFICADOR                                     {$$ = new DescritorTipoId($1);}
+  | ABRECHAVE tipo_campos FECHACHAVE                              {$$ = new DescritorTipoReg($2)}
+  | ABRECOLCHETE tipo_constantes FECHACOLCHETE DE IDENTIFICADOR   {$$ = new DescritorTipoVetor($2, $5)}
 
-tipo_campos: tipo_campos VIRGULA tipo_campo
-  | tipo_campo
+tipo_campos: tipo_campos VIRGULA tipo_campo {} // Descobrir como fazer
+  | tipo_campo {}
 
-tipo_campo: IDENTIFICADOR DOISPONTOS IDENTIFICADOR
+tipo_campo: IDENTIFICADOR DOISPONTOS IDENTIFICADOR {$$ = new TipoCampos($1, $3)}
 
-tipo_constantes: TIPOINTEIRO
+tipo_constantes: TIPOINTEIRO // Descobrir como fazer
   | tipo_constantes VIRGULA TIPOINTEIRO
 
 /* Variáveis */
@@ -167,103 +219,103 @@ lista_declaracao_de_globais:
 lista_declaracao_variavel: declaracao_variavel
   | lista_declaracao_variavel declaracao_variavel
 
-declaracao_variavel: IDENTIFICADOR DOISPONTOS IDENTIFICADOR ATRIBUICAO expr {std::cout << "declaração da variável: " << *$1 << std::endl;}
+declaracao_variavel: IDENTIFICADOR DOISPONTOS IDENTIFICADOR ATRIBUICAO expr {$$ = new DeclaracaoVar($1, $3, $5); }
 
 criacao_de_registro: campos
   | criacao_de_registro VIRGULA campos
 
-campos: IDENTIFICADOR IGUAL expr
+campos: IDENTIFICADOR IGUAL expr {$$ = new ArgRegistro($1, $3); }
 
 /* Funções */
 
-lista_declaracao_de_funcao: /* empty */
-  | FUNCAO DOISPONTOS lista_declaracao_funcao 
+lista_declaracao_de_funcao: 
+  | FUNCAO DOISPONTOS lista_declaracao_funcao {} // descobrir como fazer
 
-lista_declaracao_funcao: declaracao_funcao 
-  | lista_declaracao_funcao declaracao_funcao
+lista_declaracao_funcao: declaracao_funcao // descobrir como fazer
+  | lista_declaracao_funcao declaracao_funcao // descobrir como fazer
 
-declaracao_funcao: IDENTIFICADOR ABREPARENTESE lista_args FECHAPARENTESE IGUAL corpo            {std::cout << "declaração de procedimento: " << *$1 << std::endl;}
-  | IDENTIFICADOR ABREPARENTESE lista_args FECHAPARENTESE DOISPONTOS IDENTIFICADOR IGUAL corpo  {std::cout << "declaração de função: " << *$1 <<  std::endl;}
+declaracao_funcao: IDENTIFICADOR ABREPARENTESE lista_args FECHAPARENTESE IGUAL corpo            {$$ = new DeclaracaoProcedimento($1, $3, $6)}
+  | IDENTIFICADOR ABREPARENTESE lista_args FECHAPARENTESE DOISPONTOS IDENTIFICADOR IGUAL corpo  {$$ = new DeclaracaoFuncao($1, $3, $6, $8)}
 
-lista_args: /* empty */
+lista_args: 
   | arg
   | lista_args VIRGULA arg
 
-arg: modificador IDENTIFICADOR DOISPONTOS IDENTIFICADOR
+arg: modificador IDENTIFICADOR DOISPONTOS IDENTIFICADOR {$$ = new ArgFunc($1, $2, $4);}
 
-modificador: VALOR
-  | REF
+modificador: VALOR {$$ = $1}
+  | REF {$$ = $1}
 
 corpo: declaracoes_de_locais
-  acao
+  acao {$$ = new Corpo($1, $2)}
 
-declaracoes_de_locais: /* empty */
-  | LOCAL DOISPONTOS lista_declaracao_variavel
+declaracoes_de_locais: 
+  | LOCAL DOISPONTOS lista_declaracao_variavel {} // descobrir como fazer
 
 /* ação */
 
-acao: ACAO DOISPONTOS lista_comandos
+acao: ACAO DOISPONTOS lista_comandos {} // TODO: descobrir como fazer
 
 /* Comandos */
 
-lista_comandos: comando
+lista_comandos: comando //ultimo
   | lista_comandos PONTOVIRGULA comando
 
-comando: local_de_armazenamento ATRIBUICAO expr {} // check
-  | chamada_de_funcao // check
-  | SE expr VERDADEIRO lista_comandos FSE // check
-  | SE expr VERDADEIRO lista_comandos FALSO lista_comandos FSE // check
-  | PARA IDENTIFICADOR DE expr LIMITE expr FACA lista_comandos FPARA // check
-  | ENQUANTO expr FACA lista_comandos FENQUANTO // check
-  | PARE  // check
-  | CONTINUE // check
-  | RETORNE expr // check
+comando: local_de_armazenamento ATRIBUICAO expr {$$ = new ComandoAtribuicao($1, $3); }
+  | chamada_de_funcao {$$ = $1; }
+  | SE expr VERDADEIRO lista_comandos FSE {$$ = new ComandoIf($2, $4); }
+  | SE expr VERDADEIRO lista_comandos FALSO lista_comandos FSE {$$ = new ComandoIfElse($2, $4, $6); }
+  | PARA IDENTIFICADOR DE expr LIMITE expr FACA lista_comandos FPARA {$$ = new ComandoFor($2, $4, $6, $8); }
+  | ENQUANTO expr FACA lista_comandos FENQUANTO  {$$ = new ComandoWhile($2, $4); }
+  | PARE  {$$ = new ComandoPare(); }
+  | CONTINUE {$$ = new ComandoContinue(); }
+  | RETORNE expr {$$ = new ComandoRetorne($1); }
 
-local_de_armazenamento: IDENTIFICADOR // check
-  | local_de_armazenamento PONTO IDENTIFICADOR {}
-  | local_de_armazenamento ABRECOLCHETE lista_expr FECHACOLCHETE
+local_de_armazenamento: IDENTIFICADOR {$$ = new LocalIdentificador($1); }
+  | local_de_armazenamento PONTO IDENTIFICADOR {$$ = new LocalRegistro($1, $3); }
+  | local_de_armazenamento ABRECOLCHETE lista_expr FECHACOLCHETE {$$ = new LocalVetor($1, $3); }
 
 lista_expr: expr
   | lista_expr VIRGULA expr
 
-chamada_de_funcao: IDENTIFICADOR ABREPARENTESE lista_parametros FECHAPARENTESE {std::cout << "chamada da função: " << *$1 << std::endl;}
+chamada_de_funcao: IDENTIFICADOR ABREPARENTESE lista_parametros FECHAPARENTESE {$$ = new NodeCallFunc($1, $3); } 
 
 lista_parametros: /* empty */
   | parametro
   | lista_parametros VIRGULA parametro
 
-parametro: expr
+parametro: expr {$$ = new NodeExpr($1); }
 
 /* Expressões */
 
-expr: expressao_logica // check
-  | expressao_relacional // check
-  | expressao_aritmetica // check
-  | ABRECHAVE criacao_de_registro FECHACHAVE // retorna um ponteiro para o registro -- check
-  | NULO // check
-  | ABREPARENTESE expr FECHAPARENTESE // expressão_com_parênteses -- check
-  | chamada_de_funcao // -- check
-  | local_de_armazenamento // -- check
-  | literal // inteiro, real ou cadeia - check
+expr: expressao_logica {$$  = $1}
+  | expressao_relacional {$$  = $1}
+  | expressao_aritmetica {$$  = $1}
+  | ABRECHAVE criacao_de_registro FECHACHAVE {$$ = $2} // retorna um ponteiro para o registro
+  | NULO {$$ = new NodeNulo()} 
+  | ABREPARENTESE expr FECHAPARENTESE {$$ = new NodeExprComParen($2)} 
+  | chamada_de_funcao {$$ = $1}
+  | local_de_armazenamento {$$ = $1 } 
+  | literal {$$ = $1} 
 
-expressao_logica: expr E expr {std::cout << "Op de and" << std::endl;}
-  | expr OU expr              {std::cout << "Op de or" << std::endl;}
+expressao_logica: expr E expr {$$ = new NodeBinOp($1, $2, $3); }
+  | expr OU expr              {$$ = new NodeBinOp($1, $2, $3); }
 
-expressao_relacional: expr IGUALDADE expr   {std::cout << "Op de igualdade" << std::endl;}
-  | expr DIFERENTE expr                     {std::cout << "Op de diferença" << std::endl;}
-  | expr MAIOR expr                         {std::cout << "Op de maior" << std::endl;}
-  | expr MAIORIGUAL expr                    {std::cout << "Op de maior igual" << std::endl;}
-  | expr MENOR expr                         {std::cout << "Op de menor" << std::endl;}
-  | expr MENORIGUAL expr                    {std::cout << "Op de menor igual" << std::endl;}
+expressao_relacional: expr IGUALDADE expr   {$$ = new NodeBinOp($1, $2, $3); }
+  | expr DIFERENTE expr                     {$$ = new NodeBinOp($1, $2, $3); }
+  | expr MAIOR expr                         {$$ = new NodeBinOp($1, $2, $3); }
+  | expr MAIORIGUAL expr                    {$$ = new NodeBinOp($1, $2, $3); }
+  | expr MENOR expr                         {$$ = new NodeBinOp($1, $2, $3); }
+  | expr MENORIGUAL expr                    {$$ = new NodeBinOp($1, $2, $3); }
 
-expressao_aritmetica: expr ADICAO expr {std::cout << "Op de adição" << std::endl;}
-  | expr SUBTRACAO expr                {std::cout << "Op de subtração" << std::endl;}
-  | expr MULTIPLICACAO expr            {std::cout << "Op de multiplicação" << std::endl;}
-  | expr DIVISAO expr                  {std::cout << "Op de divisão" << std::endl;}
+expressao_aritmetica: expr ADICAO expr      {$$ = new NodeBinOp($1, $2, $3); } 
+  | expr SUBTRACAO expr                     {$$ = new NodeBinOp($1, $2, $3); } 
+  | expr MULTIPLICACAO expr                 {$$ = new NodeBinOp($1, $2, $3); } 
+  | expr DIVISAO expr                       {$$ = new NodeBinOp($1, $2, $3); } 
 
-literal: TIPOINTEIRO
-  | TIPOREAL
-  | TIPOCADEIA
+literal: TIPOINTEIRO {$$ = new NodeInteiro($1)}
+  | TIPOREAL {$$ = new NodeDouble($1)}
+  | TIPOCADEIA {$$ = new NodeCadeia($1)}
 
 %%
 
