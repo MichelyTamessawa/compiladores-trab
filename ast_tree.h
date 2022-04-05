@@ -12,6 +12,7 @@
 namespace classes_arvore
 {
 
+
     class ArgFunc
     {
         std::string modificador;
@@ -21,6 +22,8 @@ namespace classes_arvore
     public:
         ArgFunc(std::string modificador, std::string identificador, std::string tipo) : modificador(modificador), identificador(identificador), tipo(tipo) {}
     };
+
+    std::vector<ArgFunc> argFuncVetor;
 
     class DescritorTipo
     {
@@ -37,6 +40,10 @@ namespace classes_arvore
     public:
         TipoCampos(std::string identificador, std::string tipo) : identificador(identificador), tipo(tipo) {}
     };
+
+    std::vector<TipoCampos> tipoCamposVetor;
+    std::vector<int> tipoConstantes;
+
 
     class DescritorTipoId : public DescritorTipo
     {
@@ -74,6 +81,8 @@ namespace classes_arvore
         virtual ~NodeExpr() {}
     };
 
+    std::vector<NodeExpr> exprVetor;
+
     class ArgRegistro
     {
         std::string identificador;
@@ -82,6 +91,8 @@ namespace classes_arvore
     public:
         ArgRegistro(std::string identificador, NodeExpr expr) : identificador(identificador), expr(expr) {}
     };
+
+    std::vector<ArgRegistro> argRegistroVetor;
 
     class Literal : public NodeExpr
     {
@@ -163,6 +174,8 @@ namespace classes_arvore
 
         virtual ~Comando() {}
     };
+
+    std::vector<Comando> comandosVetor;
 
     // Chamanda de função
     class NodeCallFunc : public NodeExpr, public Comando
@@ -312,6 +325,8 @@ namespace classes_arvore
         DeclaracaoVar(std::string identificador, std::string tipo, NodeExpr valor) : identificador(identificador), tipo(tipo), valor(valor) {}
     };
 
+    std::vector<DeclaracaoVar> declaracaoVarVetor;
+
     class DeclaracaoTipo
     {
         std::string identificador;
@@ -320,6 +335,8 @@ namespace classes_arvore
     public:
         DeclaracaoTipo(std::string identificador, DescritorTipo tipo) : identificador(identificador), tipo(tipo) {}
     };
+
+    std::vector<DeclaracaoTipo> declaracaoTipoVetor;
 
     class AbstractDeclacaoFuncao
     {
@@ -338,6 +355,8 @@ namespace classes_arvore
         DeclaracaoFuncao(std::string nome, std::vector<ArgFunc> args, std::string identificador, Corpo corpo)
             : nome(nome), args(args), identificador(identificador), corpo(corpo) {}
     };
+
+    std::vector<DeclaracaoFuncao> declaracaoFuncVetor;
 
     class DeclaracaoProcedimento : public AbstractDeclacaoFuncao
     {

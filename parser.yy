@@ -67,10 +67,13 @@
   Comando                               *comando; 
   Programa                              *programa;
   NodeExpr                              *nodeExpr;
+  std::vector<NodeExpr>                 *listaExpr;
   TipoCampos                            *tipoCampo;
   Declaracoes                           *declaracoes;
   ArgRegistro                           *argRegistro;
+  std::vector<ArgRegistro>              *argRegistros;
   ArgFunc                               *arcFunc;
+  std::vector<ArgFunc>                               *arcFuncs;
   std::string                           *modificador;
   std::string                           *stringVal;
   NodeCallFunc                          *nodeCallFunc;
@@ -83,8 +86,10 @@
   AbstractDeclacaoFuncao                *declaracaoFuncao;
   std::vector<TipoCampos>               *tipoCampos;
   std::vector<DeclaracaoVar>            *declaracoesGlobais;
+  std::vector<DeclaracaoVar>            *declaracoesVar;
   std::vector<DeclaracaoTipo>           *declaracoesTipo;
   std::vector<DeclaracaoFuncao>         *declaracoesFuncao;
+  std::vector<int>        *tipoConstantes;
   NodeBinOp *nodeBinOp;
 }
 
@@ -93,14 +98,19 @@
 %type <programa> program;
 %type <declaracoes> declaracoes;
 %type <acao> acao;
+%type <acao> lista_comandos;
 %type <declaracaoTipo> declaracao_tipo;
 %type <tipoCampo> tipo_campo;
 %type <corpo> corpo;
 %type <tipoCampos> tipo_campos;
 %type <descritorTipo> descritor_tipo;
 %type <declaracoesTipo> lista_declaracao_de_tipo;
+%type <declaracoesTipo> lista_declaracao_tipo;
 %type <declaracoesFuncao> lista_declaracao_de_funcao;
+%type <declaracoesFuncao> lista_declaracao_funcao;
 %type <declaracoesGlobais> lista_declaracao_de_globais;
+%type <declaracoesVar> declaracoes_de_locais;
+%type <declaracoesGlobais> lista_declaracao_variavel;
 %type <argRegistro> campos;
 %type <declaracaoVar> declaracao_variavel;
 %type <declaracaoFuncao> declaracao_funcao;
@@ -108,14 +118,19 @@
 %type <nodeCallFunc> chamada_de_funcao;
 %type <localArmazenamento> local_de_armazenamento;
 %type <comando> comando;
-%type <argRegistro> arg;
+%type <arcFunc> arg;
+%type <arcFuncs> lista_args;
 %type <modificador> modificador;
 %type <nodeExpr> expr;
 %type <nodeBinOp> expressao_logica;
 %type <nodeBinOp> expressao_relacional;
 %type <nodeBinOp> expressao_aritmetica;
 %type <literal> literal;
-%
+%type <tipoConstantes> tipo_constantes;
+%type <argRegistros> criacao_de_registro;
+%type <listaExpr> lista_expr;
+%type <listaExpr> lista_parametros;
+
 /* Tokens */
 
 %token              TOK_EOF 0       "end of file"
@@ -180,66 +195,67 @@
 %left IGUALDADE DIFERENTE MAIOR MENOR MAIORIGUAL MENORIGUAL
 %left ADICAO SUBTRACAO
 %left MULTIPLICACAO DIVISAO
+
 %%
 
 /* programa */
 
 program : declaracoes 
-  acao {$$ = new Programa($1, $2);}
-
+/*   acao {$$ = new Programa($1, $2);}
+ */
 declaracoes: lista_declaracao_de_tipo lista_declaracao_de_globais lista_declaracao_de_funcao {$$ = new Declaracoes($1, $2, $3);}
 // std::vector<DeclaracaoTipo>> declaracaoVector;
 /* Tipos */
 
 lista_declaracao_de_tipo:
-  | TIPO DOISPONTOS lista_declaracao_tipo { } // ver
+  | TIPO DOISPONTOS lista_declaracao_tipo {$$ = $3;} // ver
 
-lista_declaracao_tipo: declaracao_tipo
-  | lista_declaracao_tipo declaracao_tipo
+lista_declaracao_tipo: declaracao_tipo {declaracaoTipoVetor.push_back($1); $$ = declaracaoTipoVetor;}
+  | lista_declaracao_tipo declaracao_tipo {declaracaoTipoVetor.push_back($1); $$ = declaracaoTipoVetor;}
 
-declaracao_tipo: IDENTIFICADOR IGUAL descritor_tipo {$$ = new DeclaracaoTipo($1, $3)}
+declaracao_tipo: IDENTIFICADOR IGUAL descritor_tipo {$$ = new DeclaracaoTipo($1, $3);}
 
 descritor_tipo: IDENTIFICADOR                                     {$$ = new DescritorTipoId($1);}
-  | ABRECHAVE tipo_campos FECHACHAVE                              {$$ = new DescritorTipoReg($2)}
-  | ABRECOLCHETE tipo_constantes FECHACOLCHETE DE IDENTIFICADOR   {$$ = new DescritorTipoVetor($2, $5)}
+  | ABRECHAVE tipo_campos FECHACHAVE                              {$$ = new DescritorTipoReg($2);}
+  | ABRECOLCHETE tipo_constantes FECHACOLCHETE DE IDENTIFICADOR   {$$ = new DescritorTipoVetor($2, $5);}
 
-tipo_campos: tipo_campos VIRGULA tipo_campo {} // Descobrir como fazer
-  | tipo_campo {}
+tipo_campos: tipo_campos VIRGULA tipo_campo {tipoCamposVetor.push_back($3); $$ = tipoCamposVetor; std::cout << *$1 << std::endl;} // Descobrir como fazer
+  | tipo_campo {tipoCamposVetor.push_back($1); $$ = tipoCamposVetor; std::cout << *$1 << std::endl;}
 
-tipo_campo: IDENTIFICADOR DOISPONTOS IDENTIFICADOR {$$ = new TipoCampos($1, $3)}
+tipo_campo: IDENTIFICADOR DOISPONTOS IDENTIFICADOR {$$ = new TipoCampos($1, $3);}
 
-tipo_constantes: TIPOINTEIRO // Descobrir como fazer
-  | tipo_constantes VIRGULA TIPOINTEIRO
+tipo_constantes: TIPOINTEIRO {tipoConstantes.push_back($1); std::cout << *$1 << std::endl; $$ = tipoConstantes;}// Descobrir como fazer
+  | tipo_constantes VIRGULA TIPOINTEIRO {tipoConstante.push_back($3); std::cout << *$1 << std::endl; $$ = tipoConstantes;}
 
 /* Variáveis */
 
 lista_declaracao_de_globais:
-  | GLOBAL DOISPONTOS lista_declaracao_variavel
+  | GLOBAL DOISPONTOS lista_declaracao_variavel {$$ = $3;}
 
-lista_declaracao_variavel: declaracao_variavel
-  | lista_declaracao_variavel declaracao_variavel
+lista_declaracao_variavel: declaracao_variavel {declaracaoVarVetor.push_back($1); $$ = declaracaoVarVetor;}
+  | lista_declaracao_variavel declaracao_variavel {declaracaoVarVetor.push_back($2); $$ = declaracaoVarVetor;}
 
 declaracao_variavel: IDENTIFICADOR DOISPONTOS IDENTIFICADOR ATRIBUICAO expr {$$ = new DeclaracaoVar($1, $3, $5); }
 
-criacao_de_registro: campos
-  | criacao_de_registro VIRGULA campos
+criacao_de_registro: campos {argRegistroVetor.push_back($1); $$ = argRegistroVetor;}
+  | criacao_de_registro VIRGULA campos {argRegistroVetor.push_back($3); $$ = argRegistroVetor;}
 
 campos: IDENTIFICADOR IGUAL expr {$$ = new ArgRegistro($1, $3); }
 
 /* Funções */
 
 lista_declaracao_de_funcao: 
-  | FUNCAO DOISPONTOS lista_declaracao_funcao {} // descobrir como fazer
+  | FUNCAO DOISPONTOS lista_declaracao_funcao {$$ = $3;}
 
-lista_declaracao_funcao: declaracao_funcao // descobrir como fazer
-  | lista_declaracao_funcao declaracao_funcao // descobrir como fazer
+lista_declaracao_funcao: declaracao_funcao {declaracaoFuncVetor.push_back($1); $$ = declaracaoFuncVetor;}
+  | lista_declaracao_funcao declaracao_funcao {declaracaoFuncVetor.push_back($2); $$ = declaracaoFuncVetor;}
 
 declaracao_funcao: IDENTIFICADOR ABREPARENTESE lista_args FECHAPARENTESE IGUAL corpo            {$$ = new DeclaracaoProcedimento($1, $3, $6)}
   | IDENTIFICADOR ABREPARENTESE lista_args FECHAPARENTESE DOISPONTOS IDENTIFICADOR IGUAL corpo  {$$ = new DeclaracaoFuncao($1, $3, $6, $8)}
 
 lista_args: 
-  | arg
-  | lista_args VIRGULA arg
+  | arg {argFuncVetor.push_back($1); $$ = argFuncVetor;}
+  | lista_args VIRGULA arg {argFuncVetor.push_back($3); $$ = argFuncVetor;}
 
 arg: modificador IDENTIFICADOR DOISPONTOS IDENTIFICADOR {$$ = new ArgFunc($1, $2, $4);}
 
@@ -250,16 +266,16 @@ corpo: declaracoes_de_locais
   acao {$$ = new Corpo($1, $2)}
 
 declaracoes_de_locais: 
-  | LOCAL DOISPONTOS lista_declaracao_variavel {} // descobrir como fazer
+  | LOCAL DOISPONTOS lista_declaracao_variavel {$$ = $3;} // descobrir como fazer
 
 /* ação */
 
-acao: ACAO DOISPONTOS lista_comandos {} // TODO: descobrir como fazer
+acao: ACAO DOISPONTOS lista_comandos {$$ = $3;} // TODO: descobrir como fazer
 
 /* Comandos */
 
-lista_comandos: comando //ultimo
-  | lista_comandos PONTOVIRGULA comando
+lista_comandos: comando {comandosVetor.push_back($1); $$ = comandosVetor;}
+  | lista_comandos PONTOVIRGULA comando {comandosVetor.push_back($3); $$ = comandosVetor;}
 
 comando: local_de_armazenamento ATRIBUICAO expr {$$ = new ComandoAtribuicao($1, $3); }
   | chamada_de_funcao {$$ = $1; }
@@ -275,14 +291,14 @@ local_de_armazenamento: IDENTIFICADOR {$$ = new LocalIdentificador($1); }
   | local_de_armazenamento PONTO IDENTIFICADOR {$$ = new LocalRegistro($1, $3); }
   | local_de_armazenamento ABRECOLCHETE lista_expr FECHACOLCHETE {$$ = new LocalVetor($1, $3); }
 
-lista_expr: expr
-  | lista_expr VIRGULA expr
+lista_expr: expr {exprVetor.push_back($1); $$ = $1;}
+  | lista_expr VIRGULA expr {exprVetor.push_back($3); $$ = exprVetor;}
 
 chamada_de_funcao: IDENTIFICADOR ABREPARENTESE lista_parametros FECHAPARENTESE {$$ = new NodeCallFunc($1, $3); } 
 
 lista_parametros: /* empty */
-  | parametro
-  | lista_parametros VIRGULA parametro
+  | parametro {exprVetor.push_back($1); $$ = $1;}
+  | lista_parametros VIRGULA parametro {exprVetor.push_back($3); $$ = $1;}
 
 parametro: expr {$$ = new NodeExpr($1); }
 
@@ -316,7 +332,6 @@ expressao_aritmetica: expr ADICAO expr      {$$ = new NodeBinOp($1, $2, $3); }
 literal: TIPOINTEIRO {$$ = new NodeInteiro($1)}
   | TIPOREAL {$$ = new NodeDouble($1)}
   | TIPOCADEIA {$$ = new NodeCadeia($1)}
-
 %%
 
 namespace Simples {
