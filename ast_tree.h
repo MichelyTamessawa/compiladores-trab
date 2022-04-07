@@ -1,6 +1,5 @@
-#include <stdio.h>
+
 #include <string>
-#include <iostream>
 #include <cctype>
 #include <cstdio>
 #include <cstdlib>
@@ -12,7 +11,6 @@
 namespace classes_arvore
 {
 
-
     class ArgFunc
     {
         std::string modificador;
@@ -22,8 +20,6 @@ namespace classes_arvore
     public:
         ArgFunc(std::string modificador, std::string identificador, std::string tipo) : modificador(modificador), identificador(identificador), tipo(tipo) {}
     };
-
-    std::vector<ArgFunc> argFuncVetor;
 
     class DescritorTipo
     {
@@ -41,10 +37,6 @@ namespace classes_arvore
         TipoCampos(std::string identificador, std::string tipo) : identificador(identificador), tipo(tipo) {}
     };
 
-    std::vector<TipoCampos> tipoCamposVetor;
-    std::vector<int> tipoConstantes;
-
-
     class DescritorTipoId : public DescritorTipo
     {
         std::string identificador;
@@ -58,7 +50,7 @@ namespace classes_arvore
         std::vector<TipoCampos> campos;
 
     public:
-        DescritorTipoReg(std::string identificador, std::vector<TipoCampos> campos) : campos(campos) {}
+        DescritorTipoReg(std::vector<TipoCampos> campos) : campos(campos) {}
     };
 
     class DescritorTipoVetor : public DescritorTipo
@@ -67,7 +59,7 @@ namespace classes_arvore
         std::string tipoVetor;
 
     public:
-        DescritorTipoVetor(std::string identificador, std::vector<int> constantes, std::string tipoVetor) : constantes(constantes), tipoVetor(tipoVetor) {}
+        DescritorTipoVetor(std::vector<int> constantes, std::string tipoVetor) : constantes(constantes), tipoVetor(tipoVetor) {}
     };
 
     // Expressões
@@ -81,8 +73,6 @@ namespace classes_arvore
         virtual ~NodeExpr() {}
     };
 
-    std::vector<NodeExpr> exprVetor;
-
     class ArgRegistro
     {
         std::string identificador;
@@ -92,7 +82,13 @@ namespace classes_arvore
         ArgRegistro(std::string identificador, NodeExpr expr) : identificador(identificador), expr(expr) {}
     };
 
-    std::vector<ArgRegistro> argRegistroVetor;
+    class ListArgRegistro : public NodeExpr
+    {
+        std::vector<ArgRegistro> args;
+
+    public:
+        ListArgRegistro(std::vector<ArgRegistro> args) : NodeExpr("lista_args"), args(args) {}
+    };
 
     class Literal : public NodeExpr
     {
@@ -141,13 +137,13 @@ namespace classes_arvore
     // ==, -, +, /, *, >=, >, <, <=, &, |, !=
     class NodeBinOp : public NodeExpr
     {
-        std::unique_ptr<NodeExpr> exprEsq;
+        NodeExpr exprEsq;
         std::string Op;
-        std::unique_ptr<NodeExpr> exprDir;
+        NodeExpr exprDir;
 
     public:
-        NodeBinOp(std::unique_ptr<NodeExpr> exprEsq, std::string op, std::unique_ptr<NodeExpr> exprDir)
-            : NodeExpr("operador"), exprEsq(std::move(exprEsq)), Op(op), exprDir(std::move(exprDir)) {}
+        NodeBinOp(NodeExpr exprEsq, std::string op, NodeExpr exprDir)
+            : NodeExpr("operador"), exprEsq(exprEsq), Op(op), exprDir(exprDir) {}
     };
 
     class NodeNulo : public NodeExpr
@@ -175,18 +171,16 @@ namespace classes_arvore
         virtual ~Comando() {}
     };
 
-    std::vector<Comando> comandosVetor;
-
     // Chamanda de função
     class NodeCallFunc : public NodeExpr, public Comando
     {
         std::string nameFunc;
-        std::vector<std::unique_ptr<NodeExpr>> params;
+        std::vector<NodeExpr> params;
 
     public:
         NodeCallFunc(const std::string &nameFunc,
-                     std::vector<std::unique_ptr<NodeExpr>> params)
-            : NodeExpr("chamada_de_funcao"), Comando("chamada_de_funcao"), nameFunc(nameFunc), params(std::move(params)) {} // validar dps
+                     std::vector<NodeExpr> params)
+            : NodeExpr("chamada_de_funcao"), Comando("chamada_de_funcao"), nameFunc(nameFunc), params(params) {} // validar dps
     };
 
     class NodeCriacaoRegistro : public NodeExpr
@@ -304,16 +298,6 @@ namespace classes_arvore
 
     // Declarações
 
-    class Corpo
-    {
-
-        std::vector<DeclaracaoVar> declaracoes;
-        std::vector<Comando> comandos;
-
-    public:
-        Corpo(std::vector<DeclaracaoVar> declaracoes, std::vector<Comando> comandos) : declaracoes(declaracoes), comandos(comandos) {}
-    };
-
     // Local
     class DeclaracaoVar
     {
@@ -325,7 +309,15 @@ namespace classes_arvore
         DeclaracaoVar(std::string identificador, std::string tipo, NodeExpr valor) : identificador(identificador), tipo(tipo), valor(valor) {}
     };
 
-    std::vector<DeclaracaoVar> declaracaoVarVetor;
+    class Corpo
+    {
+
+        std::vector<DeclaracaoVar> declaracoes;
+        std::vector<Comando> comandos;
+
+    public:
+        Corpo(std::vector<DeclaracaoVar> declaracoes, std::vector<Comando> comandos) : declaracoes(declaracoes), comandos(comandos) {}
+    };
 
     class DeclaracaoTipo
     {
@@ -335,8 +327,6 @@ namespace classes_arvore
     public:
         DeclaracaoTipo(std::string identificador, DescritorTipo tipo) : identificador(identificador), tipo(tipo) {}
     };
-
-    std::vector<DeclaracaoTipo> declaracaoTipoVetor;
 
     class AbstractDeclacaoFuncao
     {
@@ -356,8 +346,6 @@ namespace classes_arvore
             : nome(nome), args(args), identificador(identificador), corpo(corpo) {}
     };
 
-    std::vector<DeclaracaoFuncao> declaracaoFuncVetor;
-
     class DeclaracaoProcedimento : public AbstractDeclacaoFuncao
     {
         std::string nome;
@@ -373,10 +361,10 @@ namespace classes_arvore
     {
         std::vector<DeclaracaoTipo> declaracoesTipo;
         std::vector<DeclaracaoVar> declaracoesGlobais;
-        std::vector<DeclaracaoFuncao> declaracoesFuncao;
+        std::vector<AbstractDeclacaoFuncao> declaracoesFuncao;
 
     public:
-        Declaracoes(std::vector<DeclaracaoTipo> declaracoesTipo, std::vector<DeclaracaoVar> declaracoesGlobais, std::vector<DeclaracaoFuncao> declaracoesFuncao)
+        Declaracoes(std::vector<DeclaracaoTipo> declaracoesTipo, std::vector<DeclaracaoVar> declaracoesGlobais, std::vector<AbstractDeclacaoFuncao> declaracoesFuncao)
             : declaracoesTipo(declaracoesTipo), declaracoesGlobais(declaracoesGlobais), declaracoesFuncao(declaracoesFuncao) {}
     };
     // programa
