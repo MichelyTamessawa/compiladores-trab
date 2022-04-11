@@ -16,3 +16,5 @@ O que fazer:
 - Inicializar árvore no parser
 - Construir nó raiz com os 4 nó filhos
 - Como fazer quando é listagem
+
+- Alterar no parser a atribuição dos push_back (retornar a função passando a head e o tail)
