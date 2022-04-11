@@ -17,25 +17,11 @@
   #include "location.hh"
   #include "position.hh"
   #include <stdio.h>
-  #include "ast_tree.h"
-
-  using namespace classes_arvore;
- 
+  #include "arvore.hh"
 }
 
 %code provides {
-  
-  std::vector<ArgFunc> argFuncVetor;
-  std::vector<TipoCampos> tipoCamposVetor;
-  std::vector<int> tipoConstantes;
-  std::vector<NodeExpr> exprVetor;
-  std::vector<ArgRegistro> argRegistroVetor;
-  std::vector<Comando> comandosVetor;
-  std::vector<DeclaracaoVar> declaracaoVarVetor;
-  std::vector<DeclaracaoTipo> declaracaoTipoVetor;
-  std::vector<AbstractDeclacaoFuncao> declaracaoFuncVetor;
-  
-  namespace Simples  {
+   namespace Simples  {
     // Forward declaration of the Driver class
     class Driver;
 
@@ -100,7 +86,7 @@
   std::vector<TipoCampos>               *tipoCampos;
   std::vector<DeclaracaoVar>            *declaracoesGlobais;
   std::vector<DeclaracaoVar>            *declaracoesVar;
-  std::vector<DeclaracaoTipo>           *declaracoesTipo;
+  declaracaoTipoVetor          *declaracoesTipo;
   std::vector<AbstractDeclacaoFuncao>         *declaracoesFuncao;
   std::vector<int>        *tipoConstantes;
   NodeBinOp *nodeBinOp;
@@ -223,8 +209,8 @@ declaracoes: lista_declaracao_de_tipo lista_declaracao_de_globais lista_declarac
 lista_declaracao_de_tipo: {}
   | TIPO DOISPONTOS lista_declaracao_tipo {$$ = $3;} // ver
 
-lista_declaracao_tipo: declaracao_tipo {declaracaoTipoVetor.push_back(*$1); $$ = &declaracaoTipoVetor;}
-  | lista_declaracao_tipo declaracao_tipo {declaracaoTipoVetor.push_back(*$2); $$ = &declaracaoTipoVetor;}
+lista_declaracao_tipo: declaracao_tipo {$$ = DeclaracaoTipoVetor(*$1, NULL);}
+  | declaracao_tipo lista_declaracao_tipo {$$ = DeclaracaoTipoVetor(*$1, *$2);}
 
 declaracao_tipo: IDENTIFICADOR IGUAL descritor_tipo {$$ = new DeclaracaoTipo(*$1, *$3);}
 
