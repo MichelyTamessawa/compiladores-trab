@@ -9,6 +9,14 @@
 #include <vector>
 
 typedef struct declaracaoTipoVetor_ *declaracaoTipoVetor;
+typedef struct declaracaoVarVetor_ *declaracaoVarVetor;
+typedef struct declaracaoFuncVetor_ *declaracaoFuncVetor;
+typedef struct comandosVetor_ *comandosVetor;
+typedef struct argRegistroVetor_ *argRegistroVetor;
+typedef struct exprVetor_ *exprVetor;
+typedef struct tipoConstantes_ *tipoConstantes;
+typedef struct tipoCamposVetor_ *tipoCamposVetor;
+typedef struct argFuncVetor_ *argFuncVetor;
 
 class ArgFunc
 {
@@ -393,5 +401,61 @@ struct declaracaoTipoVetor_
     declaracaoTipoVetor tail;
 };
 
+struct declaracaoVarVetor_
+{
+    DeclaracaoVar head;
+    declaracaoVarVetor tail;
+};
+
+struct declaracaoFuncVetor_
+{
+    AbstractDeclacaoFuncao head;
+    declaracaoFuncVetor tail;
+};
+
+struct comandosVetor_
+{
+    Comando head;
+    comandosVetor tail;
+};
+
+struct argRegistroVetor_
+{
+    ArgRegistro head;
+    argRegistroVetor tail;
+};
+
+struct exprVetor_
+{
+    NodeExpr head;
+    exprVetor tail;
+};
+
+struct tipoConstantes_
+{
+    int head;
+    tipoConstantes tail;
+};
+
+struct tipoCamposVetor_
+{
+    TipoCampos head;
+    tipoCamposVetor tail;
+};
+
+struct argFuncVetor_
+{
+    ArgFunc head;
+    argFuncVetor tail;
+};
+
 /* function prototypes */
+declaracaoVarVetor DeclaracaoVarVetor(DeclaracaoVar head, declaracaoVarVetor tail);
+declaracaoFuncVetor DeclaracaoFuncVetor(AbstractDeclacaoFuncao head, declaracaoFuncVetor tail);
+comandosVetor ComandosVetor(Comando head, comandosVetor tail);
+exprVetor ExprVetor(NodeExpr head, exprVetor tail);
 declaracaoTipoVetor DeclaracaoTipoVetor(DeclaracaoTipo head, declaracaoTipoVetor tail);
+tipoConstantes TipoConstantes(int head, tipoConstantes tail);
+tipoCamposVetor TipoCamposVetor(TipoCampos head, tipoCamposVetor tail);
+argFuncVetor ArgFuncVetor(ArgFunc head, argFuncVetor tail);
+argRegistroVetor ArgRegistroVetor(ArgRegistro head, argRegistroVetor tail);
