@@ -17,7 +17,16 @@
   #include "location.hh"
   #include "position.hh"
   #include <stdio.h>
-  #include "arvore.hh"
+  #include "arvore.h"
+  using namespace AST;
+
+}
+
+%code
+{
+  #include "arvore.h"
+
+  using namespace AST;
 }
 
 %code provides {
@@ -31,6 +40,7 @@
     }
   }
 }
+
 
 /* Require bison 2.3 or later */
 %require "2.4"
@@ -66,13 +76,13 @@
   Comando                               *comando; 
   Programa                              *programa;
   NodeExpr                              *nodeExpr;
-  std::vector<NodeExpr>                 *listaExpr;
+  exprVetor                 *listaExpr;
   TipoCampos                            *tipoCampo;
   Declaracoes                           *declaracoes;
   ArgRegistro                           *argRegistro;
-  std::vector<ArgRegistro>            *argRegistros;
+  argRegistroVetor            *argRegistros;
   ArgFunc                               *arcFunc;
-  std::vector<ArgFunc>                               *arcFuncs;
+  argFuncVetor                               *arcFuncs;
   std::string                           *modificador;
   std::string                           *stringVal;
   NodeCallFunc                          *nodeCallFunc;
@@ -81,14 +91,14 @@
   DescritorTipo                         *descritorTipo;
   DeclaracaoTipo                        *declaracaoTipo;
   LocalArmazenamento                    *localArmazenamento;
-  std::vector<Comando>                  *acao;
+  comandosVetor                  *acao;
   AbstractDeclacaoFuncao                *declaracaoFuncao;
-  std::vector<TipoCampos>               *tipoCampos;
-  std::vector<DeclaracaoVar>            *declaracoesGlobais;
-  std::vector<DeclaracaoVar>            *declaracoesVar;
+  tipoCamposVetor               *tipoCampos;
+  declaracaoVarVetor           *declaracoesGlobais;
+  declaracaoVarVetor           *declaracoesVar;
   declaracaoTipoVetor          *declaracoesTipo;
-  std::vector<AbstractDeclacaoFuncao>         *declaracoesFuncao;
-  std::vector<int>        *tipoConstantes;
+  declaracaoFuncVetor         *declaracoesFuncao;
+  tipoConstantes              *tipoConstantesType;
   NodeBinOp *nodeBinOp;
 }
 
@@ -125,7 +135,7 @@
 %type <nodeBinOp> expressao_relacional;
 %type <nodeBinOp> expressao_aritmetica;
 %type <literal> literal;
-%type <tipoConstantes> tipo_constantes;
+%type <tipoConstantesType> tipo_constantes;
 %type <argRegistros> criacao_de_registro;
 %type <listaExpr> lista_expr;
 %type <listaExpr> lista_parametros;
@@ -209,7 +219,7 @@ declaracoes: lista_declaracao_de_tipo lista_declaracao_de_globais lista_declarac
 lista_declaracao_de_tipo: {}
   | TIPO DOISPONTOS lista_declaracao_tipo {$$ = $3;} // ver
 
-lista_declaracao_tipo: declaracao_tipo {$$ = DeclaracaoTipoVetor(*$1, NULL);}
+lista_declaracao_tipo: declaracao_tipo {$$ = AST::DeclaracaoTipoVetor(*$1, NULL);}
   | declaracao_tipo lista_declaracao_tipo {$$ = DeclaracaoTipoVetor(*$1, *$2);}
 
 declaracao_tipo: IDENTIFICADOR IGUAL descritor_tipo {$$ = new DeclaracaoTipo(*$1, *$3);}
@@ -218,26 +228,26 @@ descritor_tipo: IDENTIFICADOR                                     {$$ = new Desc
   | ABRECHAVE tipo_campos FECHACHAVE                              {$$ = new DescritorTipoReg(*$2);}
   | ABRECOLCHETE tipo_constantes FECHACOLCHETE DE IDENTIFICADOR   {$$ = new DescritorTipoVetor(*$2, *$5);}
 
-tipo_campos: tipo_campos VIRGULA tipo_campo {tipoCamposVetor.push_back(*$3); $$ = &tipoCamposVetor;} // Descobrir como fazer
-  | tipo_campo {tipoCamposVetor.push_back(*$1); $$ = &tipoCamposVetor;}
+tipo_campos: tipo_campo VIRGULA tipo_campos {$$ = TipoCamposVetor(*$1, *$3);} // Descobrir como fazer
+  | tipo_campo {$$ = TipoCamposVetor(*$1, NULL);}
 
 tipo_campo: IDENTIFICADOR DOISPONTOS IDENTIFICADOR {$$ = new TipoCampos(*$1, *$3);}
 
-tipo_constantes: TIPOINTEIRO {tipoConstantes.push_back($1); $$ = &tipoConstantes;}// Descobrir como fazer
-  | tipo_constantes VIRGULA TIPOINTEIRO {tipoConstantes.push_back($3); $$ = &tipoConstantes;}
+tipo_constantes: TIPOINTEIRO {$$ = TipoConstantes($1, NULL);}// Descobrir como fazer
+  | TIPOINTEIRO VIRGULA tipo_constantes  {$$ = TipoConstantes($1, *$3);}
 
 /* Variáveis */
 
 lista_declaracao_de_globais: {}
   | GLOBAL DOISPONTOS lista_declaracao_variavel {$$ = $3;}
 
-lista_declaracao_variavel: declaracao_variavel {declaracaoVarVetor.push_back(*$1); $$ = &declaracaoVarVetor;}
-  | lista_declaracao_variavel declaracao_variavel {declaracaoVarVetor.push_back(*$2); $$ = &declaracaoVarVetor;}
+lista_declaracao_variavel: declaracao_variavel {$$ = DeclaracaoVarVetor(*$1, NULL);}
+  | declaracao_variavel lista_declaracao_variavel  {$$ = DeclaracaoVarVetor(*$1, *$2);}
 
 declaracao_variavel: IDENTIFICADOR DOISPONTOS IDENTIFICADOR ATRIBUICAO expr {$$ = new DeclaracaoVar(*$1, *$3, *$5); }
 
-criacao_de_registro: campos {argRegistroVetor.push_back(*$1); $$ = &argRegistroVetor;}
-  | criacao_de_registro VIRGULA campos {argRegistroVetor.push_back(*$3); $$ = &argRegistroVetor;}
+criacao_de_registro: campos {$$ = ArgRegistroVetor(*$1, NULL);}
+  | campos VIRGULA criacao_de_registro  {$$ = ArgRegistroVetor(*$1, *$3);}
 
 campos: IDENTIFICADOR IGUAL expr {$$ = new ArgRegistro(*$1, *$3); }
 
@@ -246,15 +256,15 @@ campos: IDENTIFICADOR IGUAL expr {$$ = new ArgRegistro(*$1, *$3); }
 lista_declaracao_de_funcao: {}
   | FUNCAO DOISPONTOS lista_declaracao_funcao {$$ = $3;}
 
-lista_declaracao_funcao: declaracao_funcao {declaracaoFuncVetor.push_back(*$1); $$ = &declaracaoFuncVetor;}
-  | lista_declaracao_funcao declaracao_funcao {declaracaoFuncVetor.push_back(*$2); $$ = &declaracaoFuncVetor;}
+lista_declaracao_funcao: declaracao_funcao {$$ = DeclaracaoFuncVetor(*$1, NULL);}
+  | declaracao_funcao lista_declaracao_funcao {$$ = DeclaracaoFuncVetor(*$1, *$2);}
 
 declaracao_funcao: IDENTIFICADOR ABREPARENTESE lista_args FECHAPARENTESE IGUAL corpo            {$$ = new DeclaracaoProcedimento(*$1, *$3, *$6);}
   | IDENTIFICADOR ABREPARENTESE lista_args FECHAPARENTESE DOISPONTOS IDENTIFICADOR IGUAL corpo  {$$ = new DeclaracaoFuncao(*$1, *$3, *$6, *$8);}
 
 lista_args: {}
-  | arg {argFuncVetor.push_back(*$1); $$ = &argFuncVetor;}
-  | lista_args VIRGULA arg {argFuncVetor.push_back(*$3); $$ = &argFuncVetor;}
+  | arg {$$ = ArgFuncVetor(*$1, NULL);}
+  | arg VIRGULA lista_args   {$$ = ArgFuncVetor(*$1, *$3);}
 
 arg: modificador IDENTIFICADOR DOISPONTOS IDENTIFICADOR {$$ = new ArgFunc(*$1, *$2, *$4);}
 
@@ -273,8 +283,8 @@ acao: ACAO DOISPONTOS lista_comandos {$$ = $3;} // TODO: descobrir como fazer
 
 /* Comandos */
 
-lista_comandos: comando {comandosVetor.push_back(*$1); $$ = &comandosVetor;}
-  | lista_comandos PONTOVIRGULA comando {comandosVetor.push_back(*$3); $$ = &comandosVetor;}
+lista_comandos: comando {$$ = ComandosVetor(*$1, NULL);}
+  | comando PONTOVIRGULA lista_comandos   {$$ = ComandosVetor(*$1, *$3);}
 
 comando: local_de_armazenamento ATRIBUICAO expr {$$ = new ComandoAtribuicao(*$1, *$3); }
   | chamada_de_funcao {$$ = $1; }
@@ -290,14 +300,14 @@ local_de_armazenamento: IDENTIFICADOR {$$ = new LocalIdentificador(*$1); }
   | local_de_armazenamento PONTO IDENTIFICADOR {$$ = new LocalRegistro(*$1, *$3); }
   | local_de_armazenamento ABRECOLCHETE lista_expr FECHACOLCHETE {$$ = new LocalVetor(*$1, *$3); }
 
-lista_expr: expr {exprVetor.push_back(*$1); $$ = &exprVetor;}
-  | lista_expr VIRGULA expr {exprVetor.push_back(*$3); $$ = &exprVetor;}
+lista_expr: expr {$$ = ExprVetor(*$1, NULL);}
+  | expr VIRGULA lista_expr   {$$ = ExprVetor(*$1, *$3);}
 
 chamada_de_funcao: IDENTIFICADOR ABREPARENTESE lista_parametros FECHAPARENTESE {$$ = new NodeCallFunc(*$1, *$3); } 
 
 lista_parametros: {}
-  | parametro {exprVetor.push_back(*$1); $$ = &exprVetor;}
-  | lista_parametros VIRGULA parametro {exprVetor.push_back(*$3); $$ = &exprVetor;}
+  | parametro {$$ = ExprVetor(*$1, NULL);}
+  | parametro VIRGULA lista_parametros  {$$ = ExprVetor(*$1, *$3);}
 
 parametro: expr {$$ = new NodeExpr(*$1); }
 
