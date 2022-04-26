@@ -17,16 +17,19 @@
   #include "location.hh"
   #include "position.hh"
   #include <stdio.h>
-  #include "arvore.h"
+  #include "arvore.hh"
+  #include "semantic.hh"
   using namespace AST;
 
 }
 
 %code
 {
-  #include "arvore.h"
+  #include "arvore.hh"
+  #include "semantic.hh"
 
   using namespace AST;
+
 }
 
 %code provides {
@@ -76,29 +79,29 @@
   Comando                               *comando; 
   Programa                              *programa;
   NodeExpr                              *nodeExpr;
-  exprVetor                 *listaExpr;
+  exprVetor                             listaExpr;
   TipoCampos                            *tipoCampo;
   Declaracoes                           *declaracoes;
   ArgRegistro                           *argRegistro;
-  argRegistroVetor            *argRegistros;
+  argRegistroVetor                      argRegistros;
   ArgFunc                               *arcFunc;
-  argFuncVetor                               *arcFuncs;
+  argFuncVetor                          arcFuncs;
   std::string                           *modificador;
   std::string                           *stringVal;
   NodeCallFunc                          *nodeCallFunc;
   DeclaracaoVar                         *declaracaoVar;
-  Literal                              *literal;
+  Literal                               *literal;
   DescritorTipo                         *descritorTipo;
   DeclaracaoTipo                        *declaracaoTipo;
   LocalArmazenamento                    *localArmazenamento;
-  comandosVetor                  *acao;
+  comandosVetor                          acao;
   AbstractDeclacaoFuncao                *declaracaoFuncao;
-  tipoCamposVetor               *tipoCampos;
-  declaracaoVarVetor           *declaracoesGlobais;
-  declaracaoVarVetor           *declaracoesVar;
-  declaracaoTipoVetor          *declaracoesTipo;
-  declaracaoFuncVetor         *declaracoesFuncao;
-  tipoConstantes              *tipoConstantesType;
+  tipoCamposVetor                       tipoCampos;
+  declaracaoVarVetor                    declaracoesGlobais;
+  declaracaoVarVetor                    declaracoesVar;
+  declaracaoTipoVetor                   declaracoesTipo;
+  declaracaoFuncVetor                   declaracoesFuncao;
+  tipoConstantes                        tipoConstantesType;
   NodeBinOp *nodeBinOp;
 }
 
@@ -209,32 +212,31 @@
 
 /* programa */
 
-program : declaracoes 
-   acao {$$ = new Programa(*$1, *$2);}
+program : declaracoes  {ast_root = new Programa(*$1, NULL); semantic::Inicializar(*ast_root);} // TODO: passar pra uma raiz
  
-declaracoes: lista_declaracao_de_tipo lista_declaracao_de_globais lista_declaracao_de_funcao {$$ = new Declaracoes(*$1, *$2, *$3);}
+declaracoes: lista_declaracao_de_tipo lista_declaracao_de_globais lista_declaracao_de_funcao {$$ = new Declaracoes($1, $2, $3);}
 // std::vector<DeclaracaoTipo>> declaracaoVector;
 /* Tipos */
 
 lista_declaracao_de_tipo: {}
   | TIPO DOISPONTOS lista_declaracao_tipo {$$ = $3;} // ver
 
-lista_declaracao_tipo: declaracao_tipo {$$ = AST::DeclaracaoTipoVetor(*$1, NULL);}
-  | declaracao_tipo lista_declaracao_tipo {$$ = DeclaracaoTipoVetor(*$1, *$2);}
+lista_declaracao_tipo: declaracao_tipo {$$ = DeclaracaoTipoVetor(*$1, NULL);}
+  | declaracao_tipo lista_declaracao_tipo {$$ = DeclaracaoTipoVetor(*$1, $2);}
 
 declaracao_tipo: IDENTIFICADOR IGUAL descritor_tipo {$$ = new DeclaracaoTipo(*$1, *$3);}
 
 descritor_tipo: IDENTIFICADOR                                     {$$ = new DescritorTipoId(*$1);}
-  | ABRECHAVE tipo_campos FECHACHAVE                              {$$ = new DescritorTipoReg(*$2);}
-  | ABRECOLCHETE tipo_constantes FECHACOLCHETE DE IDENTIFICADOR   {$$ = new DescritorTipoVetor(*$2, *$5);}
+  | ABRECHAVE tipo_campos FECHACHAVE                              {$$ = new DescritorTipoReg($2);}
+  | ABRECOLCHETE tipo_constantes FECHACOLCHETE DE IDENTIFICADOR   {$$ = new DescritorTipoVetor($2, *$5);}
 
-tipo_campos: tipo_campo VIRGULA tipo_campos {$$ = TipoCamposVetor(*$1, *$3);} // Descobrir como fazer
+tipo_campos: tipo_campo VIRGULA tipo_campos {$$ = TipoCamposVetor(*$1, $3);} // Descobrir como fazer
   | tipo_campo {$$ = TipoCamposVetor(*$1, NULL);}
 
 tipo_campo: IDENTIFICADOR DOISPONTOS IDENTIFICADOR {$$ = new TipoCampos(*$1, *$3);}
 
 tipo_constantes: TIPOINTEIRO {$$ = TipoConstantes($1, NULL);}// Descobrir como fazer
-  | TIPOINTEIRO VIRGULA tipo_constantes  {$$ = TipoConstantes($1, *$3);}
+  | TIPOINTEIRO VIRGULA tipo_constantes  {$$ = TipoConstantes($1, $3);}
 
 /* Variáveis */
 
@@ -242,12 +244,12 @@ lista_declaracao_de_globais: {}
   | GLOBAL DOISPONTOS lista_declaracao_variavel {$$ = $3;}
 
 lista_declaracao_variavel: declaracao_variavel {$$ = DeclaracaoVarVetor(*$1, NULL);}
-  | declaracao_variavel lista_declaracao_variavel  {$$ = DeclaracaoVarVetor(*$1, *$2);}
+  | declaracao_variavel lista_declaracao_variavel  {$$ = DeclaracaoVarVetor(*$1, $2);}
 
 declaracao_variavel: IDENTIFICADOR DOISPONTOS IDENTIFICADOR ATRIBUICAO expr {$$ = new DeclaracaoVar(*$1, *$3, *$5); }
 
 criacao_de_registro: campos {$$ = ArgRegistroVetor(*$1, NULL);}
-  | campos VIRGULA criacao_de_registro  {$$ = ArgRegistroVetor(*$1, *$3);}
+  | campos VIRGULA criacao_de_registro  {$$ = ArgRegistroVetor(*$1, $3);}
 
 campos: IDENTIFICADOR IGUAL expr {$$ = new ArgRegistro(*$1, *$3); }
 
@@ -257,14 +259,14 @@ lista_declaracao_de_funcao: {}
   | FUNCAO DOISPONTOS lista_declaracao_funcao {$$ = $3;}
 
 lista_declaracao_funcao: declaracao_funcao {$$ = DeclaracaoFuncVetor(*$1, NULL);}
-  | declaracao_funcao lista_declaracao_funcao {$$ = DeclaracaoFuncVetor(*$1, *$2);}
+  | declaracao_funcao lista_declaracao_funcao {$$ = DeclaracaoFuncVetor(*$1, $2);}
 
-declaracao_funcao: IDENTIFICADOR ABREPARENTESE lista_args FECHAPARENTESE IGUAL corpo            {$$ = new DeclaracaoProcedimento(*$1, *$3, *$6);}
-  | IDENTIFICADOR ABREPARENTESE lista_args FECHAPARENTESE DOISPONTOS IDENTIFICADOR IGUAL corpo  {$$ = new DeclaracaoFuncao(*$1, *$3, *$6, *$8);}
+declaracao_funcao: IDENTIFICADOR ABREPARENTESE lista_args FECHAPARENTESE IGUAL corpo            {$$ = new DeclaracaoProcedimento(*$1, $3, *$6);}
+  | IDENTIFICADOR ABREPARENTESE lista_args FECHAPARENTESE DOISPONTOS IDENTIFICADOR IGUAL corpo  {$$ = new DeclaracaoFuncao(*$1, $3, *$6, *$8);}
 
 lista_args: {}
   | arg {$$ = ArgFuncVetor(*$1, NULL);}
-  | arg VIRGULA lista_args   {$$ = ArgFuncVetor(*$1, *$3);}
+  | arg VIRGULA lista_args   {$$ = ArgFuncVetor(*$1, $3);}
 
 arg: modificador IDENTIFICADOR DOISPONTOS IDENTIFICADOR {$$ = new ArgFunc(*$1, *$2, *$4);}
 
@@ -272,7 +274,7 @@ modificador: VALOR {$$ = $1;}
   | REF {$$ = $1;}
 
 corpo: declaracoes_de_locais
-  acao {$$ = new Corpo(*$1, *$2);}
+  acao {$$ = new Corpo($1, $2);}
 
 declaracoes_de_locais: {}
   | LOCAL DOISPONTOS lista_declaracao_variavel {$$ = $3;} // descobrir como fazer
@@ -284,30 +286,30 @@ acao: ACAO DOISPONTOS lista_comandos {$$ = $3;} // TODO: descobrir como fazer
 /* Comandos */
 
 lista_comandos: comando {$$ = ComandosVetor(*$1, NULL);}
-  | comando PONTOVIRGULA lista_comandos   {$$ = ComandosVetor(*$1, *$3);}
+  | comando PONTOVIRGULA lista_comandos   {$$ = ComandosVetor(*$1, $3);}
 
 comando: local_de_armazenamento ATRIBUICAO expr {$$ = new ComandoAtribuicao(*$1, *$3); }
   | chamada_de_funcao {$$ = $1; }
-  | SE expr VERDADEIRO lista_comandos FSE {$$ = new ComandoIf(*$2, *$4); }
-  | SE expr VERDADEIRO lista_comandos FALSO lista_comandos FSE {$$ = new ComandoIfElse(*$2, *$4, *$6); }
-  | PARA IDENTIFICADOR DE expr LIMITE expr FACA lista_comandos FPARA {$$ = new ComandoFor(*$2, *$4, *$6, *$8); }
-  | ENQUANTO expr FACA lista_comandos FENQUANTO  {$$ = new ComandoWhile(*$2, *$4); }
+  | SE expr VERDADEIRO lista_comandos FSE {$$ = new ComandoIf(*$2, $4); }
+  | SE expr VERDADEIRO lista_comandos FALSO lista_comandos FSE {$$ = new ComandoIfElse(*$2, $4, $6); }
+  | PARA IDENTIFICADOR DE expr LIMITE expr FACA lista_comandos FPARA {$$ = new ComandoFor(*$2, *$4, *$6, $8); }
+  | ENQUANTO expr FACA lista_comandos FENQUANTO  {$$ = new ComandoWhile(*$2, $4); }
   | PARE  {$$ = new ComandoPare(); }
   | CONTINUE {$$ = new ComandoContinue(); }
   | RETORNE expr {$$ = new ComandoRetorne(*$1); }
 
 local_de_armazenamento: IDENTIFICADOR {$$ = new LocalIdentificador(*$1); }
   | local_de_armazenamento PONTO IDENTIFICADOR {$$ = new LocalRegistro(*$1, *$3); }
-  | local_de_armazenamento ABRECOLCHETE lista_expr FECHACOLCHETE {$$ = new LocalVetor(*$1, *$3); }
+  | local_de_armazenamento ABRECOLCHETE lista_expr FECHACOLCHETE {$$ = new LocalVetor(*$1, $3); }
 
 lista_expr: expr {$$ = ExprVetor(*$1, NULL);}
-  | expr VIRGULA lista_expr   {$$ = ExprVetor(*$1, *$3);}
+  | expr VIRGULA lista_expr   {$$ = ExprVetor(*$1, $3);}
 
-chamada_de_funcao: IDENTIFICADOR ABREPARENTESE lista_parametros FECHAPARENTESE {$$ = new NodeCallFunc(*$1, *$3); } 
+chamada_de_funcao: IDENTIFICADOR ABREPARENTESE lista_parametros FECHAPARENTESE {$$ = new NodeCallFunc(*$1, $3); } 
 
 lista_parametros: {}
   | parametro {$$ = ExprVetor(*$1, NULL);}
-  | parametro VIRGULA lista_parametros  {$$ = ExprVetor(*$1, *$3);}
+  | parametro VIRGULA lista_parametros  {$$ = ExprVetor(*$1, $3);}
 
 parametro: expr {$$ = new NodeExpr(*$1); }
 
@@ -316,7 +318,7 @@ parametro: expr {$$ = new NodeExpr(*$1); }
 expr: expressao_logica {$$  = $1;}
   | expressao_relacional {$$  = $1;}
   | expressao_aritmetica {$$  = $1;}
-  | ABRECHAVE criacao_de_registro FECHACHAVE {$$ = new ListArgRegistro(*$2);}
+  | ABRECHAVE criacao_de_registro FECHACHAVE {$$ = new ListArgRegistro($2);}
   | NULO {$$ = new NodeNulo();} 
   | ABREPARENTESE expr FECHAPARENTESE {$$ = new NodeExprComParen(*$2);} 
   | chamada_de_funcao {$$ = $1;}
