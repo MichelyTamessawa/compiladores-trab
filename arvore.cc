@@ -6,12 +6,26 @@ namespace AST
     S_table _tabelaSimbolos = S_empty();
     Programa *ast_root = (Programa *)malloc(sizeof(*ast_root));
 
+    void insereSimbolosPadroes()
+    {
+        std::string inteiroStr = "inteiro";
+        std::string realStr = "real";
+        std::string cadeiaStr = "cadeia";
+
+        S_symbol inteiroSim = S_Symbol(inteiroStr);
+        S_symbol realSim = S_Symbol(realStr);
+        S_symbol cadeiaSim = S_Symbol(cadeiaStr);
+
+        S_enter(_tabelaSimbolos, inteiroSim, &inteiroStr[0]);
+        S_enter(_tabelaSimbolos, realSim, &realStr[0]);
+        S_enter(_tabelaSimbolos, cadeiaSim, &cadeiaStr[0]);
+    }
+
     declaracaoTipoVetor DeclaracaoTipoVetor(DeclaracaoTipo head, declaracaoTipoVetor tail)
     {
         declaracaoTipoVetor p = (declaracaoTipoVetor)malloc(sizeof(*p));
         p->head = head;
         p->tail = tail;
-        printf("%s\n", p->head.identificador.c_str());
         return p;
     }
 

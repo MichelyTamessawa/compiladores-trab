@@ -1,7 +1,4 @@
 O que fazer:
-- construir AST
-- nao terminal -> insere na arvore (que é unica)
-- a raiz tera 4 nós filhos
 
 - tabelas de simbolos: escopo, nome, valor,  etc...
   1. identificadores que o compilador precisa saber 
@@ -12,9 +9,8 @@ O que fazer:
 - Remover (esconder) identificadores ou grupos de identificadores (para o gerenciamento de escopo)
 - Criar uma função HASH (pro nome do identificador)
 
-// Next steps
-- Inicializar árvore no parser
-- Construir nó raiz com os 4 nó filhos
-- Como fazer quando é listagem
-
-- Alterar no parser a atribuição dos push_back (retornar a função passando a head e o tail)
+------------ DUVIDAS ----------
+- Como lançar erros semânticos.
+- Talvez colocar a linha do erro
+- Quando começar um escopo
+- Gerar código para variável no LLVM

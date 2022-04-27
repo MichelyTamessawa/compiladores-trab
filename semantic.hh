@@ -4,9 +4,8 @@
 
 #include "arvore.hh"
 
-namespace semantic
-{
-    extern bool Inicializar(AST::Programa root);
+namespace semantic {
+bool Inicializar(AST::Programa root);
 }
 
 #endif
