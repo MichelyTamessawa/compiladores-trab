@@ -6,6 +6,7 @@
 #include <cctype>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <llvm-13/llvm/IR/Value.h>
 #include <map>
 #include <memory>
@@ -43,8 +44,6 @@ typedef struct exprVetor_ *exprVetor;
 typedef struct tipoConstantes_ *tipoConstantes;
 typedef struct tipoCamposVetor_ *tipoCamposVetor;
 typedef struct argFuncVetor_ *argFuncVetor;
-
-extern S_table _tabelaSimbolos;
 
 class ArgFunc {
 public:
@@ -111,6 +110,11 @@ public:
   std::string type;
 
   NodeExpr(std::string type) : type(type) {}
+
+  // virtual bool validar() {
+  //   printf("NodeExpr\n");
+  //   return true;
+  // };
 
   virtual ~NodeExpr() {}
 };
@@ -200,6 +204,8 @@ public:
 
   Comando(std::string type) : type(type) {}
 
+  // virtual bool validar() { return true; }
+
   virtual ~Comando() {}
 };
 
@@ -209,7 +215,7 @@ public:
   std::string nameFunc;
   exprVetor params;
 
-  NodeCallFunc(const std::string &nameFunc, exprVetor params)
+  NodeCallFunc(const std::string nameFunc, exprVetor params)
       : NodeExpr("chamada_de_funcao"), Comando("chamada_de_funcao"),
         nameFunc(nameFunc), params(params) {} // validar dps
 };
@@ -224,9 +230,14 @@ public:
 
 // Local
 class LocalArmazenamento : public NodeExpr {
-
 public:
-  LocalArmazenamento() : NodeExpr("local_armazenamento") {}
+  std::string type;
+
+  // virtual bool validar() { return true; }
+
+  virtual ~LocalArmazenamento() {}
+
+  LocalArmazenamento(std::string type) : NodeExpr(type), type(type) {}
 };
 
 class LocalRegistro : public LocalArmazenamento {
@@ -234,16 +245,24 @@ public:
   LocalArmazenamento identificador;
   std::string propriedade;
 
-  LocalRegistro(LocalArmazenamento identificador, std::string &propriedade)
-      : identificador(identificador), propriedade(propriedade) {}
+  LocalRegistro(LocalArmazenamento identificador, std::string propriedade)
+      : LocalArmazenamento("registro"), identificador(identificador),
+        propriedade(propriedade) {}
 };
 
 class LocalIdentificador : public LocalArmazenamento {
 public:
   std::string identificador;
 
-  LocalIdentificador(std::string &identificador)
-      : identificador(identificador) {}
+  // bool validar() {
+  //   printf("Chegou local identificador\n");
+  //   return true;
+  // }
+
+  virtual ~LocalIdentificador() {}
+
+  LocalIdentificador(std::string identificador)
+      : LocalArmazenamento("identificador"), identificador(identificador) {}
 };
 
 class LocalVetor : public LocalArmazenamento {
@@ -252,7 +271,8 @@ public:
   exprVetor lista_expr;
 
   LocalVetor(LocalArmazenamento identificador, exprVetor lista_expr)
-      : identificador(identificador), lista_expr(lista_expr) {}
+      : LocalArmazenamento("vetor"), identificador(identificador),
+        lista_expr(lista_expr) {}
 };
 
 // Comandos
@@ -261,6 +281,22 @@ class ComandoAtribuicao : public Comando {
 public:
   LocalArmazenamento identificador;
   NodeExpr valorExpr;
+
+  bool validar() {
+    printf("Comando atribuicao\n");
+    printf("dsijadasj %s\n", valorExpr.type.c_str());
+
+    if (strcmp(identificador.type.c_str(), "identificador") == 0) {
+
+      LocalIdentificador *localIdentificador =
+          dynamic_cast<LocalIdentificador *>(&identificador);
+
+      printf("teste: %s\n", localIdentificador->identificador.c_str());
+      return true;
+    }
+
+    return true;
+  }
 
   ComandoAtribuicao(LocalArmazenamento identificador, NodeExpr valorExpr)
       : Comando("atribuicao"), identificador(identificador),
@@ -351,47 +387,29 @@ public:
   std::string identificador;
   DescritorTipo tipo;
 
-  bool validar() {
-    // lado esquerdo (identificador)
+  bool validar(S_table tabelaSimbolos) {
     S_symbol idSymbol = S_Symbol(identificador);
 
-    // ver se identificador está na tabela de simbolos
-    if (S_look(_tabelaSimbolos, idSymbol) == NULL) {
+    if (S_look(tabelaSimbolos, idSymbol) == NULL) {
 
-      // inserindo o simbolo na tabela
-      S_enter(_tabelaSimbolos, idSymbol, &identificador[0]);
+      S_enter(tabelaSimbolos, idSymbol, &identificador[0]);
 
-      // validar o tipo
-    }
-    // se estiver na tabela -> erro semantico
-    else {
+    } else {
       printf("\nErro: Tipo \"%s\" já foi declarado.\n", identificador.c_str());
       return false;
     }
 
-    // lado direito (tipo)
     S_symbol tipoSymbol = S_Symbol(tipo.identificador);
 
-    // se nao estiver na tabela -> erro semantico
-    if (S_look(_tabelaSimbolos, tipoSymbol) == NULL) {
+    if (S_look(tabelaSimbolos, tipoSymbol) == NULL) {
       printf("\nErro: Não foi possível encontrar o tipo \"%s\".\n",
              tipo.identificador.c_str());
       return false;
     }
+
+    printf("Validou o tipo certo :) %s\n", identificador.c_str());
     return true;
   };
-
-  Value *traduzir() {
-    printf("%s\n", identificador.c_str());
-
-    Value *V = NamedValues[identificador];
-    if (!V) {
-      printf("Variável não conhecida");
-      return NULL;
-    }
-
-    return V;
-  }
 
   DeclaracaoTipo(std::string identificador, DescritorTipo tipo)
       : identificador(identificador), tipo(tipo) {}
@@ -505,7 +523,6 @@ struct argFuncVetor_ {
 };
 
 /* function prototypes */
-extern void insereSimbolosPadroes();
 extern declaracaoVarVetor DeclaracaoVarVetor(DeclaracaoVar head,
                                              declaracaoVarVetor tail);
 extern declaracaoFuncVetor DeclaracaoFuncVetor(AbstractDeclacaoFuncao head,

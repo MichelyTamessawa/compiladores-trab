@@ -10,7 +10,7 @@ O que fazer:
 - Criar uma função HASH (pro nome do identificador)
 
 ------------ DUVIDAS ----------
-- Como lançar erros semânticos.
-- Talvez colocar a linha do erro
-- Quando começar um escopo
-- Gerar código para variável no LLVM
+- Talvez colocar a linha do erro - O proprio bison faz (criar propriedade na classe e na hora de criar a classe no parser, passar o valor certo)
+- Tentar traduzir um inteiro
+- Tentar printar o inteiro (saber como chamar o print do LLVM)
+- Trocar onde chamamos o semantic - show

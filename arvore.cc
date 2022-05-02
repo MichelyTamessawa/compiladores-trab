@@ -1,96 +1,78 @@
 #include "arvore.hh"
 #include <stdio.h>
 
-namespace AST
-{
-    S_table _tabelaSimbolos = S_empty();
-    Programa *ast_root = (Programa *)malloc(sizeof(*ast_root));
+namespace AST {
+Programa *ast_root = (Programa *)malloc(sizeof(*ast_root));
 
-    void insereSimbolosPadroes()
-    {
-        std::string inteiroStr = "inteiro";
-        std::string realStr = "real";
-        std::string cadeiaStr = "cadeia";
-
-        S_symbol inteiroSim = S_Symbol(inteiroStr);
-        S_symbol realSim = S_Symbol(realStr);
-        S_symbol cadeiaSim = S_Symbol(cadeiaStr);
-
-        S_enter(_tabelaSimbolos, inteiroSim, &inteiroStr[0]);
-        S_enter(_tabelaSimbolos, realSim, &realStr[0]);
-        S_enter(_tabelaSimbolos, cadeiaSim, &cadeiaStr[0]);
-    }
-
-    declaracaoTipoVetor DeclaracaoTipoVetor(DeclaracaoTipo head, declaracaoTipoVetor tail)
-    {
-        declaracaoTipoVetor p = (declaracaoTipoVetor)malloc(sizeof(*p));
-        p->head = head;
-        p->tail = tail;
-        return p;
-    }
-
-    declaracaoVarVetor DeclaracaoVarVetor(DeclaracaoVar head, declaracaoVarVetor tail)
-    {
-        declaracaoVarVetor p = (declaracaoVarVetor)malloc(sizeof(*p));
-        p->head = head;
-        p->tail = tail;
-        return p;
-    }
-
-    declaracaoFuncVetor DeclaracaoFuncVetor(AbstractDeclacaoFuncao head, declaracaoFuncVetor tail)
-    {
-        declaracaoFuncVetor p = (declaracaoFuncVetor)malloc(sizeof(*p));
-        p->head = head;
-        p->tail = tail;
-        return p;
-    }
-
-    comandosVetor ComandosVetor(Comando head, comandosVetor tail)
-    {
-        comandosVetor p = (comandosVetor)malloc(sizeof(*p));
-        p->head = head;
-        p->tail = tail;
-        return p;
-    }
-
-    argRegistroVetor ArgRegistroVetor(ArgRegistro head, argRegistroVetor tail)
-    {
-        argRegistroVetor p = (argRegistroVetor)malloc(sizeof(*p));
-        p->head = head;
-        p->tail = tail;
-        return p;
-    }
-
-    exprVetor ExprVetor(NodeExpr head, exprVetor tail)
-    {
-        exprVetor p = (exprVetor)malloc(sizeof(*p));
-        p->head = head;
-        p->tail = tail;
-        return p;
-    }
-
-    tipoConstantes TipoConstantes(int head, tipoConstantes tail)
-    {
-        tipoConstantes p = (tipoConstantes)malloc(sizeof(*p));
-        p->head = head;
-        p->tail = tail;
-        return p;
-    }
-
-    tipoCamposVetor TipoCamposVetor(TipoCampos head, tipoCamposVetor tail)
-    {
-        tipoCamposVetor p = (tipoCamposVetor)malloc(sizeof(*p));
-        p->head = head;
-        p->tail = tail;
-        return p;
-    }
-
-    argFuncVetor ArgFuncVetor(ArgFunc head, argFuncVetor tail)
-    {
-        argFuncVetor p = (argFuncVetor)malloc(sizeof(*p));
-        p->head = head;
-        p->tail = tail;
-        return p;
-    }
-
+declaracaoTipoVetor DeclaracaoTipoVetor(DeclaracaoTipo head,
+                                        declaracaoTipoVetor tail) {
+  declaracaoTipoVetor p = (declaracaoTipoVetor)malloc(sizeof(*p));
+  p->head = head;
+  p->tail = tail;
+  return p;
 }
+
+declaracaoVarVetor DeclaracaoVarVetor(DeclaracaoVar head,
+                                      declaracaoVarVetor tail) {
+  declaracaoVarVetor p = (declaracaoVarVetor)malloc(sizeof(*p));
+  p->head = head;
+  p->tail = tail;
+  return p;
+}
+
+declaracaoFuncVetor DeclaracaoFuncVetor(AbstractDeclacaoFuncao head,
+                                        declaracaoFuncVetor tail) {
+  declaracaoFuncVetor p = (declaracaoFuncVetor)malloc(sizeof(*p));
+  p->head = head;
+  p->tail = tail;
+  return p;
+}
+
+comandosVetor ComandosVetor(Comando head, comandosVetor tail) {
+  printf("tipo %s\n", head.type.c_str());
+  comandosVetor p = (comandosVetor)malloc(sizeof(*p));
+  p->head = head;
+  p->tail = tail;
+
+  printf("tipo 2 %s\n", p->head.type.c_str());
+  if (p->tail == NULL)
+    printf("boa\n");
+  return p;
+}
+
+argRegistroVetor ArgRegistroVetor(ArgRegistro head, argRegistroVetor tail) {
+  argRegistroVetor p = (argRegistroVetor)malloc(sizeof(*p));
+  p->head = head;
+  p->tail = tail;
+  return p;
+}
+
+exprVetor ExprVetor(NodeExpr head, exprVetor tail) {
+  exprVetor p = (exprVetor)malloc(sizeof(*p));
+  p->head = head;
+  p->tail = tail;
+  return p;
+}
+
+tipoConstantes TipoConstantes(int head, tipoConstantes tail) {
+  tipoConstantes p = (tipoConstantes)malloc(sizeof(*p));
+  p->head = head;
+  p->tail = tail;
+  return p;
+}
+
+tipoCamposVetor TipoCamposVetor(TipoCampos head, tipoCamposVetor tail) {
+  tipoCamposVetor p = (tipoCamposVetor)malloc(sizeof(*p));
+  p->head = head;
+  p->tail = tail;
+  return p;
+}
+
+argFuncVetor ArgFuncVetor(ArgFunc head, argFuncVetor tail) {
+  argFuncVetor p = (argFuncVetor)malloc(sizeof(*p));
+  p->head = head;
+  p->tail = tail;
+  return p;
+}
+
+} // namespace AST

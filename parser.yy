@@ -212,7 +212,7 @@
 
 /* programa */
 
-program : declaracoes  {ast_root = new Programa(*$1, NULL); semantic::Inicializar(*ast_root);} // TODO: passar pra uma raiz
+program :  declaracoes acao  {ast_root = new Programa(*$1, $2);} 
  
 declaracoes: lista_declaracao_de_tipo lista_declaracao_de_globais lista_declaracao_de_funcao {$$ = new Declaracoes($1, $2, $3);}
 // std::vector<DeclaracaoTipo>> declaracaoVector;
@@ -285,7 +285,7 @@ acao: ACAO DOISPONTOS lista_comandos {$$ = $3;} // TODO: descobrir como fazer
 
 /* Comandos */
 
-lista_comandos: comando {$$ = ComandosVetor(*$1, NULL);}
+lista_comandos: comando {std::cout << "caiu aqui" << std::endl; $$ = ComandosVetor(*$1, NULL);}
   | comando PONTOVIRGULA lista_comandos   {$$ = ComandosVetor(*$1, $3);}
 
 comando: local_de_armazenamento ATRIBUICAO expr {$$ = new ComandoAtribuicao(*$1, *$3); }
@@ -298,7 +298,7 @@ comando: local_de_armazenamento ATRIBUICAO expr {$$ = new ComandoAtribuicao(*$1,
   | CONTINUE {$$ = new ComandoContinue(); }
   | RETORNE expr {$$ = new ComandoRetorne(*$1); }
 
-local_de_armazenamento: IDENTIFICADOR {$$ = new LocalIdentificador(*$1); }
+local_de_armazenamento: IDENTIFICADOR { $$ = new LocalIdentificador(*$1); }
   | local_de_armazenamento PONTO IDENTIFICADOR {$$ = new LocalRegistro(*$1, *$3); }
   | local_de_armazenamento ABRECOLCHETE lista_expr FECHACOLCHETE {$$ = new LocalVetor(*$1, $3); }
 
