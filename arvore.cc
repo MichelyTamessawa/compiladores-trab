@@ -29,12 +29,10 @@ declaracaoFuncVetor DeclaracaoFuncVetor(AbstractDeclacaoFuncao head,
 }
 
 comandosVetor ComandosVetor(Comando head, comandosVetor tail) {
-  printf("tipo %s\n", head.type.c_str());
   comandosVetor p = (comandosVetor)malloc(sizeof(*p));
   p->head = head;
   p->tail = tail;
 
-  printf("tipo 2 %s\n", p->head.type.c_str());
   if (p->tail == NULL)
     printf("boa\n");
   return p;

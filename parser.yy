@@ -288,7 +288,7 @@ acao: ACAO DOISPONTOS lista_comandos {$$ = $3;} // TODO: descobrir como fazer
 lista_comandos: comando {std::cout << "caiu aqui" << std::endl; $$ = ComandosVetor(*$1, NULL);}
   | comando PONTOVIRGULA lista_comandos   {$$ = ComandosVetor(*$1, $3);}
 
-comando: local_de_armazenamento ATRIBUICAO expr {$$ = new ComandoAtribuicao(*$1, *$3); }
+comando: local_de_armazenamento ATRIBUICAO expr {$$ = new Comando(new ComandoAtribuicao(*$1, *$3)); }
   | chamada_de_funcao {$$ = $1; }
   | SE expr VERDADEIRO lista_comandos FSE {$$ = new ComandoIf(*$2, $4); }
   | SE expr VERDADEIRO lista_comandos FALSO lista_comandos FSE {$$ = new ComandoIfElse(*$2, $4, $6); }

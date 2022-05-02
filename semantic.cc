@@ -72,17 +72,16 @@ bool analiseDeclaracoes(Declaracoes declaracoes, S_table tabelaSimbolos) {
 
 bool analiseAcoes(comandosVetor acoes) {
 
-  if (std::strcmp(acoes->head.type.c_str(), "atribuicao") == 0) {
+  if (acoes->head.comandoAtribuicao != NULL) {
     printf("Sim\n");
-    ComandoAtribuicao *comando = static_cast<ComandoAtribuicao *>(&acoes->head);
+
+    printf("LOOOL %s\n",
+           acoes->head.comandoAtribuicao->identificador.type.c_str());
 
     printf("Deu bom\n");
 
-    if (comando == NULL)
-      printf("aiai em\n");
-
-    if (!(comando->validar()))
-      return false;
+    // if (!(comando->validar()))
+    // return false;
   }
 
   return true;
