@@ -90,7 +90,7 @@
   std::string                           *stringVal;
   NodeCallFunc                          *nodeCallFunc;
   DeclaracaoVar                         *declaracaoVar;
-  Literal                               *literal;
+  NodeExpr                               *literal;
   DescritorTipo                         *descritorTipo;
   DeclaracaoTipo                        *declaracaoTipo;
   LocalArmazenamento                    *localArmazenamento;
@@ -102,7 +102,7 @@
   declaracaoTipoVetor                   declaracoesTipo;
   declaracaoFuncVetor                   declaracoesFuncao;
   tipoConstantes                        tipoConstantesType;
-  NodeBinOp *nodeBinOp;
+  NodeExpr *nodeBinOp;
 }
 
 // TIPOS
@@ -226,9 +226,9 @@ lista_declaracao_tipo: declaracao_tipo {$$ = DeclaracaoTipoVetor(*$1, NULL);}
 
 declaracao_tipo: IDENTIFICADOR IGUAL descritor_tipo {$$ = new DeclaracaoTipo(*$1, *$3);}
 
-descritor_tipo: IDENTIFICADOR                                     {$$ = new DescritorTipoId(*$1);}
-  | ABRECHAVE tipo_campos FECHACHAVE                              {$$ = new DescritorTipoReg($2);}
-  | ABRECOLCHETE tipo_constantes FECHACOLCHETE DE IDENTIFICADOR   {$$ = new DescritorTipoVetor($2, *$5);}
+descritor_tipo: IDENTIFICADOR                                     {$$ = new DescritorTipo(*$1, NULL, NULL, "", "identificador");}
+  | ABRECHAVE tipo_campos FECHACHAVE                              {$$ = new DescritorTipo("", $2, NULL, "", "registro");}
+  | ABRECOLCHETE tipo_constantes FECHACOLCHETE DE IDENTIFICADOR   {$$ = new DescritorTipo("", NULL, $2, *$5, "vetor");}
 
 tipo_campos: tipo_campo VIRGULA tipo_campos {$$ = TipoCamposVetor(*$1, $3);} // Descobrir como fazer
   | tipo_campo {$$ = TipoCamposVetor(*$1, NULL);}
@@ -261,8 +261,8 @@ lista_declaracao_de_funcao: {}
 lista_declaracao_funcao: declaracao_funcao {$$ = DeclaracaoFuncVetor(*$1, NULL);}
   | declaracao_funcao lista_declaracao_funcao {$$ = DeclaracaoFuncVetor(*$1, $2);}
 
-declaracao_funcao: IDENTIFICADOR ABREPARENTESE lista_args FECHAPARENTESE IGUAL corpo            {$$ = new DeclaracaoProcedimento(*$1, $3, *$6);}
-  | IDENTIFICADOR ABREPARENTESE lista_args FECHAPARENTESE DOISPONTOS IDENTIFICADOR IGUAL corpo  {$$ = new DeclaracaoFuncao(*$1, $3, *$6, *$8);}
+declaracao_funcao: IDENTIFICADOR ABREPARENTESE lista_args FECHAPARENTESE IGUAL corpo            {$$ = new AbstractDeclacaoFuncao(*$1, $3, "", $6, "procedimento");}
+  | IDENTIFICADOR ABREPARENTESE lista_args FECHAPARENTESE DOISPONTOS IDENTIFICADOR IGUAL corpo  {$$ = new AbstractDeclacaoFuncao(*$1, $3, *$6, $8, "funcao");}
 
 lista_args: {}
   | arg {$$ = ArgFuncVetor(*$1, NULL);}
@@ -288,19 +288,19 @@ acao: ACAO DOISPONTOS lista_comandos {$$ = $3;} // TODO: descobrir como fazer
 lista_comandos: comando {std::cout << "caiu aqui" << std::endl; $$ = ComandosVetor(*$1, NULL);}
   | comando PONTOVIRGULA lista_comandos   {$$ = ComandosVetor(*$1, $3);}
 
-comando: local_de_armazenamento ATRIBUICAO expr {$$ = new Comando(new ComandoAtribuicao(*$1, *$3)); }
-  | chamada_de_funcao {$$ = $1; }
-  | SE expr VERDADEIRO lista_comandos FSE {$$ = new ComandoIf(*$2, $4); }
-  | SE expr VERDADEIRO lista_comandos FALSO lista_comandos FSE {$$ = new ComandoIfElse(*$2, $4, $6); }
-  | PARA IDENTIFICADOR DE expr LIMITE expr FACA lista_comandos FPARA {$$ = new ComandoFor(*$2, *$4, *$6, $8); }
-  | ENQUANTO expr FACA lista_comandos FENQUANTO  {$$ = new ComandoWhile(*$2, $4); }
-  | PARE  {$$ = new ComandoPare(); }
-  | CONTINUE {$$ = new ComandoContinue(); }
-  | RETORNE expr {$$ = new ComandoRetorne(*$1); }
+comando: local_de_armazenamento ATRIBUICAO expr { std::cout << "PQ????\n" << std::endl;$$ = new Comando(new ComandoAtribuicao($1, $3), NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "atribuicao"); }
+  | chamada_de_funcao {$$ = new Comando(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, $1, "comando"); }
+  | SE expr VERDADEIRO lista_comandos FSE {$$ = new Comando(NULL, new ComandoIf(*$2, $4), NULL, NULL, NULL , NULL ,NULL, NULL, NULL, "if"); }
+  | SE expr VERDADEIRO lista_comandos FALSO lista_comandos FSE {$$ = new Comando(NULL, NULL, new ComandoIfElse(*$2, $4, $6), NULL, NULL, NULL, NULL, NULL, NULL, "ifelse"); }
+  | PARA IDENTIFICADOR DE expr LIMITE expr FACA lista_comandos FPARA {$$ = new Comando(NULL, NULL, NULL, new ComandoFor(*$2, *$4, *$6, $8), NULL, NULL, NULL, NULL, NULL, "for"); }
+  | ENQUANTO expr FACA lista_comandos FENQUANTO  {$$ = new Comando(NULL, NULL, NULL, NULL, new ComandoWhile(*$2, $4), NULL, NULL, NULL, NULL, "while"); }
+  | PARE  {$$ = new Comando(NULL, NULL, NULL, NULL, NULL, new ComandoPare(), NULL, NULL, NULL, "pare"); }
+  | CONTINUE {$$ = new Comando(NULL, NULL, NULL, NULL, NULL, NULL, new ComandoContinue(), NULL, NULL, "continue"); }
+  | RETORNE expr {$$ = new Comando(NULL, NULL, NULL, NULL, NULL, NULL, NULL, new ComandoRetorne(*$2), NULL, "retorne"); }
 
-local_de_armazenamento: IDENTIFICADOR { $$ = new LocalIdentificador(*$1); }
-  | local_de_armazenamento PONTO IDENTIFICADOR {$$ = new LocalRegistro(*$1, *$3); }
-  | local_de_armazenamento ABRECOLCHETE lista_expr FECHACOLCHETE {$$ = new LocalVetor(*$1, $3); }
+local_de_armazenamento: IDENTIFICADOR { std::cout << "LOOOO\n" << std::endl; $$ = new LocalArmazenamento(NULL, NULL, NULL, new LocalIdentificador(*$1), "local_identificador"); }
+  | local_de_armazenamento PONTO IDENTIFICADOR {$$ = new LocalArmazenamento($1, new LocalRegistro(*$3), NULL, NULL, "registro"); }
+  | local_de_armazenamento ABRECOLCHETE lista_expr FECHACOLCHETE {$$ = new LocalArmazenamento($1, NULL, new LocalVetor($3), NULL, "vetor"); }
 
 lista_expr: expr {$$ = ExprVetor(*$1, NULL);}
   | expr VIRGULA lista_expr   {$$ = ExprVetor(*$1, $3);}
@@ -311,38 +311,38 @@ lista_parametros: {}
   | parametro {$$ = ExprVetor(*$1, NULL);}
   | parametro VIRGULA lista_parametros  {$$ = ExprVetor(*$1, $3);}
 
-parametro: expr {$$ = new NodeExpr(*$1); }
+parametro: expr {$$ = $1; }
 
 /* Expressões */
 
 expr: expressao_logica {$$  = $1;}
   | expressao_relacional {$$  = $1;}
   | expressao_aritmetica {$$  = $1;}
-  | ABRECHAVE criacao_de_registro FECHACHAVE {$$ = new ListArgRegistro($2);}
-  | NULO {$$ = new NodeNulo();} 
-  | ABREPARENTESE expr FECHAPARENTESE {$$ = new NodeExprComParen(*$2);} 
-  | chamada_de_funcao {$$ = $1;}
-  | local_de_armazenamento {$$ = $1; } 
+  | ABRECHAVE criacao_de_registro FECHACHAVE {$$ = new NodeExpr("criacao_reg", new ListArgRegistro($2), NULL, NULL, NULL, "", NULL, NULL, NULL, NULL, NULL);}
+  | NULO {$$ = new NodeExpr("nulo", NULL, NULL, NULL, NULL, "", NULL, NULL, NULL, NULL, NULL);} 
+  | ABREPARENTESE expr FECHAPARENTESE {$$ = new NodeExpr("expr_paren", NULL, NULL, NULL, NULL, "", NULL, $2, NULL, NULL ,NULL);} 
+  | chamada_de_funcao {$$ = new NodeExpr("chamada_func", NULL, NULL, NULL, NULL, "", NULL, NULL, NULL, $1, NULL);}
+  | local_de_armazenamento {$$ = new NodeExpr("local_armaz", NULL, NULL, NULL, NULL, "", NULL, NULL, $1, NULL, NULL); } 
   | literal {$$ = $1;} 
 
-expressao_logica: expr E expr {$$ = new NodeBinOp(*$1, "&", *$3); }
-  | expr OU expr              {$$ = new NodeBinOp(*$1, *$2, *$3); }
+expressao_logica: expr E expr {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, "&", $3, NULL, NULL, NULL, NULL); }
+  | expr OU expr              {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, "|", $3, NULL, NULL, NULL, NULL); }
 
-expressao_relacional: expr IGUALDADE expr   {$$ = new NodeBinOp(*$1, *$2, *$3); }
-  | expr DIFERENTE expr                     {$$ = new NodeBinOp(*$1, *$2, *$3); }
-  | expr MAIOR expr                         {$$ = new NodeBinOp(*$1, *$2, *$3); }
-  | expr MAIORIGUAL expr                    {$$ = new NodeBinOp(*$1, *$2, *$3); }
-  | expr MENOR expr                         {$$ = new NodeBinOp(*$1, *$2, *$3); }
-  | expr MENORIGUAL expr                    {$$ = new NodeBinOp(*$1, *$2, *$3); }
+expressao_relacional: expr IGUALDADE expr   {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, *$2, $3, NULL, NULL, NULL, NULL); }
+  | expr DIFERENTE expr                     {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, *$2, $3, NULL, NULL, NULL, NULL); }
+  | expr MAIOR expr                         {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, *$2, $3, NULL, NULL, NULL, NULL); }
+  | expr MAIORIGUAL expr                    {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, *$2, $3, NULL, NULL, NULL, NULL); }
+  | expr MENOR expr                         {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, *$2, $3, NULL, NULL, NULL, NULL); }
+  | expr MENORIGUAL expr                    {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, *$2, $3, NULL, NULL, NULL, NULL); }
 
-expressao_aritmetica: expr ADICAO expr      {$$ = new NodeBinOp(*$1, *$2, *$3); } 
-  | expr SUBTRACAO expr                     {$$ = new NodeBinOp(*$1, *$2, *$3); } 
-  | expr MULTIPLICACAO expr                 {$$ = new NodeBinOp(*$1, *$2, *$3); } 
-  | expr DIVISAO expr                       {$$ = new NodeBinOp(*$1, *$2, *$3); } 
+expressao_aritmetica: expr ADICAO expr      {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, *$2, $3, NULL, NULL, NULL, NULL); } 
+  | expr SUBTRACAO expr                     {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, *$2, $3, NULL, NULL, NULL, NULL); } 
+  | expr MULTIPLICACAO expr                 {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, *$2, $3, NULL, NULL, NULL, NULL); } 
+  | expr DIVISAO expr                       {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, *$2, $3, NULL, NULL, NULL, NULL); } 
 
-literal: TIPOINTEIRO {$$ = new NodeInteiro($1);}
-  | TIPOREAL {$$ = new NodeDouble($1);}
-  | TIPOCADEIA {$$ = new NodeCadeia(*$1);}
+literal: TIPOINTEIRO {std::cout << "Literal\n?" << std::endl; $$ = new NodeExpr("literal_int", NULL, new Literal("inteiro", $1, "", -1), NULL, NULL, "", NULL, NULL, NULL, NULL, NULL);}
+  | TIPOREAL {$$ = new NodeExpr("literal_real", NULL, new Literal("real", -1, "", $1), NULL, NULL, "", NULL, NULL, NULL, NULL, NULL);}
+  | TIPOCADEIA {$$ = new NodeExpr("literal_cadeia", NULL, new Literal("cadeia", -1, *$1, -1), NULL, NULL, "", NULL, NULL, NULL, NULL, NULL);}
 %%
 
 namespace Simples {

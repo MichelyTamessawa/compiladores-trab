@@ -57,11 +57,18 @@ public:
 class DescritorTipo {
 
 public:
-  std::string tipoIdentificador;
-  std::string identificador;
+  std::string identificador; // tipo identificador
+  tipoCamposVetor campos;    // tipo registro
+  tipoConstantes constantes; // tipo vetor
+  std::string tipoVetor;     // tipo vetor
 
-  DescritorTipo(std::string tipoIdentificador, std::string identificador)
-      : tipoIdentificador(tipoIdentificador), identificador(identificador) {}
+  std::string type;
+
+  DescritorTipo(std::string identificador, tipoCamposVetor campos,
+                tipoConstantes constantes, std::string tipoVetor,
+                std::string type)
+      : identificador(identificador), campos(campos), constantes(constantes),
+        tipoVetor(tipoVetor), type(type) {}
 
   virtual ~DescritorTipo() {}
 };
@@ -75,46 +82,114 @@ public:
       : identificador(identificador), tipo(tipo) {}
 };
 
-class DescritorTipoId : public DescritorTipo {
-public:
-  std::string identificador;
-
-  // bool validar() {}
-
-  DescritorTipoId(std::string identificador)
-      : DescritorTipo("identificador", identificador),
-        identificador(identificador) {}
-};
-
-class DescritorTipoReg : public DescritorTipo {
-public:
-  tipoCamposVetor campos;
-
-  DescritorTipoReg(tipoCamposVetor campos)
-      : DescritorTipo("registro", ""), campos(campos) {}
-};
-
-class DescritorTipoVetor : public DescritorTipo {
-public:
-  tipoConstantes constantes;
-  std::string tipoVetor;
-
-  DescritorTipoVetor(tipoConstantes constantes, std::string tipoVetor)
-      : DescritorTipo("vetor", ""), constantes(constantes),
-        tipoVetor(tipoVetor) {}
-};
-
 // Expressões
-class NodeExpr {
+
+class ListArgRegistro {
+public:
+  argRegistroVetor args;
+
+  ListArgRegistro(argRegistroVetor args) : args(args) {}
+};
+
+class Literal {
 public:
   std::string type;
 
-  NodeExpr(std::string type) : type(type) {}
+  int inteiro;
+  std::string cadeia;
+  double real;
 
-  // virtual bool validar() {
-  //   printf("NodeExpr\n");
-  //   return true;
-  // };
+  Literal(std::string type, int inteiro, std::string cadeia, double real)
+      : type(type), inteiro(inteiro), cadeia(cadeia), real(real) {}
+};
+
+class NodeVar {
+public:
+  std::string name;
+
+  NodeVar(const std::string name) : name(name) {}
+};
+
+class NodeCallFunc {
+public:
+  std::string nameFunc;
+  exprVetor params;
+
+  NodeCallFunc(const std::string nameFunc, exprVetor params)
+      : nameFunc(nameFunc), params(params) {}
+};
+
+class NodeCriacaoRegistro {
+public:
+  argRegistroVetor args;
+
+  NodeCriacaoRegistro(argRegistroVetor args) : args(args) {}
+};
+
+class LocalIdentificador {
+public:
+  std::string identificador;
+
+  virtual ~LocalIdentificador() {}
+
+  LocalIdentificador(std::string identificador)
+      : identificador(identificador) {}
+};
+
+class LocalRegistro {
+public:
+  std::string propriedade;
+
+  LocalRegistro(std::string propriedade) : propriedade(propriedade) {}
+};
+
+class LocalVetor {
+public:
+  exprVetor lista_expr;
+
+  LocalVetor(exprVetor lista_expr) : lista_expr(lista_expr) {}
+};
+
+class LocalArmazenamento {
+public:
+  LocalArmazenamento *localArmazenamento;
+  LocalRegistro *localRegistro;
+  LocalVetor *localVetor;
+  LocalIdentificador *localIdentificador;
+
+  std::string type;
+
+  LocalArmazenamento(LocalArmazenamento *localArmazenamento,
+                     LocalRegistro *localRegistro, LocalVetor *localVetor,
+                     LocalIdentificador *localIdentificador, std::string type)
+      : localArmazenamento(localArmazenamento), localRegistro(localRegistro),
+        localVetor(localVetor), localIdentificador(localIdentificador),
+        type(type) {}
+};
+
+class NodeExpr {
+public:
+  std::string type;
+  ListArgRegistro *listArgRe;
+  Literal *literal;
+  NodeVar *nodeVar;
+  NodeExpr *exprEsq;
+  std::string Op;
+  NodeExpr *exprDir;
+  NodeExpr *exprComParen;
+  LocalArmazenamento *localArmazenamento;
+  NodeCallFunc *nodeCallFunc;
+  NodeCriacaoRegistro *nodeCriacaoRegistro;
+
+  NodeExpr(std::string type, ListArgRegistro *listArgRe, Literal *literal,
+           NodeVar *nodeVar, NodeExpr *exprEsq, std::string Op,
+           NodeExpr *exprDir, NodeExpr *exprComParen,
+           LocalArmazenamento *localArmazenamento, NodeCallFunc *nodeCallFunc,
+           NodeCriacaoRegistro *nodeCriacaoRegistro)
+      : type(type), listArgRe(listArgRe), literal(literal), nodeVar(nodeVar),
+        exprEsq(exprEsq), Op(Op), exprDir(exprDir), exprComParen(exprComParen),
+        localArmazenamento(localArmazenamento), nodeCallFunc(nodeCallFunc),
+        nodeCriacaoRegistro(nodeCriacaoRegistro) {}
 
   virtual ~NodeExpr() {}
 };
@@ -128,202 +203,52 @@ public:
       : identificador(identificador), expr(expr) {}
 };
 
-class ListArgRegistro : public NodeExpr {
-public:
-  argRegistroVetor args;
-
-  ListArgRegistro(argRegistroVetor args) : NodeExpr("lista_args"), args(args) {}
-};
-
-class Literal : public NodeExpr {
-public:
-  std::string nome;
-
-  Literal(std::string nome) : NodeExpr(nome), nome(nome) {}
-};
-
-// inteiro
-class NodeInteiro : public Literal {
-public:
-  int number;
-
-  NodeInteiro(int number) : Literal("inteiro"), number(number) {}
-};
-
-// cadeia
-class NodeCadeia : public Literal {
-public:
-  std::string cadeia;
-
-  NodeCadeia(std::string cadeia) : Literal("cadeia"), cadeia(cadeia) {}
-};
-
-// reais
-class NodeDouble : public Literal {
-public:
-  double number;
-
-  NodeDouble(double number) : Literal("real"), number(number) {}
-};
-
-// identificadores
-class NodeVar : public NodeExpr {
-public:
-  std::string name;
-
-  NodeVar(const std::string name) : NodeExpr("identificador"), name(name) {}
-};
-
-// ==, -, +, /, *, >=, >, <, <=, &, |, !=
-class NodeBinOp : public NodeExpr {
-public:
-  NodeExpr exprEsq;
-  std::string Op;
-  NodeExpr exprDir;
-
-  NodeBinOp(NodeExpr exprEsq, std::string op, NodeExpr exprDir)
-      : NodeExpr("operador"), exprEsq(exprEsq), Op(op), exprDir(exprDir) {}
-};
-
-class NodeNulo : public NodeExpr {
-
-public:
-  NodeNulo() : NodeExpr("nulo") {}
-};
-
-class NodeExprComParen : public NodeExpr {
-public:
-  NodeExpr expr;
-
-  NodeExprComParen(NodeExpr expr) : NodeExpr("expr_paren"), expr(expr) {}
-};
-
-class LocalArmazenamento : public NodeExpr {
-public:
-  std::string type;
-
-  // virtual bool validar() { return true; }
-
-  LocalArmazenamento(std::string type) : NodeExpr(""), type(type) {}
-};
-
-class LocalRegistro : public LocalArmazenamento {
-public:
-  LocalArmazenamento identificador;
-  std::string propriedade;
-
-  LocalRegistro(LocalArmazenamento identificador, std::string propriedade)
-      : LocalArmazenamento("registro"), identificador(identificador),
-        propriedade(propriedade) {}
-};
-
-class LocalIdentificador : public LocalArmazenamento {
-public:
-  std::string identificador;
-
-  // bool validar() {
-  //   printf("Chegou local identificador\n");
-  //   return true;
-  // }
-
-  virtual ~LocalIdentificador() {}
-
-  LocalIdentificador(std::string identificador)
-      : LocalArmazenamento("identificador"), identificador(identificador) {}
-};
-
 class ComandoAtribuicao {
 public:
-  LocalArmazenamento identificador;
-  NodeExpr valorExpr;
+  LocalArmazenamento *identificador;
+  NodeExpr *valorExpr;
 
   bool validar() {
-    printf("Comando atribuicao\n");
-    printf("jesus: %s\n", identificador.type.c_str());
+    // printf("Comando atribuicao\n");
+    // printf("jesus: %s\n", identificador.type.c_str());
 
-    if (strcmp(identificador.type.c_str(), "identificador") == 0) {
-      printf("teste 3");
+    // if (strcmp(identificador.type.c_str(), "identificador") == 0) {
+    //   printf("teste 3");
 
-      LocalIdentificador *localIdentificador =
-          static_cast<LocalIdentificador *>(&identificador);
+    //   // LocalIdentificador *localIdentificador =
+    //   //     static_cast<LocalIdentificador *>(&identificador);
 
-      printf("teste: %s\n", localIdentificador->identificador.c_str());
-      return true;
-    }
+    //   printf("teste: %s\n", localIdentificador->identificador.c_str());
+    //   return true;
+    // }
 
     return true;
   }
 
-  ComandoAtribuicao(LocalArmazenamento identificador, NodeExpr valorExpr)
+  ComandoAtribuicao(LocalArmazenamento *identificador, NodeExpr *valorExpr)
       : identificador(identificador), valorExpr(valorExpr) {}
 };
 
-class Comando {
-public:
-  ComandoAtribuicao *comandoAtribuicao;
-
-  Comando(ComandoAtribuicao *comandoAtribuicao)
-      : comandoAtribuicao(comandoAtribuicao) {}
-
-  virtual ~Comando() {}
-
-  // virtual bool validar() { return true; }
-};
-
-// Chamanda de função
-class NodeCallFunc : public NodeExpr, public Comando {
-public:
-  std::string nameFunc;
-  exprVetor params;
-
-  NodeCallFunc(const std::string nameFunc, exprVetor params)
-      : NodeExpr("chamada_de_funcao"), Comando(NULL), nameFunc(nameFunc),
-        params(params) {} // validar dps
-};
-
-class NodeCriacaoRegistro : public NodeExpr {
-public:
-  argRegistroVetor args;
-
-  NodeCriacaoRegistro(argRegistroVetor args)
-      : NodeExpr("expr_paren"), args(args) {}
-};
-
-// Local
-
-class LocalVetor : public LocalArmazenamento {
-public:
-  LocalArmazenamento identificador;
-  exprVetor lista_expr;
-
-  LocalVetor(LocalArmazenamento identificador, exprVetor lista_expr)
-      : LocalArmazenamento("vetor"), identificador(identificador),
-        lista_expr(lista_expr) {}
-};
-
-// Comandos
-
-class ComandoIf : public Comando {
+class ComandoIf {
 public:
   NodeExpr expr;
   comandosVetor comandos;
 
   ComandoIf(NodeExpr expr, comandosVetor comandos)
-      : Comando(NULL), expr(expr), comandos(comandos) {}
+      : expr(expr), comandos(comandos) {}
 };
 
-class ComandoIfElse : public Comando {
+class ComandoIfElse {
 public:
   NodeExpr expr;
   comandosVetor comandos;
   comandosVetor comandosElse;
   ComandoIfElse(NodeExpr expr, comandosVetor comandos,
                 comandosVetor comandosElse)
-      : Comando(NULL), expr(expr), comandos(comandos),
-        comandosElse(comandosElse) {}
+      : expr(expr), comandos(comandos), comandosElse(comandosElse) {}
 };
 
-class ComandoFor : public Comando {
+class ComandoFor {
 public:
   std::string identificador;
   NodeExpr exprInicio;
@@ -331,39 +256,65 @@ public:
   comandosVetor comandos;
   ComandoFor(std::string identificador, NodeExpr exprInicio,
              NodeExpr exprLimite, comandosVetor comandos)
-      : Comando(NULL), identificador(identificador), exprInicio(exprInicio),
+      : identificador(identificador), exprInicio(exprInicio),
         exprLimite(exprLimite), comandos(comandos) {}
 };
 
-class ComandoWhile : public Comando {
+class ComandoWhile {
 public:
   NodeExpr expr;
   comandosVetor comandos;
   ComandoWhile(NodeExpr expr, comandosVetor comandos)
-      : Comando(NULL), expr(expr), comandos(comandos) {}
+      : expr(expr), comandos(comandos) {}
 };
 
-class ComandoPare : public Comando {
+class ComandoPare {
 public:
-  ComandoPare() : Comando(NULL) {}
+  ComandoPare() {}
 };
 
-class ComandoContinue : public Comando {
+class ComandoContinue {
 public:
-  ComandoContinue() : Comando(NULL) {}
+  ComandoContinue() {}
 };
 
-class ComandoRetorne : public Comando {
+class ComandoRetorne {
 public:
   NodeExpr valorRetorno;
 
-  ComandoRetorne(NodeExpr valorRetorno)
-      : Comando(NULL), valorRetorno(valorRetorno) {}
+  ComandoRetorne(NodeExpr valorRetorno) : valorRetorno(valorRetorno) {}
 };
 
-// Declarações
+class Comando {
+public:
+  ComandoAtribuicao *comandoAtribuicao;
+  ComandoIf *comandoIf;
+  ComandoIfElse *comandoIfElse;
+  ComandoFor *comandoFor;
+  ComandoWhile *comandoWhile;
+  ComandoPare *comandoPare;
+  ComandoContinue *comandoContinue;
+  ComandoRetorne *comandoRetorne;
+  NodeCallFunc *nodeCallFunc;
 
-// Local
+  std::string type;
+
+  Comando(ComandoAtribuicao *comandoAtribuicao, ComandoIf *comandoIf,
+          ComandoIfElse *comandoIfElse, ComandoFor *comandoFor,
+          ComandoWhile *comandoWhile, ComandoPare *comandoPare,
+          ComandoContinue *comandoContinue, ComandoRetorne *comandoRetorne,
+          NodeCallFunc *nodeCallFunc, std::string type)
+      : comandoAtribuicao(comandoAtribuicao), comandoIf(comandoIf),
+        comandoIfElse(comandoIfElse), comandoFor(comandoFor),
+        comandoWhile(comandoWhile), comandoPare(comandoPare),
+        comandoContinue(comandoContinue), comandoRetorne(comandoRetorne),
+        nodeCallFunc(nodeCallFunc), type(type) {}
+
+  virtual ~Comando() {}
+
+  // virtual bool validar() { return true; }
+};
+
 class DeclaracaoVar {
 public:
   std::string identificador;
@@ -417,30 +368,19 @@ public:
 
 class AbstractDeclacaoFuncao {
 public:
-  AbstractDeclacaoFuncao() {}
-};
-
-// Funções
-class DeclaracaoFuncao : public AbstractDeclacaoFuncao {
-public:
+  // Declaracao funcao e procedimento
   std::string nome;
   argFuncVetor args;
-  std::string identificador; // Tipo de retorno
-  Corpo corpo;
+  std::string identificador; // Somente função
+  Corpo *corpo;
 
-  DeclaracaoFuncao(std::string nome, argFuncVetor args,
-                   std::string identificador, Corpo corpo)
-      : nome(nome), args(args), identificador(identificador), corpo(corpo) {}
-};
+  std::string type;
 
-class DeclaracaoProcedimento : public AbstractDeclacaoFuncao {
-public:
-  std::string nome;
-  argFuncVetor args;
-  Corpo corpo;
-
-  DeclaracaoProcedimento(std::string nome, argFuncVetor args, Corpo corpo)
-      : nome(nome), args(args), corpo(corpo) {}
+  AbstractDeclacaoFuncao(std::string nome, argFuncVetor args,
+                         std::string identificador, Corpo *corpo,
+                         std::string type)
+      : nome(nome), args(args), identificador(identificador), corpo(corpo),
+        type(type) {}
 };
 
 class Declaracoes {

@@ -1,4 +1,5 @@
 Tipo:
     a = inteiro
-    b = real
-    c = cadeia
+
+ação:
+    a := 10

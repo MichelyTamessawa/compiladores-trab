@@ -6,6 +6,7 @@ Programa *ast_root = (Programa *)malloc(sizeof(*ast_root));
 
 declaracaoTipoVetor DeclaracaoTipoVetor(DeclaracaoTipo head,
                                         declaracaoTipoVetor tail) {
+  printf("HEAD TIPO: %s\n", head.identificador.c_str());
   declaracaoTipoVetor p = (declaracaoTipoVetor)malloc(sizeof(*p));
   p->head = head;
   p->tail = tail;
@@ -29,12 +30,12 @@ declaracaoFuncVetor DeclaracaoFuncVetor(AbstractDeclacaoFuncao head,
 }
 
 comandosVetor ComandosVetor(Comando head, comandosVetor tail) {
+  printf("HEAD COMANDO:sdjkaidjsads\n");
+
   comandosVetor p = (comandosVetor)malloc(sizeof(*p));
   p->head = head;
   p->tail = tail;
 
-  if (p->tail == NULL)
-    printf("boa\n");
   return p;
 }
 

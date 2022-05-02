@@ -25,6 +25,6 @@ int main(int argc, char **argv) {
   Simples::Driver driver;
   driver.parse_file(filename);
 
-  semantic::Inicializar(AST::ast_root);
+  // semantic::Inicializar(AST::ast_root);
   return 0;
 }

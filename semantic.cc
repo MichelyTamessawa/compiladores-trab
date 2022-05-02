@@ -70,50 +70,50 @@ bool analiseDeclaracoes(Declaracoes declaracoes, S_table tabelaSimbolos) {
   return true;
 }
 
-bool analiseAcoes(comandosVetor acoes) {
+// bool analiseAcoes(comandosVetor acoes) {
 
-  if (acoes->head.comandoAtribuicao != NULL) {
-    printf("Sim\n");
+//   if (acoes->head.comandoAtribuicao != NULL) {
+//     printf("Sim\n");
 
-    printf("LOOOL %s\n",
-           acoes->head.comandoAtribuicao->identificador.type.c_str());
+//     printf("LOOOL %s\n",
+//            acoes->head.comandoAtribuicao->identificador.type.c_str());
 
-    printf("Deu bom\n");
+//     printf("Deu bom\n");
 
-    // if (!(comando->validar()))
-    // return false;
-  }
+//     // if (!(comando->validar()))
+//     // return false;
+//   }
 
-  return true;
-}
+//   return true;
+// }
 
-bool Inicializar(Programa *root) {
-  printf("Inicializando análise semântica...\n");
+// bool Inicializar(Programa *root) {
+//   printf("Inicializando análise semântica...\n");
 
-  S_table _tabelaSimbolos = S_empty();
+//   S_table _tabelaSimbolos = S_empty();
 
-  // Inicialização das variáveis do LLVM
-  TheContext = std::make_unique<llvm::LLVMContext>();
-  TheModule = std::make_unique<llvm::Module>("my cool jit", *TheContext);
-  Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
+//   // Inicialização das variáveis do LLVM
+//   TheContext = std::make_unique<llvm::LLVMContext>();
+//   TheModule = std::make_unique<llvm::Module>("my cool jit", *TheContext);
+//   Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
 
-  // Inserindo símbolos padrões na tabela de simbolos
-  insereSimbolosPadroes(_tabelaSimbolos);
+//   // Inserindo símbolos padrões na tabela de simbolos
+//   insereSimbolosPadroes(_tabelaSimbolos);
 
-  bool declaracoresCerta =
-      analiseDeclaracoes(root->declaracoes, _tabelaSimbolos);
-  if (!declaracoresCerta) {
-    return false;
-  }
+//   bool declaracoresCerta =
+//       analiseDeclaracoes(root->declaracoes, _tabelaSimbolos);
+//   if (!declaracoresCerta) {
+//     return false;
+//   }
 
-  bool acoesCerta = analiseAcoes(root->acao);
-  if (!acoesCerta) {
-    return false;
-  }
+//   bool acoesCerta = analiseAcoes(root->acao);
+//   if (!acoesCerta) {
+//     return false;
+//   }
 
-  printf("Análise semântica realizada com sucesso\n");
+//   printf("Análise semântica realizada com sucesso\n");
 
-  return true;
-}
+//   return true;
+// }
 
 } // namespace semantic
