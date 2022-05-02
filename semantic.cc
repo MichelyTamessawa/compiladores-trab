@@ -74,13 +74,15 @@ bool analiseAcoes(comandosVetor acoes) {
 
   if (std::strcmp(acoes->head.type.c_str(), "atribuicao") == 0) {
     printf("Sim\n");
-    ComandoAtribuicao *comando =
-        dynamic_cast<ComandoAtribuicao *>(&acoes->head);
+    ComandoAtribuicao *comando = static_cast<ComandoAtribuicao *>(&acoes->head);
 
     printf("Deu bom\n");
 
     if (comando == NULL)
       printf("aiai em\n");
+
+    if (!(comando->validar()))
+      return false;
   }
 
   return true;

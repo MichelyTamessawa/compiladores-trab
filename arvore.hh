@@ -284,7 +284,6 @@ public:
 
   bool validar() {
     printf("Comando atribuicao\n");
-    printf("dsijadasj %s\n", valorExpr.type.c_str());
 
     if (strcmp(identificador.type.c_str(), "identificador") == 0) {
 
