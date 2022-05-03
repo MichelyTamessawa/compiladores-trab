@@ -14,3 +14,9 @@ O que fazer:
 - Tentar traduzir um inteiro
 - Tentar printar o inteiro (saber como chamar o print do LLVM)
 - Trocar onde chamamos o semantic - show
+
+
+
+-------- CORRIGIR ----------
+- Arrumar quanedo não há declarações (da seg fault)
+- Arrumar string das declarações (ta vindo algo zoado)

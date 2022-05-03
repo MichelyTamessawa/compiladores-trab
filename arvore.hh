@@ -69,8 +69,6 @@ public:
                 std::string type)
       : identificador(identificador), campos(campos), constantes(constantes),
         tipoVetor(tipoVetor), type(type) {}
-
-  virtual ~DescritorTipo() {}
 };
 
 class TipoCampos {
@@ -95,11 +93,11 @@ class Literal {
 public:
   std::string type;
 
-  int inteiro;
+  double inteiro;
   std::string cadeia;
   double real;
 
-  Literal(std::string type, int inteiro, std::string cadeia, double real)
+  Literal(std::string type, double inteiro, std::string cadeia, double real)
       : type(type), inteiro(inteiro), cadeia(cadeia), real(real) {}
 };
 
@@ -129,8 +127,6 @@ public:
 class LocalIdentificador {
 public:
   std::string identificador;
-
-  virtual ~LocalIdentificador() {}
 
   LocalIdentificador(std::string identificador)
       : identificador(identificador) {}
@@ -165,6 +161,16 @@ public:
       : localArmazenamento(localArmazenamento), localRegistro(localRegistro),
         localVetor(localVetor), localIdentificador(localIdentificador),
         type(type) {}
+
+  void validar(S_table tabelaSimbolos) {
+    if (localIdentificador != NULL) {
+      S_symbol idSymbol = S_Symbol(localIdentificador->identificador);
+      if (S_look(tabelaSimbolos, idSymbol) == NULL) {
+        printf("Não achou!\n");
+        // Lançar um erro
+      }
+    }
+  }
 };
 
 class NodeExpr {
@@ -191,7 +197,11 @@ public:
         localArmazenamento(localArmazenamento), nodeCallFunc(nodeCallFunc),
         nodeCriacaoRegistro(nodeCriacaoRegistro) {}
 
-  virtual ~NodeExpr() {}
+  void validar() {
+    if (literal != NULL) {
+      printf("Validando node expr\n");
+    }
+  }
 };
 
 class ArgRegistro {
@@ -208,25 +218,20 @@ public:
   LocalArmazenamento *identificador;
   NodeExpr *valorExpr;
 
-  bool validar() {
-    // printf("Comando atribuicao\n");
-    // printf("jesus: %s\n", identificador.type.c_str());
-
-    // if (strcmp(identificador.type.c_str(), "identificador") == 0) {
-    //   printf("teste 3");
-
-    //   // LocalIdentificador *localIdentificador =
-    //   //     static_cast<LocalIdentificador *>(&identificador);
-
-    //   printf("teste: %s\n", localIdentificador->identificador.c_str());
-    //   return true;
-    // }
-
-    return true;
-  }
-
   ComandoAtribuicao(LocalArmazenamento *identificador, NodeExpr *valorExpr)
       : identificador(identificador), valorExpr(valorExpr) {}
+
+  void validar(S_table tabelaSimbolos) {
+    identificador->validar(tabelaSimbolos);
+    valorExpr->validar();
+  }
+
+  void traduzir() {
+    printf("vamo ve\n");
+    Value *aux =
+        ConstantFP::get(*TheContext, APFloat(valorExpr->literal->inteiro));
+    printf("nao deu ruim\n");
+  }
 };
 
 class ComandoIf {
@@ -309,10 +314,6 @@ public:
         comandoWhile(comandoWhile), comandoPare(comandoPare),
         comandoContinue(comandoContinue), comandoRetorne(comandoRetorne),
         nodeCallFunc(nodeCallFunc), type(type) {}
-
-  virtual ~Comando() {}
-
-  // virtual bool validar() { return true; }
 };
 
 class DeclaracaoVar {
@@ -339,10 +340,10 @@ public:
   DescritorTipo tipo;
 
   bool validar(S_table tabelaSimbolos) {
+
     S_symbol idSymbol = S_Symbol(identificador);
 
     if (S_look(tabelaSimbolos, idSymbol) == NULL) {
-
       S_enter(tabelaSimbolos, idSymbol, &identificador[0]);
 
     } else {
@@ -358,7 +359,6 @@ public:
       return false;
     }
 
-    printf("Validou o tipo certo :) %s\n", identificador.c_str());
     return true;
   };
 
@@ -383,67 +383,33 @@ public:
         type(type) {}
 };
 
-class Declaracoes {
-public:
-  declaracaoTipoVetor declaracoesTipo;
-  declaracaoVarVetor declaracoesGlobais;
-  declaracaoFuncVetor declaracoesFuncao;
-
-  Declaracoes(declaracaoTipoVetor declaracoesTipo,
-              declaracaoVarVetor declaracoesGlobais,
-              declaracaoFuncVetor declaracoesFuncao)
-      : declaracoesTipo(declaracoesTipo),
-        declaracoesGlobais(declaracoesGlobais),
-        declaracoesFuncao(declaracoesFuncao) {}
-};
-// programa
-class Programa {
-public:
-  Declaracoes declaracoes;
-  comandosVetor acao;
-
-  Programa(Declaracoes declaracoes, comandosVetor acao)
-      : declaracoes(declaracoes), acao(acao) {}
-};
-
-// extern argFuncVetor argFuncVetor;
-// extern tipoCamposVetor tipoCamposVetor;
-// extern tipoConstantes tipoConstantes;
-// extern exprVetor exprVetor;
-// extern argRegistroVetor argRegistroVetor;
-// extern comandosVetor comandosVetor;
-// extern declaracaoVarVetor declaracaoVarVetor;
-// extern declaracaoTipoVetor declaracaoTipoVetor;
-// extern declaracaoFuncVetor declaracaoFuncVetor;
-
-/*  */
 struct declaracaoTipoVetor_ {
-  DeclaracaoTipo head;
+  DeclaracaoTipo *head;
   declaracaoTipoVetor tail;
 };
 
 struct declaracaoVarVetor_ {
-  DeclaracaoVar head;
+  DeclaracaoVar *head;
   declaracaoVarVetor tail;
 };
 
 struct declaracaoFuncVetor_ {
-  AbstractDeclacaoFuncao head;
+  AbstractDeclacaoFuncao *head;
   declaracaoFuncVetor tail;
 };
 
 struct comandosVetor_ {
-  Comando head;
+  Comando *head;
   comandosVetor tail;
 };
 
 struct argRegistroVetor_ {
-  ArgRegistro head;
+  ArgRegistro *head;
   argRegistroVetor tail;
 };
 
 struct exprVetor_ {
-  NodeExpr head;
+  NodeExpr *head;
   exprVetor tail;
 };
 
@@ -453,13 +419,29 @@ struct tipoConstantes_ {
 };
 
 struct tipoCamposVetor_ {
-  TipoCampos head;
+  TipoCampos *head;
   tipoCamposVetor tail;
 };
 
 struct argFuncVetor_ {
-  ArgFunc head;
+  ArgFunc *head;
   argFuncVetor tail;
+};
+
+// programa
+class Programa {
+public:
+  declaracaoTipoVetor declaracoesTipo;
+  declaracaoVarVetor declaracoesGlobais;
+  declaracaoFuncVetor declaracoesFuncao;
+  comandosVetor acao;
+
+  Programa(declaracaoTipoVetor declaracoesTipo,
+           declaracaoVarVetor declaracoesGlobais,
+           declaracaoFuncVetor declaracoesFuncao, comandosVetor acao)
+      : declaracoesTipo(declaracoesTipo),
+        declaracoesGlobais(declaracoesGlobais),
+        declaracoesFuncao(declaracoesFuncao), acao(acao) {}
 };
 
 /* function prototypes */

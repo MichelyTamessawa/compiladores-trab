@@ -1,10 +1,9 @@
-#include <iostream>
-#include <string>
-#include <unistd.h>
-
 #include "arvore.hh"
 #include "driver.hh"
 #include "semantic.hh"
+#include <iostream>
+#include <string>
+#include <unistd.h>
 
 int main(int argc, char **argv) {
   std::string filename;
@@ -25,6 +24,6 @@ int main(int argc, char **argv) {
   Simples::Driver driver;
   driver.parse_file(filename);
 
-  // semantic::Inicializar(AST::ast_root);
+  semantic::Inicializar(AST::ast_root);
   return 0;
 }

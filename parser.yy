@@ -81,7 +81,6 @@
   NodeExpr                              *nodeExpr;
   exprVetor                             listaExpr;
   TipoCampos                            *tipoCampo;
-  Declaracoes                           *declaracoes;
   ArgRegistro                           *argRegistro;
   argRegistroVetor                      argRegistros;
   ArgFunc                               *arcFunc;
@@ -108,7 +107,6 @@
 // TIPOS
 
 %type <programa> program;
-%type <declaracoes> declaracoes;
 %type <acao> acao;
 %type <acao> lista_comandos;
 %type <declaracaoTipo> declaracao_tipo;
@@ -212,10 +210,8 @@
 
 /* programa */
 
-program :  declaracoes acao  {ast_root = new Programa(*$1, $2);} 
+program : lista_declaracao_de_tipo lista_declaracao_de_globais lista_declaracao_de_funcao acao {ast_root = new Programa($1, $2, $3, $4);} 
  
-declaracoes: lista_declaracao_de_tipo lista_declaracao_de_globais lista_declaracao_de_funcao {$$ = new Declaracoes($1, $2, $3);}
-// std::vector<DeclaracaoTipo>> declaracaoVector;
 /* Tipos */
 
 lista_declaracao_de_tipo: {}
@@ -277,18 +273,18 @@ corpo: declaracoes_de_locais
   acao {$$ = new Corpo($1, $2);}
 
 declaracoes_de_locais: {}
-  | LOCAL DOISPONTOS lista_declaracao_variavel {$$ = $3;} // descobrir como fazer
+  | LOCAL DOISPONTOS lista_declaracao_variavel {$$ = $3;}
 
 /* ação */
 
-acao: ACAO DOISPONTOS lista_comandos {$$ = $3;} // TODO: descobrir como fazer
+acao: ACAO DOISPONTOS lista_comandos {$$ = $3;} 
 
 /* Comandos */
 
-lista_comandos: comando {std::cout << "caiu aqui" << std::endl; $$ = ComandosVetor(*$1, NULL);}
+lista_comandos: comando { $$ = ComandosVetor(*$1, NULL);}
   | comando PONTOVIRGULA lista_comandos   {$$ = ComandosVetor(*$1, $3);}
 
-comando: local_de_armazenamento ATRIBUICAO expr { std::cout << "PQ????\n" << std::endl;$$ = new Comando(new ComandoAtribuicao($1, $3), NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "atribuicao"); }
+comando: local_de_armazenamento ATRIBUICAO expr { $$ = new Comando(new ComandoAtribuicao($1, $3), NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, std::string("atribuicao")); }
   | chamada_de_funcao {$$ = new Comando(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, $1, "comando"); }
   | SE expr VERDADEIRO lista_comandos FSE {$$ = new Comando(NULL, new ComandoIf(*$2, $4), NULL, NULL, NULL , NULL ,NULL, NULL, NULL, "if"); }
   | SE expr VERDADEIRO lista_comandos FALSO lista_comandos FSE {$$ = new Comando(NULL, NULL, new ComandoIfElse(*$2, $4, $6), NULL, NULL, NULL, NULL, NULL, NULL, "ifelse"); }
@@ -298,7 +294,7 @@ comando: local_de_armazenamento ATRIBUICAO expr { std::cout << "PQ????\n" << std
   | CONTINUE {$$ = new Comando(NULL, NULL, NULL, NULL, NULL, NULL, new ComandoContinue(), NULL, NULL, "continue"); }
   | RETORNE expr {$$ = new Comando(NULL, NULL, NULL, NULL, NULL, NULL, NULL, new ComandoRetorne(*$2), NULL, "retorne"); }
 
-local_de_armazenamento: IDENTIFICADOR { std::cout << "LOOOO\n" << std::endl; $$ = new LocalArmazenamento(NULL, NULL, NULL, new LocalIdentificador(*$1), "local_identificador"); }
+local_de_armazenamento: IDENTIFICADOR { $$ = new LocalArmazenamento(NULL, NULL, NULL, new LocalIdentificador(*$1), "local_identificador"); }
   | local_de_armazenamento PONTO IDENTIFICADOR {$$ = new LocalArmazenamento($1, new LocalRegistro(*$3), NULL, NULL, "registro"); }
   | local_de_armazenamento ABRECOLCHETE lista_expr FECHACOLCHETE {$$ = new LocalArmazenamento($1, NULL, new LocalVetor($3), NULL, "vetor"); }
 
@@ -323,7 +319,7 @@ expr: expressao_logica {$$  = $1;}
   | ABREPARENTESE expr FECHAPARENTESE {$$ = new NodeExpr("expr_paren", NULL, NULL, NULL, NULL, "", NULL, $2, NULL, NULL ,NULL);} 
   | chamada_de_funcao {$$ = new NodeExpr("chamada_func", NULL, NULL, NULL, NULL, "", NULL, NULL, NULL, $1, NULL);}
   | local_de_armazenamento {$$ = new NodeExpr("local_armaz", NULL, NULL, NULL, NULL, "", NULL, NULL, $1, NULL, NULL); } 
-  | literal {$$ = $1;} 
+  | literal { $$ = $1;} 
 
 expressao_logica: expr E expr {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, "&", $3, NULL, NULL, NULL, NULL); }
   | expr OU expr              {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, "|", $3, NULL, NULL, NULL, NULL); }
@@ -340,7 +336,7 @@ expressao_aritmetica: expr ADICAO expr      {$$ = new NodeExpr("op_binaria", NUL
   | expr MULTIPLICACAO expr                 {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, *$2, $3, NULL, NULL, NULL, NULL); } 
   | expr DIVISAO expr                       {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, *$2, $3, NULL, NULL, NULL, NULL); } 
 
-literal: TIPOINTEIRO {std::cout << "Literal\n?" << std::endl; $$ = new NodeExpr("literal_int", NULL, new Literal("inteiro", $1, "", -1), NULL, NULL, "", NULL, NULL, NULL, NULL, NULL);}
+literal: TIPOINTEIRO {$$ = new NodeExpr("literal_int", NULL, new Literal("inteiro", $1, "", 0.0), NULL, NULL, "", NULL, NULL, NULL, NULL, NULL);}
   | TIPOREAL {$$ = new NodeExpr("literal_real", NULL, new Literal("real", -1, "", $1), NULL, NULL, "", NULL, NULL, NULL, NULL, NULL);}
   | TIPOCADEIA {$$ = new NodeExpr("literal_cadeia", NULL, new Literal("cadeia", -1, *$1, -1), NULL, NULL, "", NULL, NULL, NULL, NULL, NULL);}
 %%

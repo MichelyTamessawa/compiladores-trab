@@ -18,7 +18,6 @@ using namespace AST;
 namespace semantic {
 
 void insereSimbolosPadroes(S_table tabelaSimbolos) {
-
   std::string inteiroStr = "inteiro";
   std::string realStr = "real";
   std::string cadeiaStr = "cadeia";
@@ -33,12 +32,12 @@ void insereSimbolosPadroes(S_table tabelaSimbolos) {
 }
 
 bool analiseDeclaracaoTipo(declaracaoTipoVetor tipos, S_table tabelaSimbolos) {
-  if (!tipos->head.validar(tabelaSimbolos))
+  if (!tipos->head->validar(tabelaSimbolos))
     return false;
 
   declaracaoTipoVetor aux = tipos->tail;
   while (aux != NULL) {
-    if (!aux->head.validar(tabelaSimbolos))
+    if (!aux->head->validar(tabelaSimbolos))
       return false;
 
     aux = aux->tail;
@@ -50,19 +49,19 @@ bool analiseDeclaracaoTipo(declaracaoTipoVetor tipos, S_table tabelaSimbolos) {
 bool analiseDeclaracaoGlobal(declaracaoVarVetor variaveis) { return true; }
 bool analiseDeclaracaoFuncao(declaracaoFuncVetor funcoes) { return true; }
 
-bool analiseDeclaracoes(Declaracoes declaracoes, S_table tabelaSimbolos) {
+bool analiseDeclaracoes(Programa root, S_table tabelaSimbolos) {
 
-  if (!analiseDeclaracaoTipo(declaracoes.declaracoesTipo, tabelaSimbolos)) {
+  if (!analiseDeclaracaoTipo(root.declaracoesTipo, tabelaSimbolos)) {
     printf("Erro na semântica de declarações de tipo\n");
     return false;
   }
 
-  if (!analiseDeclaracaoGlobal(declaracoes.declaracoesGlobais)) {
+  if (!analiseDeclaracaoGlobal(root.declaracoesGlobais)) {
     printf("Erro na semântica de declarações de tipo\n");
     return false;
   }
 
-  if (!analiseDeclaracaoFuncao(declaracoes.declaracoesFuncao)) {
+  if (!analiseDeclaracaoFuncao(root.declaracoesFuncao)) {
     printf("Erro na semântica de declarações de tipo\n");
     return false;
   }
@@ -70,50 +69,58 @@ bool analiseDeclaracoes(Declaracoes declaracoes, S_table tabelaSimbolos) {
   return true;
 }
 
-// bool analiseAcoes(comandosVetor acoes) {
+bool validacoesAcoes(Comando *comando, S_table tabelaSimbolos) {
+  if (comando->comandoAtribuicao != NULL) {
+    comando->comandoAtribuicao->validar(tabelaSimbolos);
+    comando->comandoAtribuicao->traduzir();
+  }
+  return true;
+}
 
-//   if (acoes->head.comandoAtribuicao != NULL) {
-//     printf("Sim\n");
+bool analiseAcoes(comandosVetor acoes, S_table tabelaSimbolos) {
+  validacoesAcoes(acoes->head, tabelaSimbolos);
 
-//     printf("LOOOL %s\n",
-//            acoes->head.comandoAtribuicao->identificador.type.c_str());
+  comandosVetor aux = acoes->tail;
 
-//     printf("Deu bom\n");
+  while (aux != NULL) {
+    bool validado = validacoesAcoes(aux->head, tabelaSimbolos);
 
-//     // if (!(comando->validar()))
-//     // return false;
-//   }
+    if (!validado)
+      return false;
 
-//   return true;
-// }
+    aux = aux->tail;
+  }
+  printf("rodou tudo\n");
+  return true;
+}
 
-// bool Inicializar(Programa *root) {
-//   printf("Inicializando análise semântica...\n");
+bool Inicializar(Programa *root) {
+  printf("Inicializando análise semântica...\n");
 
-//   S_table _tabelaSimbolos = S_empty();
+  S_table _tabelaSimbolos = S_empty();
 
-//   // Inicialização das variáveis do LLVM
-//   TheContext = std::make_unique<llvm::LLVMContext>();
-//   TheModule = std::make_unique<llvm::Module>("my cool jit", *TheContext);
-//   Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
+  // Inicialização das variáveis do LLVM
+  TheContext = std::make_unique<llvm::LLVMContext>();
+  TheModule = std::make_unique<llvm::Module>("my cool jit", *TheContext);
+  Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
 
-//   // Inserindo símbolos padrões na tabela de simbolos
-//   insereSimbolosPadroes(_tabelaSimbolos);
+  // Inserindo símbolos padrões na tabela de simbolos
+  insereSimbolosPadroes(_tabelaSimbolos);
 
-//   bool declaracoresCerta =
-//       analiseDeclaracoes(root->declaracoes, _tabelaSimbolos);
-//   if (!declaracoresCerta) {
-//     return false;
-//   }
+  // bool declaracoresCerta =
+  // analiseDeclaracoes(root->declaracoes, _tabelaSimbolos);
+  // if (!declaracoresCerta) {
+  // return false;
+  // }
 
-//   bool acoesCerta = analiseAcoes(root->acao);
-//   if (!acoesCerta) {
-//     return false;
-//   }
+  bool acoesCerta = analiseAcoes(root->acao, _tabelaSimbolos);
+  if (!acoesCerta) {
+    return false;
+  }
 
-//   printf("Análise semântica realizada com sucesso\n");
+  printf("Análise semântica realizada com sucesso\n");
 
-//   return true;
-// }
+  return true;
+}
 
 } // namespace semantic
