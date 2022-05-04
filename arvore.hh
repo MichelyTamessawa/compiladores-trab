@@ -2,6 +2,7 @@
 #ifndef ARVORE_H
 #define ARVORE_H
 
+#include <iostream>
 #include "symbol.hh"
 #include <cctype>
 #include <cstdio>
@@ -93,12 +94,16 @@ class Literal {
 public:
   std::string type;
 
-  double inteiro;
+  int inteiro;
   std::string cadeia;
   double real;
 
-  Literal(std::string type, double inteiro, std::string cadeia, double real)
+  Literal(std::string type, int inteiro, std::string cadeia, double real)
       : type(type), inteiro(inteiro), cadeia(cadeia), real(real) {}
+
+  Value* traduzir () {
+    return ConstantInt::get(*TheContext, APInt(32, inteiro, true));
+  }
 };
 
 class NodeVar {
@@ -166,7 +171,7 @@ public:
     if (localIdentificador != NULL) {
       S_symbol idSymbol = S_Symbol(localIdentificador->identificador);
       if (S_look(tabelaSimbolos, idSymbol) == NULL) {
-        printf("Não achou!\n");
+        std::cout << "Nao achou local armazenamento" << std::endl;
         // Lançar um erro
       }
     }
@@ -199,10 +204,14 @@ public:
 
   void validar() {
     if (literal != NULL) {
-      printf("Validando node expr\n");
+      std::cout << "Validando node expr" << std::endl;
     }
   }
-};
+
+  Value* traduzir () {
+    return literal->traduzir();
+  }
+};  
 
 class ArgRegistro {
 public:
@@ -226,11 +235,8 @@ public:
     valorExpr->validar();
   }
 
-  void traduzir() {
-    printf("vamo ve\n");
-    Value *aux =
-        ConstantFP::get(*TheContext, APFloat(valorExpr->literal->inteiro));
-    printf("nao deu ruim\n");
+  Value* traduzir() {
+    return valorExpr->traduzir();
   }
 };
 
@@ -347,15 +353,14 @@ public:
       S_enter(tabelaSimbolos, idSymbol, &identificador[0]);
 
     } else {
-      printf("\nErro: Tipo \"%s\" já foi declarado.\n", identificador.c_str());
+      std::cout << "\nErro: Tipo" << identificador << "já foi declarado." << std::endl; 
       return false;
     }
 
     S_symbol tipoSymbol = S_Symbol(tipo.identificador);
 
     if (S_look(tabelaSimbolos, tipoSymbol) == NULL) {
-      printf("\nErro: Não foi possível encontrar o tipo \"%s\".\n",
-             tipo.identificador.c_str());
+      std::cout << "\nErro: Não foi possível encontrar o tipo" << tipo.identificador << std::endl;
       return false;
     }
 

@@ -1,5 +1,6 @@
 #include "arvore.hh"
 #include <stdio.h>
+#include <iostream>
 
 namespace AST {
 Programa *ast_root;
@@ -7,9 +8,9 @@ Programa *ast_root;
 declaracaoTipoVetor DeclaracaoTipoVetor(DeclaracaoTipo head,
                                         declaracaoTipoVetor tail) {
   declaracaoTipoVetor p = (declaracaoTipoVetor)malloc(sizeof(*p));
-  printf("Primeiro head %s\n", head.identificador.c_str());
+  std::cout << "Primeiro head " << head.identificador << std::endl;
   p->head = &head;
-  printf("P->head %s\n", p->head->identificador.c_str());
+  std::cout << "P->head " << p->head->identificador << std::endl;
 
   p->tail = tail;
 
@@ -40,8 +41,6 @@ comandosVetor ComandosVetor(Comando head, comandosVetor tail) {
 
   p->head = &head;
   p->tail = tail;
-
-  printf("HEAD!!! %s\n", p->head->type.c_str());
 
   return p;
 }
