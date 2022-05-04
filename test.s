@@ -1,5 +1,8 @@
 Tipo:
     a = inteiro
 
+global:
+    b : inteiro := 0
+
 ação:
-    a := 10
+    b := 10

@@ -46,7 +46,21 @@ bool analiseDeclaracaoTipo(declaracaoTipoVetor tipos, S_table tabelaSimbolos) {
   return true;
 }
 
-bool analiseDeclaracaoGlobal(declaracaoVarVetor variaveis) { return true; }
+bool analiseDeclaracaoGlobal(declaracaoVarVetor variaveis,
+                             S_table tabelaSimbolos) {
+  if (!variaveis->head->validar(tabelaSimbolos))
+    return false;
+
+  declaracaoVarVetor aux = variaveis->tail;
+  while (aux != NULL) {
+    if (!aux->head->validar(tabelaSimbolos))
+      return false;
+
+    aux = aux->tail;
+  }
+
+  return true;
+}
 bool analiseDeclaracaoFuncao(declaracaoFuncVetor funcoes) { return true; }
 
 bool analiseDeclaracoes(declaracaoFuncVetor funcVetor,
@@ -58,7 +72,7 @@ bool analiseDeclaracoes(declaracaoFuncVetor funcVetor,
     return false;
   }
 
-  if (!analiseDeclaracaoGlobal(varVetor)) {
+  if (!analiseDeclaracaoGlobal(varVetor, tabelaSimbolos)) {
     std::cout << "Erro na semântica de declarações de globais" << std::endl;
     return false;
   }
@@ -75,7 +89,7 @@ bool validacoesAcoes(Comando *comando, S_table tabelaSimbolos) {
 
   if (comando->comandoAtribuicao != NULL) {
     comando->comandoAtribuicao->validar(tabelaSimbolos);
-    Value *p = comando->comandoAtribuicao->traduzir();
+    comando->comandoAtribuicao->traduzir();
   }
   return true;
 }
