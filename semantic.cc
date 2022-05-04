@@ -49,19 +49,21 @@ bool analiseDeclaracaoTipo(declaracaoTipoVetor tipos, S_table tabelaSimbolos) {
 bool analiseDeclaracaoGlobal(declaracaoVarVetor variaveis) { return true; }
 bool analiseDeclaracaoFuncao(declaracaoFuncVetor funcoes) { return true; }
 
-bool analiseDeclaracoes(Programa root, S_table tabelaSimbolos) {
+bool analiseDeclaracoes(declaracaoFuncVetor funcVetor,
+                        declaracaoTipoVetor tipoVetor,
+                        declaracaoVarVetor varVetor, S_table tabelaSimbolos) {
 
-  if (!analiseDeclaracaoTipo(root.declaracoesTipo, tabelaSimbolos)) {
+  if (!analiseDeclaracaoTipo(tipoVetor, tabelaSimbolos)) {
     std::cout << "Erro na semântica de declarações de tipo" << std::endl;
     return false;
   }
 
-  if (!analiseDeclaracaoGlobal(root.declaracoesGlobais)) {
+  if (!analiseDeclaracaoGlobal(varVetor)) {
     std::cout << "Erro na semântica de declarações de globais" << std::endl;
     return false;
   }
 
-  if (!analiseDeclaracaoFuncao(root.declaracoesFuncao)) {
+  if (!analiseDeclaracaoFuncao(funcVetor)) {
     std::cout << "Erro na semântica de declarações de funcoes" << std::endl;
     return false;
   }
@@ -70,20 +72,18 @@ bool analiseDeclaracoes(Programa root, S_table tabelaSimbolos) {
 }
 
 bool validacoesAcoes(Comando *comando, S_table tabelaSimbolos) {
+
   if (comando->comandoAtribuicao != NULL) {
     comando->comandoAtribuicao->validar(tabelaSimbolos);
     Value *p = comando->comandoAtribuicao->traduzir();
-    std::cout << "Validando a atribuicao..." << std::endl;
-    // int a = PtrToIntInst(p, Type());
-    // std::cout << "value: " << a << std::endl;
   }
   return true;
 }
 
 bool analiseAcoes(comandosVetor acoes, S_table tabelaSimbolos) {
-  return validacoesAcoes(acoes->head, tabelaSimbolos);
+  validacoesAcoes(acoes->head, tabelaSimbolos);
 
-  /* comandosVetor aux = acoes->tail;
+  comandosVetor aux = acoes->tail;
 
   while (aux != NULL) {
     bool validado = validacoesAcoes(aux->head, tabelaSimbolos);
@@ -93,8 +93,7 @@ bool analiseAcoes(comandosVetor acoes, S_table tabelaSimbolos) {
 
     aux = aux->tail;
   }
-  return true; */
-
+  return true;
 }
 
 bool Inicializar(Programa *root) {
@@ -110,11 +109,12 @@ bool Inicializar(Programa *root) {
   // Inserindo símbolos padrões na tabela de simbolos
   insereSimbolosPadroes(_tabelaSimbolos);
 
-  // bool declaracoresCerta =
-  // analiseDeclaracoes(root->declaracoes, _tabelaSimbolos);
-  // if (!declaracoresCerta) {
-  // return false;
-  // }
+  bool declaracoresCerta =
+      analiseDeclaracoes(root->declaracoesFuncao, root->declaracoesTipo,
+                         root->declaracoesGlobais, _tabelaSimbolos);
+  if (!declaracoresCerta) {
+    return false;
+  }
 
   bool acoesCerta = analiseAcoes(root->acao, _tabelaSimbolos);
   if (!acoesCerta) {

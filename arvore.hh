@@ -2,12 +2,12 @@
 #ifndef ARVORE_H
 #define ARVORE_H
 
-#include <iostream>
 #include "symbol.hh"
 #include <cctype>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <iostream>
 #include <llvm-13/llvm/IR/Value.h>
 #include <map>
 #include <memory>
@@ -101,7 +101,7 @@ public:
   Literal(std::string type, int inteiro, std::string cadeia, double real)
       : type(type), inteiro(inteiro), cadeia(cadeia), real(real) {}
 
-  Value* traduzir () {
+  Value *traduzir() {
     return ConstantInt::get(*TheContext, APInt(32, inteiro, true));
   }
 };
@@ -168,6 +168,8 @@ public:
         type(type) {}
 
   void validar(S_table tabelaSimbolos) {
+    std::cout << "Local armazenamento." << std::endl;
+
     if (localIdentificador != NULL) {
       S_symbol idSymbol = S_Symbol(localIdentificador->identificador);
       if (S_look(tabelaSimbolos, idSymbol) == NULL) {
@@ -208,10 +210,8 @@ public:
     }
   }
 
-  Value* traduzir () {
-    return literal->traduzir();
-  }
-};  
+  Value *traduzir() { return literal->traduzir(); }
+};
 
 class ArgRegistro {
 public:
@@ -231,13 +231,12 @@ public:
       : identificador(identificador), valorExpr(valorExpr) {}
 
   void validar(S_table tabelaSimbolos) {
+    std::cout << "Validar atribuicao" << std::endl;
     identificador->validar(tabelaSimbolos);
     valorExpr->validar();
   }
 
-  Value* traduzir() {
-    return valorExpr->traduzir();
-  }
+  Value *traduzir() { return valorExpr->traduzir(); }
 };
 
 class ComandoIf {
@@ -353,14 +352,16 @@ public:
       S_enter(tabelaSimbolos, idSymbol, &identificador[0]);
 
     } else {
-      std::cout << "\nErro: Tipo" << identificador << "já foi declarado." << std::endl; 
+      std::cout << "\nErro: Tipo" << identificador << "já foi declarado."
+                << std::endl;
       return false;
     }
 
     S_symbol tipoSymbol = S_Symbol(tipo.identificador);
 
     if (S_look(tabelaSimbolos, tipoSymbol) == NULL) {
-      std::cout << "\nErro: Não foi possível encontrar o tipo" << tipo.identificador << std::endl;
+      std::cout << "\nErro: Não foi possível encontrar o tipo"
+                << tipo.identificador << std::endl;
       return false;
     }
 
