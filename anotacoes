@@ -1,22 +1,24 @@
-O que fazer:
-
-- tabelas de simbolos: escopo, nome, valor,  etc...
-  1. identificadores que o compilador precisa saber 
-  2. tipagem dos identificadores
-  3. identificadores globais
-- Função de adicionar identificador (insert)
-- Função de procurar identificador (lookup)
-- Remover (esconder) identificadores ou grupos de identificadores (para o gerenciamento de escopo)
-- Criar uma função HASH (pro nome do identificador)
-
 ------------ DUVIDAS ----------
 - Talvez colocar a linha do erro - O proprio bison faz (criar propriedade na classe e na hora de criar a classe no parser, passar o valor certo)
-- Tentar traduzir um inteiro
-- Tentar printar o inteiro (saber como chamar o print do LLVM)
-- Trocar onde chamamos o semantic - show
 
-
+------- TODO ---------
+- Validar atribuição na declaração de globais
+- Validar na atribuição se o lado direito é do mesmo tipo que o lado esquerdo
 
 -------- CORRIGIR ----------
 - Arrumar quanedo não há declarações (da seg fault)
-- Arrumar string das declarações (ta vindo algo zoado)
+
+
+- Como escrever uma atribuicao
+- Como escrever um print
+- O que fazer com o objeto o gerado
+- O ConstantInt::Get já escreve?
+
+
+
+- Criar funcao  main
+- Criar um bloco basico
+- Inserir as instrucoes nesse bloco básico
+
+
+- clang -S -emit-llvm test.c

@@ -1,6 +1,7 @@
 #include "arvore.hh"
 #include "driver.hh"
 #include "semantic.hh"
+#include <cstdlib>
 #include <iostream>
 #include <string>
 #include <unistd.h>
@@ -25,5 +26,7 @@ int main(int argc, char **argv) {
   driver.parse_file(filename);
 
   semantic::Inicializar(AST::ast_root);
+
+  system("clang output.o -o test");
   return 0;
 }

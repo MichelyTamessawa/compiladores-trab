@@ -2,7 +2,8 @@ Tipo:
     a = inteiro
 
 global:
-    b : inteiro := 0
+b : inteiro := 10
 
 ação:
-    b := 10
+    b := 10;
+    imprimei(10)

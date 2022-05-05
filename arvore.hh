@@ -15,6 +15,7 @@
 #include <utility>
 #include <vector>
 
+#include "biblioteca.hh"
 #include "llvm/ADT/APFloat.h"
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/IR/BasicBlock.h"
@@ -31,10 +32,10 @@ using namespace llvm;
 
 namespace AST {
 
-static std::unique_ptr<LLVMContext> TheContext;
-static std::unique_ptr<IRBuilder<>> Builder;
-static std::unique_ptr<Module> TheModule;
-static std::map<std::string, Value *> NamedValues;
+static std::shared_ptr<LLVMContext> TheContext;
+static std::shared_ptr<IRBuilder<>> Builder;
+static std::shared_ptr<Module> TheModule;
+static std::map<std::string, AllocaInst *> NamedValues;
 
 typedef struct declaracaoTipoVetor_ *declaracaoTipoVetor;
 typedef struct declaracaoVarVetor_ *declaracaoVarVetor;
@@ -120,6 +121,24 @@ public:
 
   NodeCallFunc(const std::string nameFunc, exprVetor params)
       : nameFunc(nameFunc), params(params) {}
+  bool validar(S_table tabelaDeSimbolos) {
+    S_symbol nameFuncSim = S_Symbol(nameFunc);
+
+    if (S_look(tabelaDeSimbolos, nameFuncSim) == NULL) {
+      std::cout << "Função não declarada" << std::endl;
+      return false;
+    }
+
+    // validar parametros
+    return true;
+  }
+
+  void traduzir() {
+
+    if (nameFunc.compare("imprimei") == 0) {
+      SimplesBiblioteca::imprimei(10, TheModule, TheContext, Builder);
+    }
+  }
 };
 
 class NodeCriacaoRegistro {
@@ -135,6 +154,15 @@ public:
 
   LocalIdentificador(std::string identificador)
       : identificador(identificador) {}
+
+  void traduzir() {
+    std::cout << "Chegou na traducao\n";
+    Value *v =
+        Builder->CreateGlobalStringPtr(StringRef(identificador), "teste");
+    std::cout << "Chegou na traducao2\n";
+
+    Builder->CreateLoad(v, identificador.c_str());
+  }
 };
 
 class LocalRegistro {
@@ -167,16 +195,25 @@ public:
         localVetor(localVetor), localIdentificador(localIdentificador),
         type(type) {}
 
-  void validar(S_table tabelaSimbolos) {
+  bool validar(S_table tabelaSimbolos) {
     std::cout << "Local armazenamento." << std::endl;
 
     if (localIdentificador != NULL) {
       S_symbol idSymbol = S_Symbol(localIdentificador->identificador);
       if (S_look(tabelaSimbolos, idSymbol) == NULL) {
-        std::cout << "Nao achou local armazenamento" << std::endl;
-        // Lançar um erro
+        std::cout << "Variável não definida." << std::endl;
+        return false;
       }
     }
+
+    return true;
+  }
+
+  Value *traduzir() {
+    // if (localIdentificador != NULL)
+    //   return localIdentificador->traduzir();
+
+    return NULL;
   }
 };
 
@@ -204,13 +241,17 @@ public:
         localArmazenamento(localArmazenamento), nodeCallFunc(nodeCallFunc),
         nodeCriacaoRegistro(nodeCriacaoRegistro) {}
 
-  void validar() {
-    if (literal != NULL) {
-      std::cout << "Validando node expr" << std::endl;
-    }
+  bool validar() {
+    // ver se o tipo do literal é o mesmo da variável
+    return true;
   }
 
-  Value *traduzir() { return literal->traduzir(); }
+  Value *traduzir() {
+    if (literal != NULL)
+      return literal->traduzir();
+
+    return NULL;
+  }
 };
 
 class ArgRegistro {
@@ -230,13 +271,20 @@ public:
   ComandoAtribuicao(LocalArmazenamento *identificador, NodeExpr *valorExpr)
       : identificador(identificador), valorExpr(valorExpr) {}
 
-  void validar(S_table tabelaSimbolos) {
+  bool validar(S_table tabelaSimbolos) {
     std::cout << "Validar atribuicao" << std::endl;
-    identificador->validar(tabelaSimbolos);
-    valorExpr->validar();
+    if (!identificador->validar(tabelaSimbolos))
+      return false;
+    if (!valorExpr->validar())
+      return false;
+
+    return true;
   }
 
-  Value *traduzir() { return valorExpr->traduzir(); }
+  void traduzir() {
+    identificador->traduzir();
+    valorExpr->traduzir();
+  }
 };
 
 class ComandoIf {
@@ -326,8 +374,29 @@ public:
   std::string identificador;
   std::string tipo;
   NodeExpr valor;
+
   DeclaracaoVar(std::string identificador, std::string tipo, NodeExpr valor)
       : identificador(identificador), tipo(tipo), valor(valor) {}
+
+  bool validar(S_table tabelaDeSimbolos) {
+    S_symbol symbol = S_Symbol(identificador);
+
+    if (S_look(tabelaDeSimbolos, symbol) == NULL) {
+      S_enter(tabelaDeSimbolos, symbol, &identificador[0]);
+    } else {
+      std::cout << "Variável já declarada!" << std::endl;
+      return false;
+    }
+
+    S_symbol tipoSymbol = S_Symbol(tipo);
+
+    if (S_look(tabelaDeSimbolos, tipoSymbol) == NULL) {
+      std::cout << "Tipo da variável não declarado!" << std::endl;
+      return false;
+    }
+
+    return true;
+  }
 };
 
 class Corpo {
