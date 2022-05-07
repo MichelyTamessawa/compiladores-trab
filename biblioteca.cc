@@ -44,4 +44,22 @@ void imprimei(int valor, std::shared_ptr<Module> TheModule,
 
   builder->CreateCall(CalleeF, args, "calltmp");
 }
+
+void imprimei(Value *valor, std::shared_ptr<Module> TheModule,
+              std::shared_ptr<LLVMContext> TheContext,
+              std::shared_ptr<IRBuilder<>> builder) {
+
+  FunctionCallee CalleeF =
+      TheModule->getOrInsertFunction("imprimei", Type::getInt32Ty(*TheContext));
+
+  if (!CalleeF) {
+    std::cout << "Função desconhecida." << std::endl;
+    return;
+  }
+
+  std::vector<Value *> args;
+  args.push_back(valor);
+
+  builder->CreateCall(CalleeF, args, "calltmp");
+}
 } // namespace SimplesBiblioteca

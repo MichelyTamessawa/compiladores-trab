@@ -63,7 +63,7 @@ bool analiseDeclaracaoGlobal(declaracaoVarVetor variaveis,
   if (!variaveis->head->validar(tabelaSimbolos))
     return false;
   else {
-    variaveis->head->traduzir();
+    variaveis->head->traduzir(tabelaSimbolos);
   }
 
   declaracaoVarVetor aux = variaveis->tail;
@@ -71,7 +71,7 @@ bool analiseDeclaracaoGlobal(declaracaoVarVetor variaveis,
     if (!aux->head->validar(tabelaSimbolos))
       return false;
     else {
-      aux->head->traduzir();
+      aux->head->traduzir(tabelaSimbolos);
     }
 
     aux = aux->tail;

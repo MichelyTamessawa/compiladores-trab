@@ -8,4 +8,3 @@ cmake ..
 make clean
 make
 cd ..
-./sc -i test.s

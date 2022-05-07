@@ -17,12 +17,14 @@
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Verifier.h"
 #include <cctype>
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
 #include <llvm-13/llvm/IR/Instructions.h>
 #include <llvm-13/llvm/IR/Value.h>
+#include <llvm-13/llvm/Support/Casting.h>
 #include <map>
 #include <memory>
 #include <ostream>
@@ -160,19 +162,7 @@ public:
   LocalIdentificador(std::string identificador)
       : identificador(identificador) {}
 
-  AllocaInst *traduzir(Function *funciton) {
-
-    Value *aux = NamedValues[identificador];
-
-    if (!aux) {
-      std::cout << "Variável não encontrada." << std::endl;
-      throw;
-    }
-
-    Builder->CreateLoad(Type::getInt32Ty(*TheContext), aux,
-                        identificador.c_str());
-    return NamedValues[identificador];
-  }
+  AllocaInst *traduzir() { return NamedValues[identificador]; }
 };
 
 class LocalRegistro {
@@ -219,9 +209,9 @@ public:
     return true;
   }
 
-  AllocaInst *traduzir(Function *function) {
+  AllocaInst *traduzir() {
     if (localIdentificador != NULL)
-      return localIdentificador->traduzir(function);
+      return localIdentificador->traduzir();
 
     throw;
   }
@@ -261,12 +251,18 @@ public:
     return true;
   }
 
-  inline Value *traduzir();
+  inline Value *traduzir(S_table tabelaDeSimbolos);
 };
 
-inline Value *traduzirOpBinaria(NodeExpr *esq, std::string op, NodeExpr *dir) {
-  Value *vEsq = esq->traduzir();
-  Value *vDir = dir->traduzir();
+inline Value *traduzirOpBinaria(NodeExpr *esq, std::string op, NodeExpr *dir,
+                                S_table tabelaDeSimbolos) {
+  Value *vEsq = esq->traduzir(tabelaDeSimbolos);
+  Value *vDir = dir->traduzir(tabelaDeSimbolos);
+
+  if (!vEsq || !vDir) {
+    std::cout << "Operação binária falhou" << std::endl;
+    throw;
+  }
 
   if (op.compare("+") == 0) {
     return Builder->CreateAdd(vEsq, vDir);
@@ -274,20 +270,24 @@ inline Value *traduzirOpBinaria(NodeExpr *esq, std::string op, NodeExpr *dir) {
     return Builder->CreateSub(vEsq, vDir);
   } else if (op.compare("*") == 0) {
     return Builder->CreateMul(vEsq, vDir);
-  } else if (op.compare("/") == 0) {
-    return Builder->CreateFDiv(vEsq, vDir);
   }
 
   std::cout << "Operador binário não reconhecido" << std::endl;
   throw;
 }
 
-Value *NodeExpr::traduzir() {
+Value *NodeExpr::traduzir(S_table tabelaDeSimbolos) {
   if (literal != NULL)
     return literal->traduzir();
 
+  if (localArmazenamento != NULL) {
+    Value *aux = (Value *)S_look(
+        tabelaDeSimbolos,
+        S_Symbol(localArmazenamento->localIdentificador->identificador));
+    return aux;
+  }
   if (exprEsq != NULL && exprDir != NULL) {
-    return traduzirOpBinaria(exprEsq, Op, exprDir);
+    return traduzirOpBinaria(exprEsq, Op, exprDir, tabelaDeSimbolos);
   }
   throw;
 }
@@ -322,11 +322,11 @@ public:
   void traduzir(S_table tabelaDeSimbolos) {
     Function *TheFunction = Builder->GetInsertBlock()->getParent();
 
-    Value *var = identificador->traduzir(TheFunction);
-    Value *valor = valorExpr->traduzir();
+    Value *var = identificador->traduzir();
+    Value *valor = valorExpr->traduzir(tabelaDeSimbolos);
+
     S_enter(tabelaDeSimbolos,
-            S_Symbol(identificador->localIdentificador->identificador),
-            &(valorExpr->literal->inteiro));
+            S_Symbol(identificador->localIdentificador->identificador), valor);
 
     Builder->CreateStore(valor, var);
     verifyFunction(*TheFunction);
@@ -444,11 +444,20 @@ public:
     return true;
   }
 
-  void traduzir() {
+  void traduzir(S_table tabelaDeSimbolos) {
     Function *TheFunction = Builder->GetInsertBlock()->getParent();
     AllocaInst *Alloca = CreateEntryBlockIntAlloca(TheFunction, identificador);
-    std::cout << "Ta caindo: " << identificador << std::endl;
     NamedValues[identificador] = Alloca;
+    AllocaInst *aux = NamedValues[identificador];
+
+    Builder->CreateLoad(Type::getInt32Ty(*TheContext), aux,
+                        identificador.c_str());
+
+    Value *auxValor = valor.traduzir(tabelaDeSimbolos);
+
+    S_enter(tabelaDeSimbolos, S_Symbol(identificador), auxValor);
+
+    Builder->CreateStore(auxValor, Alloca);
   }
 };
 
@@ -559,20 +568,20 @@ struct argFuncVetor_ {
 inline void NodeCallFunc::traduzir(S_table tabelaDeSimbolos) {
 
   if (nameFunc.compare("imprimei") == 0) {
-    int valor = 0;
+
     NodeExpr *expr = params->head;
+
     if (expr->literal != NULL) {
+      int valor = 0;
+
       valor = expr->literal->inteiro;
+      SimplesBiblioteca::imprimei(valor, TheModule, TheContext, Builder);
     } else if (expr->localArmazenamento != NULL) {
       std::string identificador =
           expr->localArmazenamento->localIdentificador->identificador;
-      int *aux = (int *)S_look(tabelaDeSimbolos, S_Symbol(identificador));
-      valor = *aux;
+      Value *aux = (Value *)S_look(tabelaDeSimbolos, S_Symbol(identificador));
+      SimplesBiblioteca::imprimei(aux, TheModule, TheContext, Builder);
     }
-
-    std::cout << "LOOL:" << valor << std::endl;
-
-    SimplesBiblioteca::imprimei(valor, TheModule, TheContext, Builder);
   }
 }
 
