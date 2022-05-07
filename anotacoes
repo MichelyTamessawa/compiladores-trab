@@ -5,20 +5,12 @@
 - Validar atribuição na declaração de globais
 - Validar na atribuição se o lado direito é do mesmo tipo que o lado esquerdo
 
+------ TODO PRINCIPAL -------------
+- imprimei(b)
+- a = 10 + 5
+- imprimei(a)
+
 -------- CORRIGIR ----------
 - Arrumar quanedo não há declarações (da seg fault)
-
-
-- Como escrever uma atribuicao
-- Como escrever um print
-- O que fazer com o objeto o gerado
-- O ConstantInt::Get já escreve?
-
-
-
-- Criar funcao  main
-- Criar um bloco basico
-- Inserir as instrucoes nesse bloco básico
-
 
 - clang -S -emit-llvm test.c

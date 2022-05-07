@@ -29,14 +29,12 @@ namespace SimplesBiblioteca {
 void imprimei(int valor, std::shared_ptr<Module> TheModule,
               std::shared_ptr<LLVMContext> TheContext,
               std::shared_ptr<IRBuilder<>> builder) {
-  Function *CalleeF = TheModule->getFunction("imprimei");
+
+  FunctionCallee CalleeF =
+      TheModule->getOrInsertFunction("imprimei", Type::getInt32Ty(*TheContext));
+
   if (!CalleeF) {
     std::cout << "Função desconhecida." << std::endl;
-    return;
-  }
-
-  if (CalleeF->arg_size() != 1) {
-    std::cout << "Número de pâmetros incorretos." << std::endl;
     return;
   }
 

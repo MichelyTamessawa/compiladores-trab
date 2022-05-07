@@ -26,7 +26,8 @@ using namespace llvm;
 using namespace llvm::sys;
 
 namespace codeobject {
-void inicializarCodeObject(std::shared_ptr<Module> TheModule) {
+void inicializarCodeObject(std::shared_ptr<Module> TheModule,
+                           std::string filename) {
   InitializeAllTargetInfos();
   InitializeAllTargets();
   InitializeAllTargetMCs();
@@ -46,7 +47,6 @@ void inicializarCodeObject(std::shared_ptr<Module> TheModule) {
 
   auto CPU = "generic";
   auto Features = "";
-
   TargetOptions opt;
   auto RM = Optional<Reloc::Model>();
   auto TheTargetMachine =
@@ -54,12 +54,12 @@ void inicializarCodeObject(std::shared_ptr<Module> TheModule) {
 
   TheModule->setDataLayout(TheTargetMachine->createDataLayout());
 
-  auto Filename = "output.o";
+  auto Filename = filename + ".o";
   std::error_code EC;
   raw_fd_ostream dest(Filename, EC, sys::fs::OF_None);
 
   if (EC) {
-    errs() << "Could not open file: " << EC.message();
+    errs() << "Não foi possível abrir o arquivo: " << EC.message();
     throw;
   }
 
@@ -74,6 +74,6 @@ void inicializarCodeObject(std::shared_ptr<Module> TheModule) {
   pass.run(*TheModule);
   dest.flush();
 
-  outs() << "Wrote " << Filename << "\n";
+  outs() << "Arquivo objeto escrito: " << Filename << "\n";
 }
 } // namespace codeobject

@@ -2,20 +2,8 @@
 #ifndef ARVORE_H
 #define ARVORE_H
 
-#include "symbol.hh"
-#include <cctype>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <iostream>
-#include <llvm-13/llvm/IR/Value.h>
-#include <map>
-#include <memory>
-#include <string>
-#include <utility>
-#include <vector>
-
 #include "biblioteca.hh"
+#include "symbol.hh"
 #include "llvm/ADT/APFloat.h"
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/IR/BasicBlock.h"
@@ -24,9 +12,23 @@
 #include "llvm/IR/Function.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/LegacyPassManager.h"
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Verifier.h"
+#include <cctype>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <iostream>
+#include <llvm-13/llvm/IR/Instructions.h>
+#include <llvm-13/llvm/IR/Value.h>
+#include <map>
+#include <memory>
+#include <ostream>
+#include <string>
+#include <utility>
+#include <vector>
 
 using namespace llvm;
 
@@ -36,6 +38,7 @@ static std::shared_ptr<LLVMContext> TheContext;
 static std::shared_ptr<IRBuilder<>> Builder;
 static std::shared_ptr<Module> TheModule;
 static std::map<std::string, AllocaInst *> NamedValues;
+static std::unique_ptr<legacy::FunctionPassManager> TheFPM;
 
 typedef struct declaracaoTipoVetor_ *declaracaoTipoVetor;
 typedef struct declaracaoVarVetor_ *declaracaoVarVetor;
@@ -46,6 +49,13 @@ typedef struct exprVetor_ *exprVetor;
 typedef struct tipoConstantes_ *tipoConstantes;
 typedef struct tipoCamposVetor_ *tipoCamposVetor;
 typedef struct argFuncVetor_ *argFuncVetor;
+
+static AllocaInst *CreateEntryBlockIntAlloca(Function *TheFunction,
+                                             const std::string &VarName) {
+  IRBuilder<> TmpB(&TheFunction->getEntryBlock(),
+                   TheFunction->getEntryBlock().begin());
+  return TmpB.CreateAlloca(Type::getInt32Ty(*TheContext), 0, VarName.c_str());
+}
 
 class ArgFunc {
 public:
@@ -133,12 +143,7 @@ public:
     return true;
   }
 
-  void traduzir() {
-
-    if (nameFunc.compare("imprimei") == 0) {
-      SimplesBiblioteca::imprimei(10, TheModule, TheContext, Builder);
-    }
-  }
+  void traduzir(S_table tabelaDeSimbolos);
 };
 
 class NodeCriacaoRegistro {
@@ -155,13 +160,18 @@ public:
   LocalIdentificador(std::string identificador)
       : identificador(identificador) {}
 
-  void traduzir() {
-    std::cout << "Chegou na traducao\n";
-    Value *v =
-        Builder->CreateGlobalStringPtr(StringRef(identificador), "teste");
-    std::cout << "Chegou na traducao2\n";
+  AllocaInst *traduzir(Function *funciton) {
 
-    Builder->CreateLoad(v, identificador.c_str());
+    Value *aux = NamedValues[identificador];
+
+    if (!aux) {
+      std::cout << "Variável não encontrada." << std::endl;
+      throw;
+    }
+
+    Builder->CreateLoad(Type::getInt32Ty(*TheContext), aux,
+                        identificador.c_str());
+    return NamedValues[identificador];
   }
 };
 
@@ -209,11 +219,11 @@ public:
     return true;
   }
 
-  Value *traduzir() {
-    // if (localIdentificador != NULL)
-    //   return localIdentificador->traduzir();
+  AllocaInst *traduzir(Function *function) {
+    if (localIdentificador != NULL)
+      return localIdentificador->traduzir(function);
 
-    return NULL;
+    throw;
   }
 };
 
@@ -239,20 +249,48 @@ public:
       : type(type), listArgRe(listArgRe), literal(literal), nodeVar(nodeVar),
         exprEsq(exprEsq), Op(Op), exprDir(exprDir), exprComParen(exprComParen),
         localArmazenamento(localArmazenamento), nodeCallFunc(nodeCallFunc),
-        nodeCriacaoRegistro(nodeCriacaoRegistro) {}
+        nodeCriacaoRegistro(nodeCriacaoRegistro) {
+    std::cout << "Ta construindo! " << type << std::endl;
+    if (type.compare("literal_int") == 0) {
+      std::cout << literal->inteiro << std::endl;
+    }
+  }
 
   bool validar() {
     // ver se o tipo do literal é o mesmo da variável
     return true;
   }
 
-  Value *traduzir() {
-    if (literal != NULL)
-      return literal->traduzir();
-
-    return NULL;
-  }
+  inline Value *traduzir();
 };
+
+inline Value *traduzirOpBinaria(NodeExpr *esq, std::string op, NodeExpr *dir) {
+  Value *vEsq = esq->traduzir();
+  Value *vDir = dir->traduzir();
+
+  if (op.compare("+") == 0) {
+    return Builder->CreateAdd(vEsq, vDir);
+  } else if (op.compare("-") == 0) {
+    return Builder->CreateSub(vEsq, vDir);
+  } else if (op.compare("*") == 0) {
+    return Builder->CreateMul(vEsq, vDir);
+  } else if (op.compare("/") == 0) {
+    return Builder->CreateFDiv(vEsq, vDir);
+  }
+
+  std::cout << "Operador binário não reconhecido" << std::endl;
+  throw;
+}
+
+Value *NodeExpr::traduzir() {
+  if (literal != NULL)
+    return literal->traduzir();
+
+  if (exprEsq != NULL && exprDir != NULL) {
+    return traduzirOpBinaria(exprEsq, Op, exprDir);
+  }
+  throw;
+}
 
 class ArgRegistro {
 public:
@@ -281,9 +319,17 @@ public:
     return true;
   }
 
-  void traduzir() {
-    identificador->traduzir();
-    valorExpr->traduzir();
+  void traduzir(S_table tabelaDeSimbolos) {
+    Function *TheFunction = Builder->GetInsertBlock()->getParent();
+
+    Value *var = identificador->traduzir(TheFunction);
+    Value *valor = valorExpr->traduzir();
+    S_enter(tabelaDeSimbolos,
+            S_Symbol(identificador->localIdentificador->identificador),
+            &(valorExpr->literal->inteiro));
+
+    Builder->CreateStore(valor, var);
+    verifyFunction(*TheFunction);
   }
 };
 
@@ -397,6 +443,13 @@ public:
 
     return true;
   }
+
+  void traduzir() {
+    Function *TheFunction = Builder->GetInsertBlock()->getParent();
+    AllocaInst *Alloca = CreateEntryBlockIntAlloca(TheFunction, identificador);
+    std::cout << "Ta caindo: " << identificador << std::endl;
+    NamedValues[identificador] = Alloca;
+  }
 };
 
 class Corpo {
@@ -502,6 +555,26 @@ struct argFuncVetor_ {
   ArgFunc *head;
   argFuncVetor tail;
 };
+
+inline void NodeCallFunc::traduzir(S_table tabelaDeSimbolos) {
+
+  if (nameFunc.compare("imprimei") == 0) {
+    int valor = 0;
+    NodeExpr *expr = params->head;
+    if (expr->literal != NULL) {
+      valor = expr->literal->inteiro;
+    } else if (expr->localArmazenamento != NULL) {
+      std::string identificador =
+          expr->localArmazenamento->localIdentificador->identificador;
+      int *aux = (int *)S_look(tabelaDeSimbolos, S_Symbol(identificador));
+      valor = *aux;
+    }
+
+    std::cout << "LOOL:" << valor << std::endl;
+
+    SimplesBiblioteca::imprimei(valor, TheModule, TheContext, Builder);
+  }
+}
 
 // programa
 class Programa {

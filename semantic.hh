@@ -5,7 +5,8 @@
 #include "arvore.hh"
 
 namespace semantic {
-bool Inicializar(AST::Programa *root);
+bool Inicializar(AST::Programa *root, std::string filename,
+                 bool imprimeIntermediario);
 }
 
 #endif

@@ -22,5 +22,6 @@
 #include <iostream>
 
 namespace codeobject {
-extern void inicializarCodeObject(std::shared_ptr<llvm::Module> TheModule);
+extern void inicializarCodeObject(std::shared_ptr<llvm::Module> TheModule,
+                                  std::string filename);
 } // namespace codeobject

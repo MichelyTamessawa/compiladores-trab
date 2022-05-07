@@ -13,6 +13,10 @@
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Verifier.h"
 #include "llvm/Support/FileSystem.h"
+#include "llvm/Transforms/InstCombine/InstCombine.h"
+#include "llvm/Transforms/Scalar.h"
+#include "llvm/Transforms/Scalar/GVN.h"
+#include "llvm/Transforms/Utils.h"
 #include <llvm-13/llvm/IR/Use.h>
 #include <string.h>
 
@@ -58,11 +62,17 @@ bool analiseDeclaracaoGlobal(declaracaoVarVetor variaveis,
                              S_table tabelaSimbolos) {
   if (!variaveis->head->validar(tabelaSimbolos))
     return false;
+  else {
+    variaveis->head->traduzir();
+  }
 
   declaracaoVarVetor aux = variaveis->tail;
   while (aux != NULL) {
     if (!aux->head->validar(tabelaSimbolos))
       return false;
+    else {
+      aux->head->traduzir();
+    }
 
     aux = aux->tail;
   }
@@ -97,12 +107,12 @@ bool validacoesAcoes(Comando *comando, S_table tabelaSimbolos) {
 
   if (comando->comandoAtribuicao != NULL) {
     comando->comandoAtribuicao->validar(tabelaSimbolos);
-    comando->comandoAtribuicao->traduzir();
+    comando->comandoAtribuicao->traduzir(tabelaSimbolos);
   }
 
   else if (comando->nodeCallFunc != NULL) {
     comando->nodeCallFunc->validar(tabelaSimbolos);
-    comando->nodeCallFunc->traduzir();
+    comando->nodeCallFunc->traduzir(tabelaSimbolos);
   } else {
     std::cout << "Comando não implementado!\n";
     return false;
@@ -121,7 +131,7 @@ void createMainFunction(std::shared_ptr<Module> TheModule,
       FunctionType::get(Type::getVoidTy(*TheContext), types, false);
 
   Function *mainFunction =
-      Function::Create(FT, Function::ExternalLinkage, "main", TheModule.get());
+      Function::Create(FT, Function::CommonLinkage, "main", TheModule.get());
 
   BasicBlock *BB = BasicBlock::Create(*TheContext, "main", mainFunction);
   Builder->SetInsertPoint(BB);
@@ -143,12 +153,17 @@ bool analiseAcoes(comandosVetor acoes, S_table tabelaSimbolos) {
   return true;
 }
 
-bool Inicializar(Programa *root) {
+bool Inicializar(Programa *root, std::string filename,
+                 bool imprimeIntermediario) {
   std::cout << "Inicializando análise semântica..." << std::endl;
 
   S_table _tabelaSimbolos = S_empty();
 
   // Inicialização das variáveis do LLVM
+  InitializeNativeTarget();
+  InitializeNativeTargetAsmPrinter();
+  InitializeNativeTargetAsmParser();
+
   TheContext = std::make_shared<llvm::LLVMContext>();
   TheModule = std::make_shared<llvm::Module>("my cool jit", *TheContext);
   Builder = std::make_shared<llvm::IRBuilder<>>(*TheContext);
@@ -172,8 +187,16 @@ bool Inicializar(Programa *root) {
 
   std::cout << "Análise semântica realizada com sucesso" << std::endl;
 
-  TheModule->print(errs(), nullptr);
-  inicializarCodeObject(TheModule);
+  Builder->CreateRetVoid();
+
+  if (imprimeIntermediario) {
+    std::cout << "\n\nImprimindo código intermediário gerado\n";
+    std::cout << "\n--------------------------------------------\n";
+    TheModule->print(errs(), nullptr);
+    std::cout << "\n--------------------------------------------\n";
+  }
+
+  inicializarCodeObject(TheModule, filename);
 
   return true;
 }
