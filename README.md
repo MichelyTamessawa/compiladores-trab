@@ -13,15 +13,16 @@
     - Declaração de tipos com identificador:
         - a = inteiro
         - b = a
-    - Declaração de globais: Valida a variável e o tipo, mas não há validação entre o tipo e o valor  atribuído:
+    - Declaração de globais: Validação da variável e do tipo, mas não há validação entre o tipo e o valor  atribuído:
         - a : inteiro := 10; nesse caso, não é verificado se 10 é inteiro;
-    - Comando atribuição para inteiro: Valida se a variável existe;
-    - Chamada de função: Valida se a função existe;
+    - Comando atribuição para inteiro: Validação se a variável existe;
+    - Chamada de função: Validação se a função existe;
 
-- Gerador de representação intermediária:
+- Gerador de representação intermediária e código final:
+    - Foi considerado que no programa há apenas uma função, a "main".
+    - Todas as instruções realizadas no comando "ação:" são executadas dentro do escopo dessa "main".
     - Declaração de globais (inicialização da variável):
-        - inteiro -> c : inteiro := 0
-                     d : a := 28
+        - inteiro -> c : inteiro := 0; d : a := 28
     - Comando atribuição:
         - inteiro -> a := 10;
         - variável -> a := b;
@@ -36,8 +37,6 @@
         - gere_inteiro() -> Retorna um número inteiro aleatório
         - inverter(i) -> Retorna 1 se a i for zero, ou 0 caso contrário.
 
-- Gerador de código final
-    - O código assembly é gerado pela opção "-s" ao executar o programa
 
 A versão do LLVM e clang utilizada foi a 13.
 Flex versão 2.6.4
