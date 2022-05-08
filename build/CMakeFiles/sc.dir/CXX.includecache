@@ -213,7 +213,11 @@ llvm/Target/TargetMachine.h
 /home/hudson/Desktop/Compiladores/compiladores-trab/llvm/Target/TargetMachine.h
 llvm/Target/TargetOptions.h
 /home/hudson/Desktop/Compiladores/compiladores-trab/llvm/Target/TargetOptions.h
+cstddef
+-
 iostream
+-
+llvm-13/llvm/ADT/APInt.h
 -
 llvm-13/llvm/IR/Constant.h
 -

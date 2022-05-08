@@ -517,6 +517,11 @@ inline Value *NodeCallFunc::traduzir(S_table tabelaVar) {
     return SimplesBiblioteca::gere_inteiro(TheModule, Builder);
   }
 
+  if (nameFunc.compare("inverter") == 0) {
+    return SimplesBiblioteca::inverter(expr->literal->inteiro, TheModule,
+                                       TheContext, Builder);
+  }
+
   return NULL;
 }
 

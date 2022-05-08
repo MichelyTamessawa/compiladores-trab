@@ -41,6 +41,7 @@ void insereSimbolosPadroes(S_table tabelaSimbolosFunc,
   std::string imprimeiFunc = "imprimei";
   std::string imprimerFunc = "imprimer";
   std::string gereIntFunc = "gere_inteiro";
+  std::string inverterFunc = "inverter";
 
   S_symbol inteiroSim = S_Symbol(inteiroStr);
   S_symbol realSim = S_Symbol(realStr);
@@ -48,6 +49,7 @@ void insereSimbolosPadroes(S_table tabelaSimbolosFunc,
   S_symbol imprimeiSim = S_Symbol(imprimeiFunc);
   S_symbol imprimerSim = S_Symbol(imprimerFunc);
   S_symbol gereIntSim = S_Symbol(gereIntFunc);
+  S_symbol inverterSim = S_Symbol(inverterFunc);
 
   S_enter(tabelaSimbolosTipo, inteiroSim, &inteiroStr[0]);
   S_enter(tabelaSimbolosTipo, realSim, &realStr[0]);
@@ -55,6 +57,7 @@ void insereSimbolosPadroes(S_table tabelaSimbolosFunc,
   S_enter(tabelaSimbolosFunc, imprimeiSim, &imprimeiFunc[0]);
   S_enter(tabelaSimbolosFunc, imprimerSim, &imprimerFunc[0]);
   S_enter(tabelaSimbolosFunc, gereIntSim, &gereIntFunc[0]);
+  S_enter(tabelaSimbolosFunc, inverterSim, &inverterFunc[0]);
 }
 
 bool analiseDeclaracaoTipo(declaracaoTipoVetor tipos, S_table tabelaSimbolos) {
@@ -185,6 +188,17 @@ void createGeraIntFunction(std::shared_ptr<Module> TheModule,
                    TheModule.get());
 }
 
+void createInverterFunction(std::shared_ptr<Module> TheModule,
+                            std::shared_ptr<LLVMContext> TheContext) {
+  std::vector<Type *> params;
+  params.push_back(Type::getInt32Ty(*TheContext));
+  FunctionType *type =
+      FunctionType::get(Type::getInt32Ty(*TheContext), params, false);
+
+  Function::Create(type, Function::ExternalLinkage, "inverter",
+                   TheModule.get());
+}
+
 void createFunctions(std::shared_ptr<Module> TheModule,
                      std::shared_ptr<LLVMContext> TheContext,
                      std::shared_ptr<IRBuilder<>> Builder) {
@@ -197,6 +211,9 @@ void createFunctions(std::shared_ptr<Module> TheModule,
 
   // Criação do gere_inteiro
   createGeraIntFunction(TheModule, TheContext);
+
+  // Criação do inverter
+  createInverterFunction(TheModule, TheContext);
 
   // Criação da Main
   FunctionType *FT = FunctionType::get(Type::getVoidTy(*TheContext), false);

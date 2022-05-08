@@ -20,7 +20,9 @@
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Target/TargetMachine.h"
 #include "llvm/Target/TargetOptions.h"
+#include <cstddef>
 #include <iostream>
+#include <llvm-13/llvm/ADT/APInt.h>
 #include <llvm-13/llvm/IR/Constant.h>
 #include <llvm-13/llvm/IR/GlobalValue.h>
 
@@ -84,6 +86,26 @@ void imprimer(float valor, std::shared_ptr<Module> TheModule,
 
   // Realiza a chamada para a função "imprimer"
   builder->CreateCall(function, args);
+}
+
+Value *inverter(int valor, std::shared_ptr<Module> TheModule,
+                std::shared_ptr<LLVMContext> TheContext,
+                std::shared_ptr<IRBuilder<>> builder) {
+
+  // Recupera a função "inverter" declarada lá no início do programa
+  Function *function = TheModule->getFunction("inverter");
+  if (!function) {
+    std::cout << "Função desconhecida." << std::endl;
+    return NULL;
+  }
+
+  // Cria um Value* a partir do valor
+  Value *v = ConstantInt::get(*TheContext, APInt(32, valor, true));
+  std::vector<Value *> args;
+  args.push_back(v);
+
+  // Realiza a chamada para a função "inverter"
+  return builder->CreateCall(function, args);
 }
 
 Value *gere_inteiro(std::shared_ptr<Module> TheModule,

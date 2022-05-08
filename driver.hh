@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/arvore.hh"
+#include "arvore.hh"
 #include <fstream>
 #include <iostream>
 #include <string>

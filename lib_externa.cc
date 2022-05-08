@@ -15,3 +15,9 @@ extern "C" DLLEXPORT int gere_inteiro() {
   srand((unsigned)time(&t1));
   return rand() % 100;
 }
+extern "C" DLLEXPORT int inverter(int i) {
+  if (i == 0)
+    return 1;
+  else
+    return 0;
+}

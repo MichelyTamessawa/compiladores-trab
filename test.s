@@ -1,20 +1,17 @@
 Tipo:
     a = inteiro
-    b = inteiro
+    c = a
 
 global:
 b : inteiro := 10
-c : inteiro := 0
-d : a := 28
-a : a := 32
-e : b := 10
+c : c := 32
+e : c := 10
+f : inteiro := c
 
 ação:
-    imprimei(a);
+    imprimei(c);
     imprimei(20);
-    imprimei(b);
     c := 5 + 2;
-    imprimei(d);
     imprimei(c);
     c := b - 4;
     imprimei(c);
@@ -24,7 +21,12 @@ ação:
     imprimei(c);
     imprimei(e);
     e := e - 12;
-    imprimei(e);
+    imprimei(e); /* impressao de um numero negativo */
     imprimer(2.5);
     b := gere_inteiro();
-    imprimei(b)
+    imprimei(b);
+    c := inverter(0);
+    imprimei(c); /* imprimir 1 */
+    c := inverter(5);
+    imprimei(c); /* imprimir 0 */
+    imprimei(f)

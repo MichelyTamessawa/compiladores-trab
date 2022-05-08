@@ -1,6 +1,6 @@
+#include "arvore.hh"
 #include "driver.hh"
-#include "src/arvore.hh"
-#include "src/semantic.hh"
+#include "semantic.hh"
 #include <bits/getopt_core.h>
 #include <cstdlib>
 #include <iostream>

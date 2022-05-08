@@ -24,7 +24,12 @@ void imprimer(float value, std::shared_ptr<llvm::Module> TheModule,
               std::shared_ptr<llvm::LLVMContext> TheContext,
               std::shared_ptr<llvm::IRBuilder<>> builder);
 
-// Quando queremos imprimir um real
+// Retorna 1 se a i for zero, ou 0 caso contrário.
+llvm::Value *inverter(int value, std::shared_ptr<llvm::Module> TheModule,
+                      std::shared_ptr<llvm::LLVMContext> TheContext,
+                      std::shared_ptr<llvm::IRBuilder<>> builder);
+
+// Quando queremos gerar um número aleatório
 llvm::Value *gere_inteiro(std::shared_ptr<llvm::Module> TheModule,
                           std::shared_ptr<llvm::IRBuilder<>> builder);
 } // namespace SimplesBiblioteca
