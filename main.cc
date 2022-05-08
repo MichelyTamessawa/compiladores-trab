@@ -47,12 +47,14 @@ int main(int argc, char **argv) {
 
   semantic::Inicializar(AST::ast_root, filename, imprimeIntermediario);
 
+  // Compilação da função externa "imprimei"
   if (system("clang++ -c imprimei.cc")) {
     std::cout << "Não foi possível compilar a biblioteca de Simples."
               << std::endl;
     return 0;
   }
 
+  // Compilação do programa e geração do executável
   std::string buildCommand =
       "clang " + filename + ".o imprimei.o -o " + executavelName;
 
@@ -63,6 +65,7 @@ int main(int argc, char **argv) {
 
   std::cout << "Arquivo executável salvo como: " + executavelName << std::endl;
 
+  // Impressão do código assembly
   if (imprimeAssembly) {
     std::string buildCommand = "llc " + filename + ".ll -o " + filename + ".as";
     if (system(buildCommand.c_str())) {

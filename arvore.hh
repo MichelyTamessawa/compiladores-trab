@@ -71,10 +71,10 @@ public:
 class DescritorTipo {
 
 public:
-  std::string identificador; // tipo identificador
-  tipoCamposVetor campos;    // tipo registro
-  tipoConstantes constantes; // tipo vetor
-  std::string tipoVetor;     // tipo vetor
+  std::string identificador;
+  tipoCamposVetor campos;
+  tipoConstantes constantes;
+  std::string tipoVetor;
 
   std::string type;
 
@@ -94,8 +94,6 @@ public:
       : identificador(identificador), tipo(tipo) {}
 };
 
-// Expressões
-
 class ListArgRegistro {
 public:
   argRegistroVetor args;
@@ -114,9 +112,7 @@ public:
   Literal(std::string type, int inteiro, std::string cadeia, double real)
       : type(type), inteiro(inteiro), cadeia(cadeia), real(real) {}
 
-  Value *traduzir() {
-    return ConstantInt::get(*TheContext, APInt(32, inteiro, true));
-  }
+  Value *traduzir();
 };
 
 class NodeVar {
@@ -133,17 +129,7 @@ public:
 
   NodeCallFunc(const std::string nameFunc, exprVetor params)
       : nameFunc(nameFunc), params(params) {}
-  bool validar(S_table tabelaDeSimbolos) {
-    S_symbol nameFuncSim = S_Symbol(nameFunc);
-
-    if (S_look(tabelaDeSimbolos, nameFuncSim) == NULL) {
-      std::cout << "Função não declarada" << std::endl;
-      return false;
-    }
-
-    // validar parametros
-    return true;
-  }
+  bool validar(S_table tabelaDeSimbolos);
 
   void traduzir(S_table tabelaDeSimbolos);
 };
@@ -162,7 +148,7 @@ public:
   LocalIdentificador(std::string identificador)
       : identificador(identificador) {}
 
-  AllocaInst *traduzir() { return NamedValues[identificador]; }
+  AllocaInst *traduzir();
 };
 
 class LocalRegistro {
@@ -195,25 +181,9 @@ public:
         localVetor(localVetor), localIdentificador(localIdentificador),
         type(type) {}
 
-  bool validar(S_table tabelaSimbolos) {
+  bool validar(S_table tabelaSimbolos);
 
-    if (localIdentificador != NULL) {
-      S_symbol idSymbol = S_Symbol(localIdentificador->identificador);
-      if (S_look(tabelaSimbolos, idSymbol) == NULL) {
-        std::cout << "Variável não definida." << std::endl;
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  AllocaInst *traduzir() {
-    if (localIdentificador != NULL)
-      return localIdentificador->traduzir();
-
-    throw;
-  }
+  AllocaInst *traduzir();
 };
 
 class NodeExpr {
@@ -240,15 +210,12 @@ public:
         localArmazenamento(localArmazenamento), nodeCallFunc(nodeCallFunc),
         nodeCriacaoRegistro(nodeCriacaoRegistro) {}
 
-  bool validar() {
-    // ver se o tipo do literal é o mesmo da variável
-    return true;
-  }
+  bool validar();
 
-  inline Value *traduzir(S_table tabelaDeSimbolos);
+  Value *traduzir(S_table tabelaDeSimbolos);
 };
 
-inline Value *traduzirOpBinaria(NodeExpr *esq, std::string op, NodeExpr *dir,
+static Value *traduzirOpBinaria(NodeExpr *esq, std::string op, NodeExpr *dir,
                                 S_table tabelaDeSimbolos) {
   Value *vEsq = esq->traduzir(tabelaDeSimbolos);
   Value *vDir = dir->traduzir(tabelaDeSimbolos);
@@ -270,22 +237,6 @@ inline Value *traduzirOpBinaria(NodeExpr *esq, std::string op, NodeExpr *dir,
   throw;
 }
 
-Value *NodeExpr::traduzir(S_table tabelaDeSimbolos) {
-  if (literal != NULL)
-    return literal->traduzir();
-
-  if (localArmazenamento != NULL) {
-    Value *aux = (Value *)S_look(
-        tabelaDeSimbolos,
-        S_Symbol(localArmazenamento->localIdentificador->identificador));
-    return aux;
-  }
-  if (exprEsq != NULL && exprDir != NULL) {
-    return traduzirOpBinaria(exprEsq, Op, exprDir, tabelaDeSimbolos);
-  }
-  throw;
-}
-
 class ArgRegistro {
 public:
   std::string identificador;
@@ -303,27 +254,9 @@ public:
   ComandoAtribuicao(LocalArmazenamento *identificador, NodeExpr *valorExpr)
       : identificador(identificador), valorExpr(valorExpr) {}
 
-  bool validar(S_table tabelaSimbolos) {
-    if (!identificador->validar(tabelaSimbolos))
-      return false;
-    if (!valorExpr->validar())
-      return false;
+  bool validar(S_table tabelaSimbolos);
 
-    return true;
-  }
-
-  void traduzir(S_table tabelaDeSimbolos) {
-    Function *TheFunction = Builder->GetInsertBlock()->getParent();
-
-    Value *var = identificador->traduzir();
-    Value *valor = valorExpr->traduzir(tabelaDeSimbolos);
-
-    S_enter(tabelaDeSimbolos,
-            S_Symbol(identificador->localIdentificador->identificador), valor);
-
-    Builder->CreateStore(valor, var);
-    verifyFunction(*TheFunction);
-  }
+  void traduzir(S_table tabelaDeSimbolos);
 };
 
 class ComandoIf {
@@ -417,41 +350,9 @@ public:
   DeclaracaoVar(std::string identificador, std::string tipo, NodeExpr valor)
       : identificador(identificador), tipo(tipo), valor(valor) {}
 
-  bool validar(S_table tabelaDeSimbolos) {
-    S_symbol symbol = S_Symbol(identificador);
+  bool validar(S_table tabelaDeSimbolos);
 
-    if (S_look(tabelaDeSimbolos, symbol) == NULL) {
-      S_enter(tabelaDeSimbolos, symbol, &identificador[0]);
-    } else {
-      std::cout << "Variável já declarada!" << std::endl;
-      return false;
-    }
-
-    S_symbol tipoSymbol = S_Symbol(tipo);
-
-    if (S_look(tabelaDeSimbolos, tipoSymbol) == NULL) {
-      std::cout << "Tipo da variável não declarado!" << std::endl;
-      return false;
-    }
-
-    return true;
-  }
-
-  void traduzir(S_table tabelaDeSimbolos) {
-    Function *TheFunction = Builder->GetInsertBlock()->getParent();
-    AllocaInst *Alloca = CreateEntryBlockIntAlloca(TheFunction, identificador);
-    NamedValues[identificador] = Alloca;
-    AllocaInst *aux = NamedValues[identificador];
-
-    Builder->CreateLoad(Type::getInt32Ty(*TheContext), aux,
-                        identificador.c_str());
-
-    Value *auxValor = valor.traduzir(tabelaDeSimbolos);
-
-    S_enter(tabelaDeSimbolos, S_Symbol(identificador), auxValor);
-
-    Builder->CreateStore(auxValor, Alloca);
-  }
+  void traduzir(S_table tabelaDeSimbolos);
 };
 
 class Corpo {
@@ -468,29 +369,7 @@ public:
   std::string identificador;
   DescritorTipo tipo;
 
-  bool validar(S_table tabelaSimbolos) {
-
-    S_symbol idSymbol = S_Symbol(identificador);
-
-    if (S_look(tabelaSimbolos, idSymbol) == NULL) {
-      S_enter(tabelaSimbolos, idSymbol, &identificador[0]);
-
-    } else {
-      std::cout << "\nErro: Tipo" << identificador << "já foi declarado."
-                << std::endl;
-      return false;
-    }
-
-    S_symbol tipoSymbol = S_Symbol(tipo.identificador);
-
-    if (S_look(tabelaSimbolos, tipoSymbol) == NULL) {
-      std::cout << "\nErro: Não foi possível encontrar o tipo"
-                << tipo.identificador << std::endl;
-      return false;
-    }
-
-    return true;
-  };
+  bool validar(S_table tabelaSimbolos);
 
   DeclaracaoTipo(std::string identificador, DescritorTipo tipo)
       : identificador(identificador), tipo(tipo) {}
@@ -498,10 +377,9 @@ public:
 
 class AbstractDeclacaoFuncao {
 public:
-  // Declaracao funcao e procedimento
   std::string nome;
   argFuncVetor args;
-  std::string identificador; // Somente função
+  std::string identificador;
   Corpo *corpo;
 
   std::string type;
@@ -558,6 +436,53 @@ struct argFuncVetor_ {
   argFuncVetor tail;
 };
 
+class Programa {
+public:
+  declaracaoTipoVetor declaracoesTipo;
+  declaracaoVarVetor declaracoesGlobais;
+  declaracaoFuncVetor declaracoesFuncao;
+  comandosVetor acao;
+
+  Programa(declaracaoTipoVetor declaracoesTipo,
+           declaracaoVarVetor declaracoesGlobais,
+           declaracaoFuncVetor declaracoesFuncao, comandosVetor acao)
+      : declaracoesTipo(declaracoesTipo),
+        declaracoesGlobais(declaracoesGlobais),
+        declaracoesFuncao(declaracoesFuncao), acao(acao) {}
+};
+
+extern declaracaoVarVetor DeclaracaoVarVetor(DeclaracaoVar head,
+                                             declaracaoVarVetor tail);
+extern declaracaoFuncVetor DeclaracaoFuncVetor(AbstractDeclacaoFuncao head,
+                                               declaracaoFuncVetor tail);
+extern comandosVetor ComandosVetor(Comando head, comandosVetor tail);
+extern exprVetor ExprVetor(NodeExpr head, exprVetor tail);
+extern declaracaoTipoVetor DeclaracaoTipoVetor(DeclaracaoTipo head,
+                                               declaracaoTipoVetor tail);
+extern tipoConstantes TipoConstantes(int head, tipoConstantes tail);
+extern tipoCamposVetor TipoCamposVetor(TipoCampos head, tipoCamposVetor tail);
+extern argFuncVetor ArgFuncVetor(ArgFunc head, argFuncVetor tail);
+extern argRegistroVetor ArgRegistroVetor(ArgRegistro head,
+                                         argRegistroVetor tail);
+
+extern Programa *ast_root;
+
+inline Value *Literal::traduzir() {
+  return ConstantInt::get(*TheContext, APInt(32, inteiro, true));
+}
+
+inline bool NodeCallFunc::validar(S_table tabelaDeSimbolos) {
+  S_symbol nameFuncSim = S_Symbol(nameFunc);
+
+  if (S_look(tabelaDeSimbolos, nameFuncSim) == NULL) {
+    std::cout << "Função não declarada" << std::endl;
+    return false;
+  }
+
+  // validar parametros
+  return true;
+}
+
 inline void NodeCallFunc::traduzir(S_table tabelaDeSimbolos) {
 
   if (nameFunc.compare("imprimei") == 0) {
@@ -578,38 +503,129 @@ inline void NodeCallFunc::traduzir(S_table tabelaDeSimbolos) {
   }
 }
 
-// programa
-class Programa {
-public:
-  declaracaoTipoVetor declaracoesTipo;
-  declaracaoVarVetor declaracoesGlobais;
-  declaracaoFuncVetor declaracoesFuncao;
-  comandosVetor acao;
+inline AllocaInst *LocalIdentificador::traduzir() {
+  return NamedValues[identificador];
+}
 
-  Programa(declaracaoTipoVetor declaracoesTipo,
-           declaracaoVarVetor declaracoesGlobais,
-           declaracaoFuncVetor declaracoesFuncao, comandosVetor acao)
-      : declaracoesTipo(declaracoesTipo),
-        declaracoesGlobais(declaracoesGlobais),
-        declaracoesFuncao(declaracoesFuncao), acao(acao) {}
+inline bool LocalArmazenamento::validar(S_table tabelaSimbolos) {
+
+  if (localIdentificador != NULL) {
+    S_symbol idSymbol = S_Symbol(localIdentificador->identificador);
+    if (S_look(tabelaSimbolos, idSymbol) == NULL) {
+      std::cout << "Variável não definida." << std::endl;
+      return false;
+    }
+  }
+
+  return true;
+}
+
+inline AllocaInst *LocalArmazenamento::traduzir() {
+  if (localIdentificador != NULL)
+    return localIdentificador->traduzir();
+
+  throw;
+}
+
+inline bool NodeExpr::validar() { return true; }
+
+inline Value *NodeExpr::traduzir(S_table tabelaDeSimbolos) {
+  if (literal != NULL)
+    return literal->traduzir();
+
+  if (localArmazenamento != NULL) {
+    Value *aux = (Value *)S_look(
+        tabelaDeSimbolos,
+        S_Symbol(localArmazenamento->localIdentificador->identificador));
+    return aux;
+  }
+  if (exprEsq != NULL && exprDir != NULL) {
+    return traduzirOpBinaria(exprEsq, Op, exprDir, tabelaDeSimbolos);
+  }
+  throw;
+}
+
+inline bool ComandoAtribuicao::validar(S_table tabelaSimbolos) {
+  if (!identificador->validar(tabelaSimbolos))
+    return false;
+  if (!valorExpr->validar())
+    return false;
+
+  return true;
+}
+
+inline void ComandoAtribuicao::traduzir(S_table tabelaDeSimbolos) {
+  Function *TheFunction = Builder->GetInsertBlock()->getParent();
+
+  Value *var = identificador->traduzir();
+  Value *valor = valorExpr->traduzir(tabelaDeSimbolos);
+
+  S_enter(tabelaDeSimbolos,
+          S_Symbol(identificador->localIdentificador->identificador), valor);
+
+  Builder->CreateStore(valor, var);
+  verifyFunction(*TheFunction);
+}
+
+inline bool DeclaracaoVar::validar(S_table tabelaDeSimbolos) {
+  S_symbol symbol = S_Symbol(identificador);
+
+  if (S_look(tabelaDeSimbolos, symbol) == NULL) {
+    S_enter(tabelaDeSimbolos, symbol, &identificador[0]);
+  } else {
+    std::cout << "Variável já declarada!" << std::endl;
+    return false;
+  }
+
+  S_symbol tipoSymbol = S_Symbol(tipo);
+
+  if (S_look(tabelaDeSimbolos, tipoSymbol) == NULL) {
+    std::cout << "Tipo da variável não declarado!" << std::endl;
+    return false;
+  }
+
+  return true;
+}
+
+inline void DeclaracaoVar::traduzir(S_table tabelaDeSimbolos) {
+  Function *TheFunction = Builder->GetInsertBlock()->getParent();
+  AllocaInst *Alloca = CreateEntryBlockIntAlloca(TheFunction, identificador);
+  NamedValues[identificador] = Alloca;
+  AllocaInst *aux = NamedValues[identificador];
+
+  Builder->CreateLoad(Type::getInt32Ty(*TheContext), aux,
+                      identificador.c_str());
+
+  Value *auxValor = valor.traduzir(tabelaDeSimbolos);
+
+  S_enter(tabelaDeSimbolos, S_Symbol(identificador), auxValor);
+
+  Builder->CreateStore(auxValor, Alloca);
+}
+
+inline bool DeclaracaoTipo::validar(S_table tabelaSimbolos) {
+
+  S_symbol idSymbol = S_Symbol(identificador);
+
+  if (S_look(tabelaSimbolos, idSymbol) == NULL) {
+    S_enter(tabelaSimbolos, idSymbol, &identificador[0]);
+
+  } else {
+    std::cout << "\nErro: Tipo" << identificador << "já foi declarado."
+              << std::endl;
+    return false;
+  }
+
+  S_symbol tipoSymbol = S_Symbol(tipo.identificador);
+
+  if (S_look(tabelaSimbolos, tipoSymbol) == NULL) {
+    std::cout << "\nErro: Não foi possível encontrar o tipo"
+              << tipo.identificador << std::endl;
+    return false;
+  }
+
+  return true;
 };
-
-/* function prototypes */
-extern declaracaoVarVetor DeclaracaoVarVetor(DeclaracaoVar head,
-                                             declaracaoVarVetor tail);
-extern declaracaoFuncVetor DeclaracaoFuncVetor(AbstractDeclacaoFuncao head,
-                                               declaracaoFuncVetor tail);
-extern comandosVetor ComandosVetor(Comando head, comandosVetor tail);
-extern exprVetor ExprVetor(NodeExpr head, exprVetor tail);
-extern declaracaoTipoVetor DeclaracaoTipoVetor(DeclaracaoTipo head,
-                                               declaracaoTipoVetor tail);
-extern tipoConstantes TipoConstantes(int head, tipoConstantes tail);
-extern tipoCamposVetor TipoCamposVetor(TipoCampos head, tipoCamposVetor tail);
-extern argFuncVetor ArgFuncVetor(ArgFunc head, argFuncVetor tail);
-extern argRegistroVetor ArgRegistroVetor(ArgRegistro head,
-                                         argRegistroVetor tail);
-
-extern Programa *ast_root;
 } // namespace AST
 
 #endif // MYCOMPILER_ABSYNTREE_H

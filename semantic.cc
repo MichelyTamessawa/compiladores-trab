@@ -51,10 +51,13 @@ void insereSimbolosPadroes(S_table tabelaSimbolos) {
 }
 
 bool analiseDeclaracaoTipo(declaracaoTipoVetor tipos, S_table tabelaSimbolos) {
+  // Valida a primeira declaração de tipo
   if (!tipos->head->validar(tabelaSimbolos))
     return false;
 
   declaracaoTipoVetor aux = tipos->tail;
+
+  // Valida o restante das declarações de tipo
   while (aux != NULL) {
     if (!aux->head->validar(tabelaSimbolos))
       return false;
@@ -67,41 +70,46 @@ bool analiseDeclaracaoTipo(declaracaoTipoVetor tipos, S_table tabelaSimbolos) {
 
 bool analiseDeclaracaoGlobal(declaracaoVarVetor variaveis,
                              S_table tabelaSimbolos) {
+  // Analisa a primeira declaração de global
   if (!variaveis->head->validar(tabelaSimbolos))
     return false;
-  else {
+  else
     variaveis->head->traduzir(tabelaSimbolos);
-  }
 
   declaracaoVarVetor aux = variaveis->tail;
+
+  // Analisa o restante das declarações globais
   while (aux != NULL) {
     if (!aux->head->validar(tabelaSimbolos))
       return false;
-    else {
+    else
       aux->head->traduzir(tabelaSimbolos);
-    }
 
     aux = aux->tail;
   }
 
   return true;
 }
+
 bool analiseDeclaracaoFuncao(declaracaoFuncVetor funcoes) { return true; }
 
 bool analiseDeclaracoes(declaracaoFuncVetor funcVetor,
                         declaracaoTipoVetor tipoVetor,
                         declaracaoVarVetor varVetor, S_table tabelaSimbolos) {
 
+  // Valida as declações de tipo
   if (!analiseDeclaracaoTipo(tipoVetor, tabelaSimbolos)) {
     std::cout << "Erro na semântica de declarações de tipo" << std::endl;
     return false;
   }
 
+  // Valida as declarações de variáveis globais
   if (!analiseDeclaracaoGlobal(varVetor, tabelaSimbolos)) {
     std::cout << "Erro na semântica de declarações de globais" << std::endl;
     return false;
   }
 
+  // Valida as declações de função (Não foi implementado)
   if (!analiseDeclaracaoFuncao(funcVetor)) {
     std::cout << "Erro na semântica de declarações de funcoes" << std::endl;
     return false;
@@ -110,7 +118,7 @@ bool analiseDeclaracoes(declaracaoFuncVetor funcVetor,
   return true;
 }
 
-bool validacoesAcoes(Comando *comando, S_table tabelaSimbolos) {
+bool validaTraduzAcoes(Comando *comando, S_table tabelaSimbolos) {
 
   if (comando->comandoAtribuicao != NULL) {
     comando->comandoAtribuicao->validar(tabelaSimbolos);
@@ -132,11 +140,13 @@ void createMainFunction(std::shared_ptr<Module> TheModule,
                         std::shared_ptr<LLVMContext> TheContext,
                         std::shared_ptr<IRBuilder<>> Builder) {
 
+  // Criação da Main
   FunctionType *FT = FunctionType::get(Type::getVoidTy(*TheContext), false);
 
   Function *mainFunction = Function::Create(FT, GlobalValue::ExternalLinkage,
                                             "main", TheModule.get());
 
+  // Criação do imprimei
   std::vector<Type *> params;
   params.push_back(Type::getInt32Ty(*TheContext));
   FunctionType *type =
@@ -145,17 +155,20 @@ void createMainFunction(std::shared_ptr<Module> TheModule,
   Function::Create(type, Function::ExternalLinkage, "imprimei",
                    TheModule.get());
 
+  // Inserção do bloco básico
   BasicBlock *BB = BasicBlock::Create(*TheContext, "main", mainFunction);
   Builder->SetInsertPoint(BB);
 }
 
 bool analiseAcoes(comandosVetor acoes, S_table tabelaSimbolos) {
-  validacoesAcoes(acoes->head, tabelaSimbolos);
+  // Faz a validação e tradução para a primeira ação
+  validaTraduzAcoes(acoes->head, tabelaSimbolos);
 
   comandosVetor aux = acoes->tail;
 
+  // Faz a validação e tradução para o restante das ações
   while (aux != NULL) {
-    bool validado = validacoesAcoes(aux->head, tabelaSimbolos);
+    bool validado = validaTraduzAcoes(aux->head, tabelaSimbolos);
 
     if (!validado)
       return false;
@@ -169,6 +182,7 @@ bool Inicializar(Programa *root, std::string filename,
                  bool imprimeIntermediario) {
   std::cout << "Inicializando análise semântica...\n" << std::endl;
 
+  // Inicializa a tabela de símbolos
   S_table _tabelaSimbolos = S_empty();
 
   // Inicialização das variáveis do LLVM
@@ -183,8 +197,10 @@ bool Inicializar(Programa *root, std::string filename,
   // Inserindo símbolos padrões na tabela de simbolos
   insereSimbolosPadroes(_tabelaSimbolos);
 
+  // Criação da função principal do programa (main)
   createMainFunction(TheModule, TheContext, Builder);
 
+  // Análise semântica das declarações -> Validações e traduções
   bool declaracoresCerta =
       analiseDeclaracoes(root->declaracoesFuncao, root->declaracoesTipo,
                          root->declaracoesGlobais, _tabelaSimbolos);
@@ -192,6 +208,7 @@ bool Inicializar(Programa *root, std::string filename,
     return false;
   }
 
+  // Análise semântica das ações -> Validações e traduções
   bool acoesCerta = analiseAcoes(root->acao, _tabelaSimbolos);
   if (!acoesCerta) {
     return false;
@@ -199,10 +216,14 @@ bool Inicializar(Programa *root, std::string filename,
 
   std::cout << "Análise semântica realizada com sucesso!\n" << std::endl;
 
+  // Adicionando um retorno void para a main. Necessário para não dar
+  // segmentation fault.
   Builder->CreateRetVoid();
 
+  // Realiza a geração do arquivo objeto
   inicializarCodeObject(TheModule, filename);
 
+  // Impressão do código intermediário
   if (imprimeIntermediario) {
     std::error_code error;
     llvm::raw_fd_ostream file(StringRef(filename + ".ll"), error);

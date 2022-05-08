@@ -28,6 +28,7 @@ using namespace llvm::sys;
 namespace codeobject {
 void inicializarCodeObject(std::shared_ptr<Module> TheModule,
                            std::string filename) {
+  // Inicialização padrão dos targets para o LLVM
   InitializeAllTargetInfos();
   InitializeAllTargets();
   InitializeAllTargetMCs();
