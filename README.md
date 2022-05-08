@@ -49,9 +49,9 @@ Para compilar o arquivo com a linguagem Simples:
     `$ ./sc [-i] [-s] [-o <destino>] <fonte>`
 
 Para rodar o executavel gerado:
-    `$ ./<destino>`
+    `$ ./<destino>` ou
     `$ ./a.out`
 
 Há um código de exemplo para execução neste repositório, para executa-lo:
-    `$ ./sc -i -s test.s`
+    `$ ./sc -i -s test.s` e
     `$ ./a.out`
