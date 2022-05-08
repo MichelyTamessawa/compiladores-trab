@@ -324,17 +324,17 @@ expr: expressao_logica {$$  = $1;}
 expressao_logica: expr E expr {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, "&", $3, NULL, NULL, NULL, NULL); }
   | expr OU expr              {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, "|", $3, NULL, NULL, NULL, NULL); }
 
-expressao_relacional: expr IGUALDADE expr   {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, *$2, $3, NULL, NULL, NULL, NULL); }
-  | expr DIFERENTE expr                     {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, *$2, $3, NULL, NULL, NULL, NULL); }
-  | expr MAIOR expr                         {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, *$2, $3, NULL, NULL, NULL, NULL); }
-  | expr MAIORIGUAL expr                    {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, *$2, $3, NULL, NULL, NULL, NULL); }
-  | expr MENOR expr                         {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, *$2, $3, NULL, NULL, NULL, NULL); }
-  | expr MENORIGUAL expr                    {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, *$2, $3, NULL, NULL, NULL, NULL); }
+expressao_relacional: expr IGUALDADE expr   {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, "==", $3, NULL, NULL, NULL, NULL); }
+  | expr DIFERENTE expr                     {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, "!=", $3, NULL, NULL, NULL, NULL); }
+  | expr MAIOR expr                         {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, ">", $3, NULL, NULL, NULL, NULL); }
+  | expr MAIORIGUAL expr                    {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, ">=", $3, NULL, NULL, NULL, NULL); }
+  | expr MENOR expr                         {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, "<", $3, NULL, NULL, NULL, NULL); }
+  | expr MENORIGUAL expr                    {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, "<=", $3, NULL, NULL, NULL, NULL); }
 
-expressao_aritmetica: expr ADICAO expr      {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, *$2, $3, NULL, NULL, NULL, NULL); } 
-  | expr SUBTRACAO expr                     {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, *$2, $3, NULL, NULL, NULL, NULL); } 
-  | expr MULTIPLICACAO expr                 {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, *$2, $3, NULL, NULL, NULL, NULL); } 
-  | expr DIVISAO expr                       {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, *$2, $3, NULL, NULL, NULL, NULL); } 
+expressao_aritmetica: expr ADICAO expr      {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, "+", $3, NULL, NULL, NULL, NULL); } 
+  | expr SUBTRACAO expr                     {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, "-", $3, NULL, NULL, NULL, NULL); } 
+  | expr MULTIPLICACAO expr                 {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, "*", $3, NULL, NULL, NULL, NULL); } 
+  | expr DIVISAO expr                       {$$ = new NodeExpr("op_binaria", NULL, NULL, NULL, $1, "/", $3, NULL, NULL, NULL, NULL); } 
 
 literal: TIPOINTEIRO {$$ = new NodeExpr("literal_int", NULL, new Literal("inteiro", $1, "", 0.0), NULL, NULL, "", NULL, NULL, NULL, NULL, NULL);}
   | TIPOREAL {$$ = new NodeExpr("literal_real", NULL, new Literal("real", -1, "", $1), NULL, NULL, "", NULL, NULL, NULL, NULL, NULL);}
