@@ -74,7 +74,7 @@
  /* YYLTYPE */
   int  			                            integerVal;
   Corpo                                 *corpo;
-  double 			                          doubleVal;
+  float 			                          doubleVal;
   Comando                               *comando; 
   Programa                              *programa;
   NodeExpr                              *nodeExpr;

@@ -25,3 +25,6 @@ ação:
     imprimei(e);
     e := e - 12;
     imprimei(e);
+    imprimer(2.5);
+    b := gere_inteiro();
+    imprimei(b)

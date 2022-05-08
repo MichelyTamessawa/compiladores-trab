@@ -250,32 +250,32 @@ driver.cc.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/driver.cc.s
 .PHONY : driver.cc.s
 
-imprimei.o: imprimei.cc.o
+lib_externa.o: lib_externa.cc.o
 
-.PHONY : imprimei.o
+.PHONY : lib_externa.o
 
 # target to build an object file
-imprimei.cc.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/imprimei.cc.o
-.PHONY : imprimei.cc.o
+lib_externa.cc.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/lib_externa.cc.o
+.PHONY : lib_externa.cc.o
 
-imprimei.i: imprimei.cc.i
+lib_externa.i: lib_externa.cc.i
 
-.PHONY : imprimei.i
+.PHONY : lib_externa.i
 
 # target to preprocess a source file
-imprimei.cc.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/imprimei.cc.i
-.PHONY : imprimei.cc.i
+lib_externa.cc.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/lib_externa.cc.i
+.PHONY : lib_externa.cc.i
 
-imprimei.s: imprimei.cc.s
+lib_externa.s: lib_externa.cc.s
 
-.PHONY : imprimei.s
+.PHONY : lib_externa.s
 
 # target to generate assembly for a file
-imprimei.cc.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/imprimei.cc.s
-.PHONY : imprimei.cc.s
+lib_externa.cc.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/lib_externa.cc.s
+.PHONY : lib_externa.cc.s
 
 main.o: main.cc.o
 
@@ -460,9 +460,9 @@ help:
 	@echo "... driver.o"
 	@echo "... driver.i"
 	@echo "... driver.s"
-	@echo "... imprimei.o"
-	@echo "... imprimei.i"
-	@echo "... imprimei.s"
+	@echo "... lib_externa.o"
+	@echo "... lib_externa.i"
+	@echo "... lib_externa.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

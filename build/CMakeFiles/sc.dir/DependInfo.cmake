@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_CHECK_CXX
   "/home/hudson/Desktop/Compiladores/compiladores-trab/biblioteca.cc" "/home/hudson/Desktop/Compiladores/compiladores-trab/build/CMakeFiles/sc.dir/biblioteca.cc.o"
   "/home/hudson/Desktop/Compiladores/compiladores-trab/codeobject.cc" "/home/hudson/Desktop/Compiladores/compiladores-trab/build/CMakeFiles/sc.dir/codeobject.cc.o"
   "/home/hudson/Desktop/Compiladores/compiladores-trab/driver.cc" "/home/hudson/Desktop/Compiladores/compiladores-trab/build/CMakeFiles/sc.dir/driver.cc.o"
-  "/home/hudson/Desktop/Compiladores/compiladores-trab/imprimei.cc" "/home/hudson/Desktop/Compiladores/compiladores-trab/build/CMakeFiles/sc.dir/imprimei.cc.o"
+  "/home/hudson/Desktop/Compiladores/compiladores-trab/lib_externa.cc" "/home/hudson/Desktop/Compiladores/compiladores-trab/build/CMakeFiles/sc.dir/lib_externa.cc.o"
   "/home/hudson/Desktop/Compiladores/compiladores-trab/main.cc" "/home/hudson/Desktop/Compiladores/compiladores-trab/build/CMakeFiles/sc.dir/main.cc.o"
   "/home/hudson/Desktop/Compiladores/compiladores-trab/build/parser.cc" "/home/hudson/Desktop/Compiladores/compiladores-trab/build/CMakeFiles/sc.dir/parser.cc.o"
   "/home/hudson/Desktop/Compiladores/compiladores-trab/build/scanner.cc" "/home/hudson/Desktop/Compiladores/compiladores-trab/build/CMakeFiles/sc.dir/scanner.cc.o"

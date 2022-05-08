@@ -5,7 +5,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/sc.dir/biblioteca.cc.o"
   "CMakeFiles/sc.dir/codeobject.cc.o"
   "CMakeFiles/sc.dir/driver.cc.o"
-  "CMakeFiles/sc.dir/imprimei.cc.o"
+  "CMakeFiles/sc.dir/lib_externa.cc.o"
   "CMakeFiles/sc.dir/main.cc.o"
   "CMakeFiles/sc.dir/parser.cc.o"
   "CMakeFiles/sc.dir/scanner.cc.o"

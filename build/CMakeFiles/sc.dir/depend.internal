@@ -659,8 +659,8 @@ CMakeFiles/sc.dir/driver.cc.o
  location.hh
  parser.hh
  position.hh
-CMakeFiles/sc.dir/imprimei.cc.o
- /home/hudson/Desktop/Compiladores/compiladores-trab/imprimei.cc
+CMakeFiles/sc.dir/lib_externa.cc.o
+ /home/hudson/Desktop/Compiladores/compiladores-trab/lib_externa.cc
 CMakeFiles/sc.dir/main.cc.o
  /home/hudson/Desktop/Compiladores/compiladores-trab/arvore.hh
  /home/hudson/Desktop/Compiladores/compiladores-trab/biblioteca.hh

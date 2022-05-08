@@ -108,9 +108,9 @@ public:
 
   int inteiro;
   std::string cadeia;
-  double real;
+  float real;
 
-  Literal(std::string type, int inteiro, std::string cadeia, double real)
+  Literal(std::string type, int inteiro, std::string cadeia, float real)
       : type(type), inteiro(inteiro), cadeia(cadeia), real(real) {}
 
   Value *traduzir();
@@ -125,7 +125,7 @@ public:
       : nameFunc(nameFunc), params(params) {}
   bool validar(S_table tabelaDeSimbolos);
 
-  void traduzir(S_table tabelaDeSimbolos);
+  Value *traduzir(S_table tabelaDeSimbolos);
 };
 
 class NodeCriacaoRegistro {
@@ -483,11 +483,10 @@ inline bool NodeCallFunc::validar(S_table tabelaFunc) {
   return true;
 }
 
-inline void NodeCallFunc::traduzir(S_table tabelaVar) {
+inline Value *NodeCallFunc::traduzir(S_table tabelaVar) {
+  NodeExpr *expr = params->head;
 
   if (nameFunc.compare("imprimei") == 0) {
-
-    NodeExpr *expr = params->head;
 
     // Para o caso que o parâmetro é um inteiro -- imprimei(10)
     if (expr->literal != NULL) {
@@ -506,6 +505,19 @@ inline void NodeCallFunc::traduzir(S_table tabelaVar) {
       SimplesBiblioteca::imprimei(aux, TheModule, TheContext, Builder);
     }
   }
+
+  if (nameFunc.compare("imprimer") == 0) {
+    if (expr->literal != NULL) {
+      SimplesBiblioteca::imprimer(expr->literal->real, TheModule, TheContext,
+                                  Builder);
+    }
+  }
+
+  if (nameFunc.compare("gere_inteiro") == 0) {
+    return SimplesBiblioteca::gere_inteiro(TheModule, Builder);
+  }
+
+  return NULL;
 }
 
 inline AllocaInst *LocalIdentificador::traduzir() {
@@ -553,6 +565,10 @@ inline Value *NodeExpr::traduzir(S_table tabelaVar) {
   // Quando a expressão é uma operação binária -- 10 + 5, a + 2, 2 * 2...
   if (exprEsq != NULL && exprDir != NULL) {
     return traduzirOpBinaria(exprEsq, Op, exprDir, tabelaVar);
+  }
+
+  if (nodeCallFunc != NULL) {
+    return nodeCallFunc->traduzir(tabelaVar);
   }
   throw;
 }

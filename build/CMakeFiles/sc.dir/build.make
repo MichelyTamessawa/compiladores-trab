@@ -139,18 +139,18 @@ CMakeFiles/sc.dir/driver.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sc.dir/driver.cc.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hudson/Desktop/Compiladores/compiladores-trab/driver.cc -o CMakeFiles/sc.dir/driver.cc.s
 
-CMakeFiles/sc.dir/imprimei.cc.o: CMakeFiles/sc.dir/flags.make
-CMakeFiles/sc.dir/imprimei.cc.o: ../imprimei.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hudson/Desktop/Compiladores/compiladores-trab/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/sc.dir/imprimei.cc.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/sc.dir/imprimei.cc.o -c /home/hudson/Desktop/Compiladores/compiladores-trab/imprimei.cc
+CMakeFiles/sc.dir/lib_externa.cc.o: CMakeFiles/sc.dir/flags.make
+CMakeFiles/sc.dir/lib_externa.cc.o: ../lib_externa.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hudson/Desktop/Compiladores/compiladores-trab/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/sc.dir/lib_externa.cc.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/sc.dir/lib_externa.cc.o -c /home/hudson/Desktop/Compiladores/compiladores-trab/lib_externa.cc
 
-CMakeFiles/sc.dir/imprimei.cc.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sc.dir/imprimei.cc.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/hudson/Desktop/Compiladores/compiladores-trab/imprimei.cc > CMakeFiles/sc.dir/imprimei.cc.i
+CMakeFiles/sc.dir/lib_externa.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sc.dir/lib_externa.cc.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/hudson/Desktop/Compiladores/compiladores-trab/lib_externa.cc > CMakeFiles/sc.dir/lib_externa.cc.i
 
-CMakeFiles/sc.dir/imprimei.cc.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sc.dir/imprimei.cc.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hudson/Desktop/Compiladores/compiladores-trab/imprimei.cc -o CMakeFiles/sc.dir/imprimei.cc.s
+CMakeFiles/sc.dir/lib_externa.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sc.dir/lib_externa.cc.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hudson/Desktop/Compiladores/compiladores-trab/lib_externa.cc -o CMakeFiles/sc.dir/lib_externa.cc.s
 
 CMakeFiles/sc.dir/main.cc.o: CMakeFiles/sc.dir/flags.make
 CMakeFiles/sc.dir/main.cc.o: ../main.cc
@@ -237,7 +237,7 @@ sc_OBJECTS = \
 "CMakeFiles/sc.dir/biblioteca.cc.o" \
 "CMakeFiles/sc.dir/codeobject.cc.o" \
 "CMakeFiles/sc.dir/driver.cc.o" \
-"CMakeFiles/sc.dir/imprimei.cc.o" \
+"CMakeFiles/sc.dir/lib_externa.cc.o" \
 "CMakeFiles/sc.dir/main.cc.o" \
 "CMakeFiles/sc.dir/semantic.cc.o" \
 "CMakeFiles/sc.dir/symbol.cc.o" \
@@ -252,7 +252,7 @@ sc_EXTERNAL_OBJECTS =
 ../sc: CMakeFiles/sc.dir/biblioteca.cc.o
 ../sc: CMakeFiles/sc.dir/codeobject.cc.o
 ../sc: CMakeFiles/sc.dir/driver.cc.o
-../sc: CMakeFiles/sc.dir/imprimei.cc.o
+../sc: CMakeFiles/sc.dir/lib_externa.cc.o
 ../sc: CMakeFiles/sc.dir/main.cc.o
 ../sc: CMakeFiles/sc.dir/semantic.cc.o
 ../sc: CMakeFiles/sc.dir/symbol.cc.o

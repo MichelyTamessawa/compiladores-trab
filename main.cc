@@ -1,6 +1,6 @@
-#include "arvore.hh"
 #include "driver.hh"
-#include "semantic.hh"
+#include "src/arvore.hh"
+#include "src/semantic.hh"
 #include <bits/getopt_core.h>
 #include <cstdlib>
 #include <iostream>
@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
   semantic::Inicializar(AST::ast_root, filename, imprimeIntermediario);
 
   // Compilação da função externa "imprimei"
-  if (system("clang++ -c imprimei.cc")) {
+  if (system("clang++ -c lib_externa.cc")) {
     std::cout << "Não foi possível compilar a biblioteca de Simples."
               << std::endl;
     return 0;
@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
 
   // Compilação do programa e geração do executável
   std::string buildCommand =
-      "clang " + filename + ".o imprimei.o -o " + executavelName;
+      "clang " + filename + ".o lib_externa.o -o " + executavelName;
 
   if (system(buildCommand.c_str())) {
     std::cout << "Não foi possível compilar o programa." << std::endl;

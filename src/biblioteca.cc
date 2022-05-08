@@ -65,4 +65,39 @@ void imprimei(Value *valor, std::shared_ptr<Module> TheModule,
   // Realiza a chamada para a função "imprimei"
   builder->CreateCall(function, args);
 }
+
+void imprimer(float valor, std::shared_ptr<Module> TheModule,
+              std::shared_ptr<LLVMContext> TheContext,
+              std::shared_ptr<IRBuilder<>> builder) {
+
+  // Recupera a função "imprimer" declarada lá no início do programa
+  Function *function = TheModule->getFunction("imprimer");
+  if (!function) {
+    std::cout << "Função desconhecida." << std::endl;
+    return;
+  }
+
+  // Cria um Value* a partir do valor
+  Value *v = ConstantFP::get(*TheContext, APFloat(valor));
+  std::vector<Value *> args;
+  args.push_back(v);
+
+  // Realiza a chamada para a função "imprimer"
+  builder->CreateCall(function, args);
+}
+
+Value *gere_inteiro(std::shared_ptr<Module> TheModule,
+                    std::shared_ptr<IRBuilder<>> builder) {
+
+  // Recupera a função "gere_inteiro" declarada lá no início do programa
+  Function *function = TheModule->getFunction("gere_inteiro");
+  if (!function) {
+    std::cout << "Função desconhecida." << std::endl;
+    return NULL;
+  }
+
+  // Realiza a chamada para a função "gere_inteiro"
+  std::vector<Value *> args;
+  return builder->CreateCall(function, args);
+}
 } // namespace SimplesBiblioteca

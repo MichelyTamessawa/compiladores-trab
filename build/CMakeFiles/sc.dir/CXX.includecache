@@ -420,9 +420,13 @@ iostream
 string
 -
 
-/home/hudson/Desktop/Compiladores/compiladores-trab/imprimei.cc
+/home/hudson/Desktop/Compiladores/compiladores-trab/lib_externa.cc
 stdio.h
 /home/hudson/Desktop/Compiladores/compiladores-trab/stdio.h
+stdlib.h
+-
+time.h
+-
 
 /home/hudson/Desktop/Compiladores/compiladores-trab/main.cc
 arvore.hh

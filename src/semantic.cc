@@ -39,16 +39,22 @@ void insereSimbolosPadroes(S_table tabelaSimbolosFunc,
   std::string realStr = "real";
   std::string cadeiaStr = "cadeia";
   std::string imprimeiFunc = "imprimei";
+  std::string imprimerFunc = "imprimer";
+  std::string gereIntFunc = "gere_inteiro";
 
   S_symbol inteiroSim = S_Symbol(inteiroStr);
   S_symbol realSim = S_Symbol(realStr);
   S_symbol cadeiaSim = S_Symbol(cadeiaStr);
   S_symbol imprimeiSim = S_Symbol(imprimeiFunc);
+  S_symbol imprimerSim = S_Symbol(imprimerFunc);
+  S_symbol gereIntSim = S_Symbol(gereIntFunc);
 
   S_enter(tabelaSimbolosTipo, inteiroSim, &inteiroStr[0]);
   S_enter(tabelaSimbolosTipo, realSim, &realStr[0]);
   S_enter(tabelaSimbolosTipo, cadeiaSim, &cadeiaStr[0]);
   S_enter(tabelaSimbolosFunc, imprimeiSim, &imprimeiFunc[0]);
+  S_enter(tabelaSimbolosFunc, imprimerSim, &imprimerFunc[0]);
+  S_enter(tabelaSimbolosFunc, gereIntSim, &gereIntFunc[0]);
 }
 
 bool analiseDeclaracaoTipo(declaracaoTipoVetor tipos, S_table tabelaSimbolos) {
@@ -147,17 +153,8 @@ bool validaTraduzAcoes(Comando *comando, S_table tabelaVar,
   return true;
 }
 
-void createMainFunction(std::shared_ptr<Module> TheModule,
-                        std::shared_ptr<LLVMContext> TheContext,
-                        std::shared_ptr<IRBuilder<>> Builder) {
-
-  // Criação da Main
-  FunctionType *FT = FunctionType::get(Type::getVoidTy(*TheContext), false);
-
-  Function *mainFunction = Function::Create(FT, GlobalValue::ExternalLinkage,
-                                            "main", TheModule.get());
-
-  // Criação do imprimei
+void createImprimeIFunction(std::shared_ptr<Module> TheModule,
+                            std::shared_ptr<LLVMContext> TheContext) {
   std::vector<Type *> params;
   params.push_back(Type::getInt32Ty(*TheContext));
   FunctionType *type =
@@ -165,6 +162,46 @@ void createMainFunction(std::shared_ptr<Module> TheModule,
 
   Function::Create(type, Function::ExternalLinkage, "imprimei",
                    TheModule.get());
+}
+
+void createImprimeRFunction(std::shared_ptr<Module> TheModule,
+                            std::shared_ptr<LLVMContext> TheContext) {
+  std::vector<Type *> params;
+  params.push_back(Type::getFloatTy(*TheContext));
+  FunctionType *type =
+      FunctionType::get(Type::getVoidTy(*TheContext), params, false);
+
+  Function::Create(type, Function::ExternalLinkage, "imprimer",
+                   TheModule.get());
+}
+
+void createGeraIntFunction(std::shared_ptr<Module> TheModule,
+                           std::shared_ptr<LLVMContext> TheContext) {
+  std::vector<Type *> params;
+  FunctionType *type =
+      FunctionType::get(Type::getInt32Ty(*TheContext), params, false);
+
+  Function::Create(type, Function::ExternalLinkage, "gere_inteiro",
+                   TheModule.get());
+}
+
+void createFunctions(std::shared_ptr<Module> TheModule,
+                     std::shared_ptr<LLVMContext> TheContext,
+                     std::shared_ptr<IRBuilder<>> Builder) {
+
+  // Criação do imprimei
+  createImprimeIFunction(TheModule, TheContext);
+
+  // Criação do imprimer
+  createImprimeRFunction(TheModule, TheContext);
+
+  // Criação do gere_inteiro
+  createGeraIntFunction(TheModule, TheContext);
+
+  // Criação da Main
+  FunctionType *FT = FunctionType::get(Type::getVoidTy(*TheContext), false);
+  Function *mainFunction = Function::Create(FT, GlobalValue::ExternalLinkage,
+                                            "main", TheModule.get());
 
   // Inserção do bloco básico
   BasicBlock *BB = BasicBlock::Create(*TheContext, "main", mainFunction);
@@ -210,8 +247,8 @@ bool Inicializar(Programa *root, std::string filename,
   // Inserindo símbolos padrões na tabela de simbolos
   insereSimbolosPadroes(_tabelaSimbolosFunc, _tabelaSimbolosTipo);
 
-  // Criação da função principal do programa (main)
-  createMainFunction(TheModule, TheContext, Builder);
+  // Criação das funções principais do programa
+  createFunctions(TheModule, TheContext, Builder);
 
   // Análise semântica das declarações -> Validações e traduções
   bool declaracoresCerta = analiseDeclaracoes(

@@ -659,7 +659,7 @@ CMakeFiles/sc.dir/driver.cc.o: location.hh
 CMakeFiles/sc.dir/driver.cc.o: parser.hh
 CMakeFiles/sc.dir/driver.cc.o: position.hh
 
-CMakeFiles/sc.dir/imprimei.cc.o: ../imprimei.cc
+CMakeFiles/sc.dir/lib_externa.cc.o: ../lib_externa.cc
 
 CMakeFiles/sc.dir/main.cc.o: ../arvore.hh
 CMakeFiles/sc.dir/main.cc.o: ../biblioteca.hh

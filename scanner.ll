@@ -173,7 +173,7 @@ fun(ç|Ç)(ã|Ã)o { return token::FUNCAO; }
 
 "=" { return token::IGUAL; } 
 
-[A-Za-z][A-Za-z0-9]* {
+[A-Za-z][A-Za-z0-9_]* {
   yylval->stringVal = new std::string(yytext, yyleng);
   return token::IDENTIFICADOR;
 }

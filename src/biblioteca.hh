@@ -18,4 +18,13 @@ void imprimei(llvm::Value *value, std::shared_ptr<llvm::Module> TheModule,
 void imprimei(int value, std::shared_ptr<llvm::Module> TheModule,
               std::shared_ptr<llvm::LLVMContext> TheContext,
               std::shared_ptr<llvm::IRBuilder<>> builder);
+
+// Quando queremos imprimir um real
+void imprimer(float value, std::shared_ptr<llvm::Module> TheModule,
+              std::shared_ptr<llvm::LLVMContext> TheContext,
+              std::shared_ptr<llvm::IRBuilder<>> builder);
+
+// Quando queremos imprimir um real
+llvm::Value *gere_inteiro(std::shared_ptr<llvm::Module> TheModule,
+                          std::shared_ptr<llvm::IRBuilder<>> builder);
 } // namespace SimplesBiblioteca
