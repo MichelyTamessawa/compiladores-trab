@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
   Simples::Driver driver;
   std::cout << "- Inicializando análise sintática..." << std::endl;
   driver.parse_file(filename);
-  std::cout << "- Análise sintática realizada com sucesso...\n" << std::endl;
+  std::cout << "- Análise sintática realizada com sucesso!\n" << std::endl;
 
   filename = filename.replace(filename.size() - 2, filename.size(), "");
 

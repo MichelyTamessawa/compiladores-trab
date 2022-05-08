@@ -220,7 +220,7 @@ bool Inicializar(Programa *root, std::string filename,
   // segmentation fault.
   Builder->CreateRetVoid();
 
-  std::cout << "- Inicializando geração de arquivos...!\n" << std::endl;
+  std::cout << "- Inicializando geração de arquivos...\n" << std::endl;
 
   // Realiza a geração do arquivo objeto
   inicializarCodeObject(TheModule, filename);
@@ -230,7 +230,7 @@ bool Inicializar(Programa *root, std::string filename,
     std::error_code error;
     llvm::raw_fd_ostream file(StringRef(filename + ".ll"), error);
     TheModule->print(file, nullptr);
-    std::cout << "- Código intermediário salvo no arquvo: " + filename + ".ll"
+    std::cout << "- Código intermediário salvo no arquivo: " + filename + ".ll"
               << std::endl;
   }
 
