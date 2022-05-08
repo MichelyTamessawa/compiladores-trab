@@ -58,5 +58,6 @@ int main(int argc, char **argv) {
     std::cout << "Não foi possível compilar o programa." << std::endl;
   };
 
+  std::cout << "Arquivo executável salvo como: " + executavelName << std::endl;
   return 0;
 }

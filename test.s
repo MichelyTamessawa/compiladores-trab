@@ -13,4 +13,6 @@ ação:
     c := b - 4;
     imprimei(c);
     c := 2 * 2;
+    imprimei(c);
+    c := b;
     imprimei(c)

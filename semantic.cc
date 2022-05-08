@@ -17,8 +17,14 @@
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/Transforms/Scalar/GVN.h"
 #include "llvm/Transforms/Utils.h"
+#include <bits/types/FILE.h>
+#include <fstream>
+#include <llvm-13/llvm/ADT/StringRef.h>
 #include <llvm-13/llvm/IR/Use.h>
+#include <llvm-13/llvm/Support/raw_ostream.h>
+#include <ostream>
 #include <string.h>
+#include <system_error>
 
 using namespace AST;
 using namespace codeobject;
@@ -155,7 +161,7 @@ bool analiseAcoes(comandosVetor acoes, S_table tabelaSimbolos) {
 
 bool Inicializar(Programa *root, std::string filename,
                  bool imprimeIntermediario) {
-  std::cout << "Inicializando análise semântica..." << std::endl;
+  std::cout << "Inicializando análise semântica...\n" << std::endl;
 
   S_table _tabelaSimbolos = S_empty();
 
@@ -165,7 +171,7 @@ bool Inicializar(Programa *root, std::string filename,
   InitializeNativeTargetAsmParser();
 
   TheContext = std::make_shared<llvm::LLVMContext>();
-  TheModule = std::make_shared<llvm::Module>("my cool jit", *TheContext);
+  TheModule = std::make_shared<llvm::Module>(filename + ".s", *TheContext);
   Builder = std::make_shared<llvm::IRBuilder<>>(*TheContext);
 
   // Inserindo símbolos padrões na tabela de simbolos
@@ -185,15 +191,16 @@ bool Inicializar(Programa *root, std::string filename,
     return false;
   }
 
-  std::cout << "Análise semântica realizada com sucesso" << std::endl;
+  std::cout << "Análise semântica realizada com sucesso!\n" << std::endl;
 
   Builder->CreateRetVoid();
 
   if (imprimeIntermediario) {
-    std::cout << "\n\nImprimindo código intermediário gerado\n";
-    std::cout << "\n--------------------------------------------\n";
-    TheModule->print(errs(), nullptr);
-    std::cout << "\n--------------------------------------------\n";
+    std::error_code error;
+    llvm::raw_fd_ostream file(StringRef(filename + ".ll"), error);
+    TheModule->print(file, nullptr);
+    std::cout << "Código intermediário salvo no arquvo: " + filename + ".ll"
+              << std::endl;
   }
 
   inicializarCodeObject(TheModule, filename);

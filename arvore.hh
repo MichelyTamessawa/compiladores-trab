@@ -196,7 +196,6 @@ public:
         type(type) {}
 
   bool validar(S_table tabelaSimbolos) {
-    std::cout << "Local armazenamento." << std::endl;
 
     if (localIdentificador != NULL) {
       S_symbol idSymbol = S_Symbol(localIdentificador->identificador);
@@ -239,12 +238,7 @@ public:
       : type(type), listArgRe(listArgRe), literal(literal), nodeVar(nodeVar),
         exprEsq(exprEsq), Op(Op), exprDir(exprDir), exprComParen(exprComParen),
         localArmazenamento(localArmazenamento), nodeCallFunc(nodeCallFunc),
-        nodeCriacaoRegistro(nodeCriacaoRegistro) {
-    std::cout << "Ta construindo! " << type << std::endl;
-    if (type.compare("literal_int") == 0) {
-      std::cout << literal->inteiro << std::endl;
-    }
-  }
+        nodeCriacaoRegistro(nodeCriacaoRegistro) {}
 
   bool validar() {
     // ver se o tipo do literal é o mesmo da variável
@@ -310,7 +304,6 @@ public:
       : identificador(identificador), valorExpr(valorExpr) {}
 
   bool validar(S_table tabelaSimbolos) {
-    std::cout << "Validar atribuicao" << std::endl;
     if (!identificador->validar(tabelaSimbolos))
       return false;
     if (!valorExpr->validar())
