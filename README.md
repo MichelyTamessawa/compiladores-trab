@@ -43,15 +43,15 @@ Flex versão 2.6.4
 Bison versão 3.7.6
 
 Para realizar a compilação do trabalho: 
-    $ bash script.sh
+    `$ bash script.sh `
 
 Para compilar o arquivo com a linguagem Simples:
-    $ ./sc [-i] [-s] [-o <destino>] <fonte>
+    `$ ./sc [-i] [-s] [-o <destino>] <fonte>`
 
 Para rodar o executavel gerado:
-    $ ./<destino> 
-    $ ./a.out 
+    `$ ./<destino>`
+    `$ ./a.out`
 
 Há um código de exemplo para execução neste repositório, para executa-lo:
-    $ ./sc -i -s test.s
-    $ ./a.out
+    `$ ./sc -i -s test.s`
+    `$ ./a.out`
