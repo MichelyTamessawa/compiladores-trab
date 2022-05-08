@@ -1,2 +1,5 @@
 sc
 test.s
+./build/
+/build/
+build/

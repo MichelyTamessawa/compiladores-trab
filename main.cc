@@ -15,11 +15,8 @@ int main(int argc, char **argv) {
   bool imprimeIntermediario = false;
 
   int opt;
-  while ((opt = getopt(argc, argv, "io:sf:?")) != EOF)
+  while ((opt = getopt(argc, argv, "io:s?")) != EOF)
     switch (opt) {
-    case 'f':
-      filename = optarg;
-      break;
     case 'i':
       imprimeIntermediario = true;
       break;
@@ -35,6 +32,13 @@ int main(int argc, char **argv) {
     default:
       break;
     }
+
+  if (optind < argc) {
+    while (optind < argc) {
+      filename = argv[optind];
+      break;
+    }
+  }
 
   Simples::Driver driver;
   driver.parse_file(filename);
