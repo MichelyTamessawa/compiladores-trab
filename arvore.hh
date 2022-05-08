@@ -175,7 +175,7 @@ public:
         localVetor(localVetor), localIdentificador(localIdentificador),
         type(type) {}
 
-  bool validar(S_table tabelaSimbolos);
+  bool validar(S_table tabelaVar);
 
   AllocaInst *traduzir();
 };
@@ -224,9 +224,9 @@ public:
   ComandoAtribuicao(LocalArmazenamento *identificador, NodeExpr *valorExpr)
       : identificador(identificador), valorExpr(valorExpr) {}
 
-  bool validar(S_table tabelaSimbolos);
+  bool validar(S_table tabelaVar);
 
-  void traduzir(S_table tabelaDeSimbolos);
+  void traduzir(S_table tabelaVar);
 };
 
 class ComandoIf {
@@ -320,7 +320,7 @@ public:
   DeclaracaoVar(std::string identificador, std::string tipo, NodeExpr valor)
       : identificador(identificador), tipo(tipo), valor(valor) {}
 
-  bool validar(S_table tabelaDeSimbolos);
+  bool validar(S_table tabelaVar, S_table tabelaTipo);
 
   void traduzir(S_table tabelaDeSimbolos);
 };
@@ -339,7 +339,7 @@ public:
   std::string identificador;
   DescritorTipo tipo;
 
-  bool validar(S_table tabelaSimbolos);
+  bool validar(S_table tabelaTipo);
 
   DeclaracaoTipo(std::string identificador, DescritorTipo tipo)
       : identificador(identificador), tipo(tipo) {}
@@ -471,11 +471,11 @@ inline Value *Literal::traduzir() {
   return ConstantInt::get(*TheContext, APInt(32, inteiro, true));
 }
 
-inline bool NodeCallFunc::validar(S_table tabelaDeSimbolos) {
+inline bool NodeCallFunc::validar(S_table tabelaFunc) {
   S_symbol nameFuncSim = S_Symbol(nameFunc);
 
   // Verifica se o nome da função está na tabela de símbolos
-  if (S_look(tabelaDeSimbolos, nameFuncSim) == NULL) {
+  if (S_look(tabelaFunc, nameFuncSim) == NULL) {
     std::cout << "Função não declarada" << std::endl;
     return false;
   }
@@ -483,7 +483,7 @@ inline bool NodeCallFunc::validar(S_table tabelaDeSimbolos) {
   return true;
 }
 
-inline void NodeCallFunc::traduzir(S_table tabelaDeSimbolos) {
+inline void NodeCallFunc::traduzir(S_table tabelaVar) {
 
   if (nameFunc.compare("imprimei") == 0) {
 
@@ -502,7 +502,7 @@ inline void NodeCallFunc::traduzir(S_table tabelaDeSimbolos) {
           expr->localArmazenamento->localIdentificador->identificador;
 
       // Recuperar o valor do identificador que está na tabela de símbolos
-      Value *aux = (Value *)S_look(tabelaDeSimbolos, S_Symbol(identificador));
+      Value *aux = (Value *)S_look(tabelaVar, S_Symbol(identificador));
       SimplesBiblioteca::imprimei(aux, TheModule, TheContext, Builder);
     }
   }
@@ -513,13 +513,13 @@ inline AllocaInst *LocalIdentificador::traduzir() {
   return NamedValues[identificador];
 }
 
-inline bool LocalArmazenamento::validar(S_table tabelaSimbolos) {
+inline bool LocalArmazenamento::validar(S_table tabelaVar) {
 
   if (localIdentificador != NULL) {
     S_symbol idSymbol = S_Symbol(localIdentificador->identificador);
 
     // Verificamos se a variável está na tabela de símbolos
-    if (S_look(tabelaSimbolos, idSymbol) == NULL) {
+    if (S_look(tabelaVar, idSymbol) == NULL) {
       std::cout << "Variável não definida." << std::endl;
       return false;
     }
@@ -537,7 +537,7 @@ inline AllocaInst *LocalArmazenamento::traduzir() {
 
 inline bool NodeExpr::validar() { return true; }
 
-inline Value *NodeExpr::traduzir(S_table tabelaDeSimbolos) {
+inline Value *NodeExpr::traduzir(S_table tabelaVar) {
   // Quando a expressão é um inteiro -- 10, 15, 2...
   if (literal != NULL)
     return literal->traduzir();
@@ -545,20 +545,20 @@ inline Value *NodeExpr::traduzir(S_table tabelaDeSimbolos) {
   // Quando a expressão é uma variável -- a, b, c...
   if (localArmazenamento != NULL) {
     Value *aux = (Value *)S_look(
-        tabelaDeSimbolos,
+        tabelaVar,
         S_Symbol(localArmazenamento->localIdentificador->identificador));
     return aux;
   }
 
   // Quando a expressão é uma operação binária -- 10 + 5, a + 2, 2 * 2...
   if (exprEsq != NULL && exprDir != NULL) {
-    return traduzirOpBinaria(exprEsq, Op, exprDir, tabelaDeSimbolos);
+    return traduzirOpBinaria(exprEsq, Op, exprDir, tabelaVar);
   }
   throw;
 }
 
-inline bool ComandoAtribuicao::validar(S_table tabelaSimbolos) {
-  if (!identificador->validar(tabelaSimbolos))
+inline bool ComandoAtribuicao::validar(S_table tabelaVar) {
+  if (!identificador->validar(tabelaVar))
     return false;
   if (!valorExpr->validar())
     return false;
@@ -566,31 +566,31 @@ inline bool ComandoAtribuicao::validar(S_table tabelaSimbolos) {
   return true;
 }
 
-inline void ComandoAtribuicao::traduzir(S_table tabelaDeSimbolos) {
+inline void ComandoAtribuicao::traduzir(S_table tabelaVar) {
   // Recuperamos o escopo da main
   Function *TheFunction = Builder->GetInsertBlock()->getParent();
 
   // Realiza a tradução do lado esquerdo (variável) e do lado direito (valor)
   // a := 10 ou a := b
   Value *var = identificador->traduzir();
-  Value *valor = valorExpr->traduzir(tabelaDeSimbolos);
+  Value *valor = valorExpr->traduzir(tabelaVar);
 
   // Insere na tabela de símbolos esse novo valor atribuido
-  S_enter(tabelaDeSimbolos,
-          S_Symbol(identificador->localIdentificador->identificador), valor);
+  S_enter(tabelaVar, S_Symbol(identificador->localIdentificador->identificador),
+          valor);
 
   // Armazena o valor obtido da tradução na variável
   Builder->CreateStore(valor, var);
   verifyFunction(*TheFunction);
 }
 
-inline bool DeclaracaoVar::validar(S_table tabelaDeSimbolos) {
+inline bool DeclaracaoVar::validar(S_table tabelaVar, S_table tabelaTipo) {
   S_symbol symbol = S_Symbol(identificador);
 
   // Verifica se a variável já não foi declarada
-  if (S_look(tabelaDeSimbolos, symbol) == NULL) {
+  if (S_look(tabelaVar, symbol) == NULL) {
     // Insere a variável na tabela de símbolos
-    S_enter(tabelaDeSimbolos, symbol, &identificador[0]);
+    S_enter(tabelaVar, symbol, &identificador[0]);
   } else {
     std::cout << "Variável já declarada!" << std::endl;
     return false;
@@ -599,7 +599,7 @@ inline bool DeclaracaoVar::validar(S_table tabelaDeSimbolos) {
   S_symbol tipoSymbol = S_Symbol(tipo);
 
   // Verifica se o tipo da variável existe
-  if (S_look(tabelaDeSimbolos, tipoSymbol) == NULL) {
+  if (S_look(tabelaTipo, tipoSymbol) == NULL) {
     std::cout << "Tipo da variável não declarado!" << std::endl;
     return false;
   }
@@ -607,7 +607,7 @@ inline bool DeclaracaoVar::validar(S_table tabelaDeSimbolos) {
   return true;
 }
 
-inline void DeclaracaoVar::traduzir(S_table tabelaDeSimbolos) {
+inline void DeclaracaoVar::traduzir(S_table tabelaVar) {
   // Recuperamos o escopo da main
   Function *TheFunction = Builder->GetInsertBlock()->getParent();
 
@@ -620,22 +620,22 @@ inline void DeclaracaoVar::traduzir(S_table tabelaDeSimbolos) {
                       identificador.c_str());
 
   // Traduz o valor a ser atribuido para a variável
-  Value *auxValor = valor.traduzir(tabelaDeSimbolos);
+  Value *auxValor = valor.traduzir(tabelaVar);
 
   // Insere esse valor na tabela de simbolos junto com a variável
-  S_enter(tabelaDeSimbolos, S_Symbol(identificador), auxValor);
+  S_enter(tabelaVar, S_Symbol(identificador), auxValor);
 
   // Armazena o valor obtido na variável alocada
   Builder->CreateStore(auxValor, Alloca);
 }
 
-inline bool DeclaracaoTipo::validar(S_table tabelaSimbolos) {
+inline bool DeclaracaoTipo::validar(S_table tabelaVar) {
 
   S_symbol idSymbol = S_Symbol(identificador);
 
   // Verifica se o novo tipo (lado esquerdo) ainda não foi declarado
-  if (S_look(tabelaSimbolos, idSymbol) == NULL) {
-    S_enter(tabelaSimbolos, idSymbol, &identificador[0]);
+  if (S_look(tabelaVar, idSymbol) == NULL) {
+    S_enter(tabelaVar, idSymbol, &identificador[0]);
 
   } else {
     std::cout << "\nErro: Tipo" << identificador << "já foi declarado."
@@ -646,7 +646,7 @@ inline bool DeclaracaoTipo::validar(S_table tabelaSimbolos) {
   S_symbol tipoSymbol = S_Symbol(tipo.identificador);
 
   // Verifica se o tipo (lado direito) existe
-  if (S_look(tabelaSimbolos, tipoSymbol) == NULL) {
+  if (S_look(tabelaVar, tipoSymbol) == NULL) {
     std::cout << "\nErro: Não foi possível encontrar o tipo"
               << tipo.identificador << std::endl;
     return false;

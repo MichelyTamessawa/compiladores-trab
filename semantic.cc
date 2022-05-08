@@ -33,7 +33,8 @@ using namespace llvm::sys;
 
 namespace semantic {
 
-void insereSimbolosPadroes(S_table tabelaSimbolos) {
+void insereSimbolosPadroes(S_table tabelaSimbolosFunc,
+                           S_table tabelaSimbolosTipo) {
   std::string inteiroStr = "inteiro";
   std::string realStr = "real";
   std::string cadeiaStr = "cadeia";
@@ -44,10 +45,10 @@ void insereSimbolosPadroes(S_table tabelaSimbolos) {
   S_symbol cadeiaSim = S_Symbol(cadeiaStr);
   S_symbol imprimeiSim = S_Symbol(imprimeiFunc);
 
-  S_enter(tabelaSimbolos, inteiroSim, &inteiroStr[0]);
-  S_enter(tabelaSimbolos, realSim, &realStr[0]);
-  S_enter(tabelaSimbolos, cadeiaSim, &cadeiaStr[0]);
-  S_enter(tabelaSimbolos, imprimeiSim, &imprimeiFunc[0]);
+  S_enter(tabelaSimbolosTipo, inteiroSim, &inteiroStr[0]);
+  S_enter(tabelaSimbolosTipo, realSim, &realStr[0]);
+  S_enter(tabelaSimbolosTipo, cadeiaSim, &cadeiaStr[0]);
+  S_enter(tabelaSimbolosFunc, imprimeiSim, &imprimeiFunc[0]);
 }
 
 bool analiseDeclaracaoTipo(declaracaoTipoVetor tipos, S_table tabelaSimbolos) {
@@ -72,24 +73,25 @@ bool analiseDeclaracaoTipo(declaracaoTipoVetor tipos, S_table tabelaSimbolos) {
 }
 
 bool analiseDeclaracaoGlobal(declaracaoVarVetor variaveis,
-                             S_table tabelaSimbolos) {
+                             S_table tabelaSimbolosTipo,
+                             S_table tabelaSimbolosVar) {
   if (variaveis == NULL)
     return true;
 
   // Analisa a primeira declaração de global
-  if (!variaveis->head->validar(tabelaSimbolos))
+  if (!variaveis->head->validar(tabelaSimbolosVar, tabelaSimbolosTipo))
     return false;
   else
-    variaveis->head->traduzir(tabelaSimbolos);
+    variaveis->head->traduzir(tabelaSimbolosVar);
 
   declaracaoVarVetor aux = variaveis->tail;
 
   // Analisa o restante das declarações globais
   while (aux != NULL) {
-    if (!aux->head->validar(tabelaSimbolos))
+    if (!aux->head->validar(tabelaSimbolosVar, tabelaSimbolosTipo))
       return false;
     else
-      aux->head->traduzir(tabelaSimbolos);
+      aux->head->traduzir(tabelaSimbolosVar);
 
     aux = aux->tail;
   }
@@ -101,16 +103,18 @@ bool analiseDeclaracaoFuncao(declaracaoFuncVetor funcoes) { return true; }
 
 bool analiseDeclaracoes(declaracaoFuncVetor funcVetor,
                         declaracaoTipoVetor tipoVetor,
-                        declaracaoVarVetor varVetor, S_table tabelaSimbolos) {
+                        declaracaoVarVetor varVetor, S_table tabelaSimbolosTipo,
+                        S_table tabelaSimbolosVar) {
 
   // Valida as declações de tipo
-  if (!analiseDeclaracaoTipo(tipoVetor, tabelaSimbolos)) {
+  if (!analiseDeclaracaoTipo(tipoVetor, tabelaSimbolosTipo)) {
     std::cout << "Erro na semântica de declarações de tipo" << std::endl;
     return false;
   }
 
   // Valida as declarações de variáveis globais
-  if (!analiseDeclaracaoGlobal(varVetor, tabelaSimbolos)) {
+  if (!analiseDeclaracaoGlobal(varVetor, tabelaSimbolosTipo,
+                               tabelaSimbolosVar)) {
     std::cout << "Erro na semântica de declarações de globais" << std::endl;
     return false;
   }
@@ -124,16 +128,17 @@ bool analiseDeclaracoes(declaracaoFuncVetor funcVetor,
   return true;
 }
 
-bool validaTraduzAcoes(Comando *comando, S_table tabelaSimbolos) {
+bool validaTraduzAcoes(Comando *comando, S_table tabelaVar,
+                       S_table tabelaFunc) {
 
   if (comando->comandoAtribuicao != NULL) {
-    comando->comandoAtribuicao->validar(tabelaSimbolos);
-    comando->comandoAtribuicao->traduzir(tabelaSimbolos);
+    comando->comandoAtribuicao->validar(tabelaVar);
+    comando->comandoAtribuicao->traduzir(tabelaVar);
   }
 
   else if (comando->nodeCallFunc != NULL) {
-    comando->nodeCallFunc->validar(tabelaSimbolos);
-    comando->nodeCallFunc->traduzir(tabelaSimbolos);
+    comando->nodeCallFunc->validar(tabelaFunc);
+    comando->nodeCallFunc->traduzir(tabelaVar);
   } else {
     std::cout << "Comando não implementado!\n";
     return false;
@@ -166,15 +171,15 @@ void createMainFunction(std::shared_ptr<Module> TheModule,
   Builder->SetInsertPoint(BB);
 }
 
-bool analiseAcoes(comandosVetor acoes, S_table tabelaSimbolos) {
+bool analiseAcoes(comandosVetor acoes, S_table tabelaVar, S_table tabelaFunc) {
   // Faz a validação e tradução para a primeira ação
-  validaTraduzAcoes(acoes->head, tabelaSimbolos);
+  validaTraduzAcoes(acoes->head, tabelaVar, tabelaFunc);
 
   comandosVetor aux = acoes->tail;
 
   // Faz a validação e tradução para o restante das ações
   while (aux != NULL) {
-    bool validado = validaTraduzAcoes(aux->head, tabelaSimbolos);
+    bool validado = validaTraduzAcoes(aux->head, tabelaVar, tabelaFunc);
 
     if (!validado)
       return false;
@@ -189,7 +194,9 @@ bool Inicializar(Programa *root, std::string filename,
   std::cout << "- Inicializando análise semântica..." << std::endl;
 
   // Inicializa a tabela de símbolos
-  S_table _tabelaSimbolos = S_empty();
+  S_table _tabelaSimbolosVar = S_empty();
+  S_table _tabelaSimbolosTipo = S_empty();
+  S_table _tabelaSimbolosFunc = S_empty();
 
   // Inicialização das variáveis do LLVM
   InitializeNativeTarget();
@@ -201,21 +208,22 @@ bool Inicializar(Programa *root, std::string filename,
   Builder = std::make_shared<llvm::IRBuilder<>>(*TheContext);
 
   // Inserindo símbolos padrões na tabela de simbolos
-  insereSimbolosPadroes(_tabelaSimbolos);
+  insereSimbolosPadroes(_tabelaSimbolosFunc, _tabelaSimbolosTipo);
 
   // Criação da função principal do programa (main)
   createMainFunction(TheModule, TheContext, Builder);
 
   // Análise semântica das declarações -> Validações e traduções
-  bool declaracoresCerta =
-      analiseDeclaracoes(root->declaracoesFuncao, root->declaracoesTipo,
-                         root->declaracoesGlobais, _tabelaSimbolos);
+  bool declaracoresCerta = analiseDeclaracoes(
+      root->declaracoesFuncao, root->declaracoesTipo, root->declaracoesGlobais,
+      _tabelaSimbolosTipo, _tabelaSimbolosVar);
   if (!declaracoresCerta) {
     return false;
   }
 
   // Análise semântica das ações -> Validações e traduções
-  bool acoesCerta = analiseAcoes(root->acao, _tabelaSimbolos);
+  bool acoesCerta =
+      analiseAcoes(root->acao, _tabelaSimbolosVar, _tabelaSimbolosFunc);
   if (!acoesCerta) {
     return false;
   }
