@@ -41,7 +41,9 @@ int main(int argc, char **argv) {
   }
 
   Simples::Driver driver;
+  std::cout << "- Inicializando análise sintática..." << std::endl;
   driver.parse_file(filename);
+  std::cout << "- Análise sintática realizada com sucesso...\n" << std::endl;
 
   filename = filename.replace(filename.size() - 2, filename.size(), "");
 
@@ -63,18 +65,24 @@ int main(int argc, char **argv) {
     throw;
   };
 
-  std::cout << "Arquivo executável salvo como: " + executavelName << std::endl;
+  std::cout << "- Arquivo executável salvo como: " + executavelName
+            << std::endl;
 
   // Impressão do código assembly
   if (imprimeAssembly) {
     std::string buildCommand = "llc " + filename + ".ll -o " + filename + ".as";
     if (system(buildCommand.c_str())) {
-      std::cout << "Não foi possível gerar o executável" << std::endl;
-      throw;
-    };
+      buildCommand = "llc-13 " + filename + ".ll -o " + filename + ".as";
+      if (system(buildCommand.c_str())) {
+        std::cout << "Não foi possível gerar o executável" << std::endl;
+        throw;
+      }
+    }
+
+    std::cout << "- Código assembly salvo como: " + filename + ".as"
+              << std::endl;
   }
 
-  std::cout << "Código assembly salvo como: " + filename + ".as" << std::endl;
-
+  std::cout << std::endl;
   return 0;
 }

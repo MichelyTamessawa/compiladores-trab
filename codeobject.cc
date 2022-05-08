@@ -78,6 +78,6 @@ void inicializarCodeObject(std::shared_ptr<Module> TheModule,
   pass.run(*TheModule);
   dest.flush();
 
-  outs() << "Arquivo objeto escrito: " << Filename << "\n";
+  outs() << "- Arquivo objeto escrito: " << Filename << "\n";
 }
 } // namespace codeobject

@@ -180,7 +180,7 @@ bool analiseAcoes(comandosVetor acoes, S_table tabelaSimbolos) {
 
 bool Inicializar(Programa *root, std::string filename,
                  bool imprimeIntermediario) {
-  std::cout << "Inicializando análise semântica...\n" << std::endl;
+  std::cout << "- Inicializando análise semântica..." << std::endl;
 
   // Inicializa a tabela de símbolos
   S_table _tabelaSimbolos = S_empty();
@@ -214,11 +214,13 @@ bool Inicializar(Programa *root, std::string filename,
     return false;
   }
 
-  std::cout << "Análise semântica realizada com sucesso!\n" << std::endl;
+  std::cout << "- Análise semântica realizada com sucesso!\n" << std::endl;
 
   // Adicionando um retorno void para a main. Necessário para não dar
   // segmentation fault.
   Builder->CreateRetVoid();
+
+  std::cout << "- Inicializando geração de arquivos...!\n" << std::endl;
 
   // Realiza a geração do arquivo objeto
   inicializarCodeObject(TheModule, filename);
@@ -228,7 +230,7 @@ bool Inicializar(Programa *root, std::string filename,
     std::error_code error;
     llvm::raw_fd_ostream file(StringRef(filename + ".ll"), error);
     TheModule->print(file, nullptr);
-    std::cout << "Código intermediário salvo no arquvo: " + filename + ".ll"
+    std::cout << "- Código intermediário salvo no arquvo: " + filename + ".ll"
               << std::endl;
   }
 
