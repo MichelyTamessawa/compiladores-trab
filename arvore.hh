@@ -653,7 +653,7 @@ inline bool DeclaracaoTipo::validar(S_table tabelaSimbolos) {
   }
 
   return true;
-};
+}
 } // namespace AST
 
 #endif // MYCOMPILER_ABSYNTREE_H
