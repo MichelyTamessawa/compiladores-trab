@@ -6,13 +6,6 @@
 - Validar na atribuição se o lado direito é do mesmo tipo que o lado esquerdo
 
 ------ TODO PRINCIPAL -------------
-- Refinar o que fizemos até agora
 - Refinar a análise semântica
 
 - Criar mais instrucoes (criar funcao, variável local, etc)
-
-
--------- CORRIGIR ----------
-- Arrumar quanedo não há declarações (da seg fault)
-
-- clang -S -emit-llvm test.c

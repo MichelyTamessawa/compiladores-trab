@@ -52,6 +52,9 @@ void insereSimbolosPadroes(S_table tabelaSimbolos) {
 
 bool analiseDeclaracaoTipo(declaracaoTipoVetor tipos, S_table tabelaSimbolos) {
   // Valida a primeira declaração de tipo
+  if (tipos == NULL)
+    return true;
+
   if (!tipos->head->validar(tabelaSimbolos))
     return false;
 
@@ -70,6 +73,9 @@ bool analiseDeclaracaoTipo(declaracaoTipoVetor tipos, S_table tabelaSimbolos) {
 
 bool analiseDeclaracaoGlobal(declaracaoVarVetor variaveis,
                              S_table tabelaSimbolos) {
+  if (variaveis == NULL)
+    return true;
+
   // Analisa a primeira declaração de global
   if (!variaveis->head->validar(tabelaSimbolos))
     return false;
