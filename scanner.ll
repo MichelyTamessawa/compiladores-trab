@@ -68,7 +68,6 @@ double_quotes ["]
   STEP();
 %}
 
- /*** BEGIN EXAMPLE - Change the example lexer rules below ***/
 
 [0-9]+ {
      yylval->integerVal = atoi(yytext);
@@ -79,6 +78,7 @@ double_quotes ["]
   yylval->doubleVal = atof(yytext);
   return token::TIPOREAL;
 }
+
 
 pare { return token::PARE; }
 
@@ -123,6 +123,7 @@ nulo { return token::NULO; }
 a(ç|Ç)(ã|Ã)o { return token::ACAO; }
 
 fun(ç|Ç)(ã|Ã)o { return token::FUNCAO; }
+
 
 "," { return token::VIRGULA; }
 
@@ -194,7 +195,7 @@ fun(ç|Ç)(ã|Ã)o { return token::FUNCAO; }
 {eol}  { LINE(yyleng); }
 
 .             {
-                std::cerr << *driver.location_ << " Unexpected token : "
+                std::cerr << *driver.location_ << " Token não esperado : "
                                               << *yytext << std::endl;
                 driver.error_ = (driver.error_ == 127 ? 127
                                 : driver.error_ + 1);

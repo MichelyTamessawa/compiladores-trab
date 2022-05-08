@@ -142,6 +142,87 @@ sc/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/build
 .PHONY : sc/fast
 
+arvore.o: arvore.cc.o
+
+.PHONY : arvore.o
+
+# target to build an object file
+arvore.cc.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/arvore.cc.o
+.PHONY : arvore.cc.o
+
+arvore.i: arvore.cc.i
+
+.PHONY : arvore.i
+
+# target to preprocess a source file
+arvore.cc.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/arvore.cc.i
+.PHONY : arvore.cc.i
+
+arvore.s: arvore.cc.s
+
+.PHONY : arvore.s
+
+# target to generate assembly for a file
+arvore.cc.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/arvore.cc.s
+.PHONY : arvore.cc.s
+
+biblioteca.o: biblioteca.cc.o
+
+.PHONY : biblioteca.o
+
+# target to build an object file
+biblioteca.cc.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/biblioteca.cc.o
+.PHONY : biblioteca.cc.o
+
+biblioteca.i: biblioteca.cc.i
+
+.PHONY : biblioteca.i
+
+# target to preprocess a source file
+biblioteca.cc.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/biblioteca.cc.i
+.PHONY : biblioteca.cc.i
+
+biblioteca.s: biblioteca.cc.s
+
+.PHONY : biblioteca.s
+
+# target to generate assembly for a file
+biblioteca.cc.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/biblioteca.cc.s
+.PHONY : biblioteca.cc.s
+
+codeobject.o: codeobject.cc.o
+
+.PHONY : codeobject.o
+
+# target to build an object file
+codeobject.cc.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/codeobject.cc.o
+.PHONY : codeobject.cc.o
+
+codeobject.i: codeobject.cc.i
+
+.PHONY : codeobject.i
+
+# target to preprocess a source file
+codeobject.cc.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/codeobject.cc.i
+.PHONY : codeobject.cc.i
+
+codeobject.s: codeobject.cc.s
+
+.PHONY : codeobject.s
+
+# target to generate assembly for a file
+codeobject.cc.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/codeobject.cc.s
+.PHONY : codeobject.cc.s
+
 driver.o: driver.cc.o
 
 .PHONY : driver.o
@@ -168,6 +249,33 @@ driver.s: driver.cc.s
 driver.cc.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/driver.cc.s
 .PHONY : driver.cc.s
+
+imprimei.o: imprimei.cc.o
+
+.PHONY : imprimei.o
+
+# target to build an object file
+imprimei.cc.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/imprimei.cc.o
+.PHONY : imprimei.cc.o
+
+imprimei.i: imprimei.cc.i
+
+.PHONY : imprimei.i
+
+# target to preprocess a source file
+imprimei.cc.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/imprimei.cc.i
+.PHONY : imprimei.cc.i
+
+imprimei.s: imprimei.cc.s
+
+.PHONY : imprimei.s
+
+# target to generate assembly for a file
+imprimei.cc.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/imprimei.cc.s
+.PHONY : imprimei.cc.s
 
 main.o: main.cc.o
 
@@ -250,6 +358,87 @@ scanner.cc.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/scanner.cc.s
 .PHONY : scanner.cc.s
 
+semantic.o: semantic.cc.o
+
+.PHONY : semantic.o
+
+# target to build an object file
+semantic.cc.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/semantic.cc.o
+.PHONY : semantic.cc.o
+
+semantic.i: semantic.cc.i
+
+.PHONY : semantic.i
+
+# target to preprocess a source file
+semantic.cc.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/semantic.cc.i
+.PHONY : semantic.cc.i
+
+semantic.s: semantic.cc.s
+
+.PHONY : semantic.s
+
+# target to generate assembly for a file
+semantic.cc.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/semantic.cc.s
+.PHONY : semantic.cc.s
+
+symbol.o: symbol.cc.o
+
+.PHONY : symbol.o
+
+# target to build an object file
+symbol.cc.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/symbol.cc.o
+.PHONY : symbol.cc.o
+
+symbol.i: symbol.cc.i
+
+.PHONY : symbol.i
+
+# target to preprocess a source file
+symbol.cc.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/symbol.cc.i
+.PHONY : symbol.cc.i
+
+symbol.s: symbol.cc.s
+
+.PHONY : symbol.s
+
+# target to generate assembly for a file
+symbol.cc.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/symbol.cc.s
+.PHONY : symbol.cc.s
+
+table.o: table.cc.o
+
+.PHONY : table.o
+
+# target to build an object file
+table.cc.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/table.cc.o
+.PHONY : table.cc.o
+
+table.i: table.cc.i
+
+.PHONY : table.i
+
+# target to preprocess a source file
+table.cc.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/table.cc.i
+.PHONY : table.cc.i
+
+table.s: table.cc.s
+
+.PHONY : table.s
+
+# target to generate assembly for a file
+table.cc.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sc.dir/build.make CMakeFiles/sc.dir/table.cc.s
+.PHONY : table.cc.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -259,9 +448,21 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... sc"
+	@echo "... arvore.o"
+	@echo "... arvore.i"
+	@echo "... arvore.s"
+	@echo "... biblioteca.o"
+	@echo "... biblioteca.i"
+	@echo "... biblioteca.s"
+	@echo "... codeobject.o"
+	@echo "... codeobject.i"
+	@echo "... codeobject.s"
 	@echo "... driver.o"
 	@echo "... driver.i"
 	@echo "... driver.s"
+	@echo "... imprimei.o"
+	@echo "... imprimei.i"
+	@echo "... imprimei.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
@@ -271,6 +472,15 @@ help:
 	@echo "... scanner.o"
 	@echo "... scanner.i"
 	@echo "... scanner.s"
+	@echo "... semantic.o"
+	@echo "... semantic.i"
+	@echo "... semantic.s"
+	@echo "... symbol.o"
+	@echo "... symbol.i"
+	@echo "... symbol.s"
+	@echo "... table.o"
+	@echo "... table.i"
+	@echo "... table.s"
 .PHONY : help
 
 

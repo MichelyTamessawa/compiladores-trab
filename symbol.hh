@@ -1,37 +1,19 @@
 #include <string>
-/*
- * symbol.h - Symbols and symbol-tables
- *
- */
 
 typedef struct S_symbol_ *S_symbol;
 
-/* Make a unique symbol from a given string.
- *  Different calls to S_Symbol("foo") will yield the same S_symbol
- *  value, even if the "foo" strings are at different locations. */
-S_symbol S_Symbol(std::string); // var banana -> salvar que banana;
+/* Criação de um símbolo unico de acordo com uma string */
+S_symbol S_Symbol(std::string);
 
-/* Extract the underlying std::string from a symbol */
-std::string S_name(S_symbol);
-
-/* S_table is a mapping from S_symbol->any, where "any" is represented
- *     here by void*  */
+/* Tabela que mapeia um S_symbol para qualquer valor (inteiro, Value*...) */
 typedef struct TAB_table_ *S_table;
 
-/* Make a new table */
+/* Cria uma tabela vazia */
 S_table S_empty(void);
 
-/* Enter a binding "sym->value" into "t", shadowing but not deleting
- *    any previous binding of "sym". */
+/* Insere um símbolo na tabela com seu determinado valor*/
+/* Caso um símbolo já exista, irá apenas substituir o valor */
 void S_enter(S_table t, S_symbol sym, void *value);
 
-/* Look up the most recent binding of "sym" in "t", or return NULL
- *    if sym is unbound. */
+/* Procura na tabela pelo símbolo especificado*/
 void *S_look(S_table t, S_symbol sym);
-
-/* Start a new "scope" in "t".  Scopes are nested. */
-void S_beginScope(S_table t);
-
-/* Remove any bindings entered since the current scope began,
-   and end the current scope. */
-void S_endScope(S_table t);

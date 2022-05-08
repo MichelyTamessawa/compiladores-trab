@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 
+/* A tabela de símbolos é uma tabela hash baseada no S_symbol de alguma string*/
+
 struct S_symbol_ {
   std::string name;
   S_symbol next;
@@ -15,7 +17,7 @@ static S_symbol mksymbol(std::string name, S_symbol next) {
   return s;
 }
 
-#define SIZE 109 /* should be prime */
+#define SIZE 109
 
 static S_symbol hashtable[SIZE];
 
@@ -42,8 +44,6 @@ S_symbol S_Symbol(std::string name) {
   return sym;
 }
 
-std::string S_name(S_symbol sym) { return sym->name; }
-
 S_table S_empty(void) { return TAB_empty(); }
 
 void S_enter(S_table t, S_symbol sym, void *value) { TAB_enter(t, sym, value); }
@@ -51,16 +51,3 @@ void S_enter(S_table t, S_symbol sym, void *value) { TAB_enter(t, sym, value); }
 void *S_look(S_table t, S_symbol sym) { return TAB_look(t, sym); }
 
 static struct S_symbol_ marksym = {"<mark>", 0};
-
-void S_beginScope(S_table t) { S_enter(t, &marksym, NULL); }
-
-void S_endScope(S_table t) {
-  S_symbol s;
-  do
-    s = (S_symbol)TAB_pop(t);
-  while (s != &marksym);
-}
-
-void S_dump(S_table t, void (*show)(S_symbol sym, void *binding)) {
-  TAB_dump(t, (void (*)(void *, void *))show);
-}

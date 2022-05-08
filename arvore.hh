@@ -52,6 +52,7 @@ typedef struct tipoConstantes_ *tipoConstantes;
 typedef struct tipoCamposVetor_ *tipoCamposVetor;
 typedef struct argFuncVetor_ *argFuncVetor;
 
+// Função para alocação de variável no bloco
 static AllocaInst *CreateEntryBlockIntAlloca(Function *TheFunction,
                                              const std::string &VarName) {
   IRBuilder<> TmpB(&TheFunction->getEntryBlock(),
@@ -59,6 +60,7 @@ static AllocaInst *CreateEntryBlockIntAlloca(Function *TheFunction,
   return TmpB.CreateAlloca(Type::getInt32Ty(*TheContext), 0, VarName.c_str());
 }
 
+// ------------------ DECLARAÇÃO DAS CLASSE -------------
 class ArgFunc {
 public:
   std::string modificador;
@@ -69,7 +71,6 @@ public:
 };
 
 class DescritorTipo {
-
 public:
   std::string identificador;
   tipoCamposVetor campos;
@@ -113,13 +114,6 @@ public:
       : type(type), inteiro(inteiro), cadeia(cadeia), real(real) {}
 
   Value *traduzir();
-};
-
-class NodeVar {
-public:
-  std::string name;
-
-  NodeVar(const std::string name) : name(name) {}
 };
 
 class NodeCallFunc {
@@ -191,7 +185,6 @@ public:
   std::string type;
   ListArgRegistro *listArgRe;
   Literal *literal;
-  NodeVar *nodeVar;
   NodeExpr *exprEsq;
   std::string Op;
   NodeExpr *exprDir;
@@ -201,12 +194,11 @@ public:
   NodeCriacaoRegistro *nodeCriacaoRegistro;
 
   NodeExpr(std::string type, ListArgRegistro *listArgRe, Literal *literal,
-           NodeVar *nodeVar, NodeExpr *exprEsq, std::string Op,
-           NodeExpr *exprDir, NodeExpr *exprComParen,
-           LocalArmazenamento *localArmazenamento, NodeCallFunc *nodeCallFunc,
-           NodeCriacaoRegistro *nodeCriacaoRegistro)
-      : type(type), listArgRe(listArgRe), literal(literal), nodeVar(nodeVar),
-        exprEsq(exprEsq), Op(Op), exprDir(exprDir), exprComParen(exprComParen),
+           NodeExpr *exprEsq, std::string Op, NodeExpr *exprDir,
+           NodeExpr *exprComParen, LocalArmazenamento *localArmazenamento,
+           NodeCallFunc *nodeCallFunc, NodeCriacaoRegistro *nodeCriacaoRegistro)
+      : type(type), listArgRe(listArgRe), literal(literal), exprEsq(exprEsq),
+        Op(Op), exprDir(exprDir), exprComParen(exprComParen),
         localArmazenamento(localArmazenamento), nodeCallFunc(nodeCallFunc),
         nodeCriacaoRegistro(nodeCriacaoRegistro) {}
 
@@ -214,28 +206,6 @@ public:
 
   Value *traduzir(S_table tabelaDeSimbolos);
 };
-
-static Value *traduzirOpBinaria(NodeExpr *esq, std::string op, NodeExpr *dir,
-                                S_table tabelaDeSimbolos) {
-  Value *vEsq = esq->traduzir(tabelaDeSimbolos);
-  Value *vDir = dir->traduzir(tabelaDeSimbolos);
-
-  if (!vEsq || !vDir) {
-    std::cout << "Operação binária falhou" << std::endl;
-    throw;
-  }
-
-  if (op.compare("+") == 0) {
-    return Builder->CreateAdd(vEsq, vDir);
-  } else if (op.compare("-") == 0) {
-    return Builder->CreateSub(vEsq, vDir);
-  } else if (op.compare("*") == 0) {
-    return Builder->CreateMul(vEsq, vDir);
-  }
-
-  std::cout << "Operador binário não reconhecido" << std::endl;
-  throw;
-}
 
 class ArgRegistro {
 public:
@@ -451,6 +421,7 @@ public:
         declaracoesFuncao(declaracoesFuncao), acao(acao) {}
 };
 
+// Declaração das funções de inserção das classes (pro caso de listas)
 extern declaracaoVarVetor DeclaracaoVarVetor(DeclaracaoVar head,
                                              declaracaoVarVetor tail);
 extern declaracaoFuncVetor DeclaracaoFuncVetor(AbstractDeclacaoFuncao head,
@@ -465,21 +436,50 @@ extern argFuncVetor ArgFuncVetor(ArgFunc head, argFuncVetor tail);
 extern argRegistroVetor ArgRegistroVetor(ArgRegistro head,
                                          argRegistroVetor tail);
 
+// Raiz da ast
 extern Programa *ast_root;
 
+// Função para tradução no LLVM de operações binárias (+, -, *)
+static Value *traduzirOpBinaria(NodeExpr *esq, std::string op, NodeExpr *dir,
+                                S_table tabelaDeSimbolos) {
+  // Traduz lado esquerdo e direito da operação binária
+  Value *vEsq = esq->traduzir(tabelaDeSimbolos);
+  Value *vDir = dir->traduzir(tabelaDeSimbolos);
+
+  if (!vEsq || !vDir) {
+    std::cout << "Operação binária falhou" << std::endl;
+    throw;
+  }
+
+  // Verificação de qual operação é
+  // Executa o método do LLVM de acordo com a operação
+  if (op.compare("+") == 0) {
+    return Builder->CreateAdd(vEsq, vDir);
+  } else if (op.compare("-") == 0) {
+    return Builder->CreateSub(vEsq, vDir);
+  } else if (op.compare("*") == 0) {
+    return Builder->CreateMul(vEsq, vDir);
+  }
+
+  std::cout << "Operador binário não reconhecido" << std::endl;
+  throw;
+}
+
+// -------- Implementação dos métodos das classes ----------
 inline Value *Literal::traduzir() {
+  // Recupera o valor que um inteiro representa no llvm
   return ConstantInt::get(*TheContext, APInt(32, inteiro, true));
 }
 
 inline bool NodeCallFunc::validar(S_table tabelaDeSimbolos) {
   S_symbol nameFuncSim = S_Symbol(nameFunc);
 
+  // Verifica se o nome da função está na tabela de símbolos
   if (S_look(tabelaDeSimbolos, nameFuncSim) == NULL) {
     std::cout << "Função não declarada" << std::endl;
     return false;
   }
 
-  // validar parametros
   return true;
 }
 
@@ -489,14 +489,19 @@ inline void NodeCallFunc::traduzir(S_table tabelaDeSimbolos) {
 
     NodeExpr *expr = params->head;
 
+    // Para o caso que o parâmetro é um inteiro -- imprimei(10)
     if (expr->literal != NULL) {
       int valor = 0;
 
       valor = expr->literal->inteiro;
       SimplesBiblioteca::imprimei(valor, TheModule, TheContext, Builder);
-    } else if (expr->localArmazenamento != NULL) {
+    }
+    // Para o caso que o parâmetro é um variável -- imprimei(a)
+    else if (expr->localArmazenamento != NULL) {
       std::string identificador =
           expr->localArmazenamento->localIdentificador->identificador;
+
+      // Recuperar o valor do identificador que está na tabela de símbolos
       Value *aux = (Value *)S_look(tabelaDeSimbolos, S_Symbol(identificador));
       SimplesBiblioteca::imprimei(aux, TheModule, TheContext, Builder);
     }
@@ -504,6 +509,7 @@ inline void NodeCallFunc::traduzir(S_table tabelaDeSimbolos) {
 }
 
 inline AllocaInst *LocalIdentificador::traduzir() {
+  // Apenas recuperamos o valor inserido previamente na declaração da variável
   return NamedValues[identificador];
 }
 
@@ -511,6 +517,8 @@ inline bool LocalArmazenamento::validar(S_table tabelaSimbolos) {
 
   if (localIdentificador != NULL) {
     S_symbol idSymbol = S_Symbol(localIdentificador->identificador);
+
+    // Verificamos se a variável está na tabela de símbolos
     if (S_look(tabelaSimbolos, idSymbol) == NULL) {
       std::cout << "Variável não definida." << std::endl;
       return false;
@@ -530,15 +538,19 @@ inline AllocaInst *LocalArmazenamento::traduzir() {
 inline bool NodeExpr::validar() { return true; }
 
 inline Value *NodeExpr::traduzir(S_table tabelaDeSimbolos) {
+  // Quando a expressão é um inteiro -- 10, 15, 2...
   if (literal != NULL)
     return literal->traduzir();
 
+  // Quando a expressão é uma variável -- a, b, c...
   if (localArmazenamento != NULL) {
     Value *aux = (Value *)S_look(
         tabelaDeSimbolos,
         S_Symbol(localArmazenamento->localIdentificador->identificador));
     return aux;
   }
+
+  // Quando a expressão é uma operação binária -- 10 + 5, a + 2, 2 * 2...
   if (exprEsq != NULL && exprDir != NULL) {
     return traduzirOpBinaria(exprEsq, Op, exprDir, tabelaDeSimbolos);
   }
@@ -555,14 +567,19 @@ inline bool ComandoAtribuicao::validar(S_table tabelaSimbolos) {
 }
 
 inline void ComandoAtribuicao::traduzir(S_table tabelaDeSimbolos) {
+  // Recuperamos o escopo da main
   Function *TheFunction = Builder->GetInsertBlock()->getParent();
 
+  // Realiza a tradução do lado esquerdo (variável) e do lado direito (valor)
+  // a := 10 ou a := b
   Value *var = identificador->traduzir();
   Value *valor = valorExpr->traduzir(tabelaDeSimbolos);
 
+  // Insere na tabela de símbolos esse novo valor atribuido
   S_enter(tabelaDeSimbolos,
           S_Symbol(identificador->localIdentificador->identificador), valor);
 
+  // Armazena o valor obtido da tradução na variável
   Builder->CreateStore(valor, var);
   verifyFunction(*TheFunction);
 }
@@ -570,7 +587,9 @@ inline void ComandoAtribuicao::traduzir(S_table tabelaDeSimbolos) {
 inline bool DeclaracaoVar::validar(S_table tabelaDeSimbolos) {
   S_symbol symbol = S_Symbol(identificador);
 
+  // Verifica se a variável já não foi declarada
   if (S_look(tabelaDeSimbolos, symbol) == NULL) {
+    // Insere a variável na tabela de símbolos
     S_enter(tabelaDeSimbolos, symbol, &identificador[0]);
   } else {
     std::cout << "Variável já declarada!" << std::endl;
@@ -579,6 +598,7 @@ inline bool DeclaracaoVar::validar(S_table tabelaDeSimbolos) {
 
   S_symbol tipoSymbol = S_Symbol(tipo);
 
+  // Verifica se o tipo da variável existe
   if (S_look(tabelaDeSimbolos, tipoSymbol) == NULL) {
     std::cout << "Tipo da variável não declarado!" << std::endl;
     return false;
@@ -588,18 +608,24 @@ inline bool DeclaracaoVar::validar(S_table tabelaDeSimbolos) {
 }
 
 inline void DeclaracaoVar::traduzir(S_table tabelaDeSimbolos) {
+  // Recuperamos o escopo da main
   Function *TheFunction = Builder->GetInsertBlock()->getParent();
+
+  // Criamos um espaço para alocar a variável
   AllocaInst *Alloca = CreateEntryBlockIntAlloca(TheFunction, identificador);
   NamedValues[identificador] = Alloca;
-  AllocaInst *aux = NamedValues[identificador];
 
-  Builder->CreateLoad(Type::getInt32Ty(*TheContext), aux,
+  // Alocamos o espaço no LLVM para a variável
+  Builder->CreateLoad(Type::getInt32Ty(*TheContext), Alloca,
                       identificador.c_str());
 
+  // Traduz o valor a ser atribuido para a variável
   Value *auxValor = valor.traduzir(tabelaDeSimbolos);
 
+  // Insere esse valor na tabela de simbolos junto com a variável
   S_enter(tabelaDeSimbolos, S_Symbol(identificador), auxValor);
 
+  // Armazena o valor obtido na variável alocada
   Builder->CreateStore(auxValor, Alloca);
 }
 
@@ -607,6 +633,7 @@ inline bool DeclaracaoTipo::validar(S_table tabelaSimbolos) {
 
   S_symbol idSymbol = S_Symbol(identificador);
 
+  // Verifica se o novo tipo (lado esquerdo) ainda não foi declarado
   if (S_look(tabelaSimbolos, idSymbol) == NULL) {
     S_enter(tabelaSimbolos, idSymbol, &identificador[0]);
 
@@ -618,6 +645,7 @@ inline bool DeclaracaoTipo::validar(S_table tabelaSimbolos) {
 
   S_symbol tipoSymbol = S_Symbol(tipo.identificador);
 
+  // Verifica se o tipo (lado direito) existe
   if (S_look(tabelaSimbolos, tipoSymbol) == NULL) {
     std::cout << "\nErro: Não foi possível encontrar o tipo"
               << tipo.identificador << std::endl;

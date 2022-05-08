@@ -25,6 +25,9 @@
 using namespace llvm;
 using namespace llvm::sys;
 
+// Classe para lidar com a inicialização dos módulos necessários
+// Para a geração do código objeto
+
 namespace codeobject {
 void inicializarCodeObject(std::shared_ptr<Module> TheModule,
                            std::string filename) {

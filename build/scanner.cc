@@ -1,6 +1,6 @@
-#line 2 "/home/michely/Documentos/UEM/compiladores/compiladores-trab/build/scanner.cc"
+#line 2 "/home/hudson/Desktop/Compiladores/compiladores-trab/build/scanner.cc"
 
-#line 4 "/home/michely/Documentos/UEM/compiladores/compiladores-trab/build/scanner.cc"
+#line 4 "/home/hudson/Desktop/Compiladores/compiladores-trab/build/scanner.cc"
 
 #define  YY_INT_ALIGNED short int
 
@@ -662,12 +662,12 @@ static const flex_int32_t yy_rule_can_match_eol[61] =
 
 static const flex_int16_t yy_rule_linenum[60] =
     {   0,
-       74,   79,   84,   86,   88,   90,   92,   94,   96,   98,
+       73,   78,   84,   86,   88,   90,   92,   94,   96,   98,
       100,  102,  104,  106,  108,  110,  112,  114,  116,  118,
-      120,  122,  124,  126,  128,  130,  132,  134,  136,  138,
-      140,  142,  144,  146,  148,  150,  152,  154,  156,  158,
-      160,  162,  164,  166,  168,  170,  172,  174,  176,  181,
-      182,  185,  187,  188,  189,  191,  193,  195,  197
+      120,  122,  124,  126,  129,  131,  133,  135,  137,  139,
+      141,  143,  145,  147,  149,  151,  153,  155,  157,  159,
+      161,  163,  165,  167,  169,  171,  173,  175,  177,  182,
+      183,  186,  188,  189,  190,  192,  194,  196,  198
     } ;
 
 /* The intent behind this definition is that it'll catch
@@ -702,7 +702,7 @@ typedef Simples::Parser::token_type token_type;
 
 char string_buffer[1024]; /* auxilia na constante de cadeia */
 
-#line 706 "/home/michely/Documentos/UEM/compiladores/compiladores-trab/build/scanner.cc"
+#line 706 "/home/hudson/Desktop/Compiladores/compiladores-trab/build/scanner.cc"
 /*** Flex Declarations and Options ***/
 /* enable scanner to generate debug output. disable this for release
  * versions. */
@@ -718,7 +718,7 @@ char string_buffer[1024]; /* auxilia na constante de cadeia */
 %option stack
 */
 /* Abbreviations.  */
-#line 722 "/home/michely/Documentos/UEM/compiladores/compiladores-trab/build/scanner.cc"
+#line 722 "/home/hudson/Desktop/Compiladores/compiladores-trab/build/scanner.cc"
 
 #define INITIAL 0
 #define comentario 1
@@ -922,9 +922,8 @@ YY_DECL
   STEP();
 
 
- /*** BEGIN EXAMPLE - Change the example lexer rules below ***/
 
-#line 928 "/home/michely/Documentos/UEM/compiladores/compiladores-trab/build/scanner.cc"
+#line 927 "/home/hudson/Desktop/Compiladores/compiladores-trab/build/scanner.cc"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1011,7 +1010,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 74 "scanner.ll"
+#line 73 "scanner.ll"
 {
      yylval->integerVal = atoi(yytext);
      return token::TIPOINTEIRO;
@@ -1019,7 +1018,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 79 "scanner.ll"
+#line 78 "scanner.ll"
 {
   yylval->doubleVal = atof(yytext);
   return token::TIPOREAL;
@@ -1137,127 +1136,127 @@ YY_RULE_SETUP
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 128 "scanner.ll"
+#line 129 "scanner.ll"
 { return token::VIRGULA; }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 130 "scanner.ll"
+#line 131 "scanner.ll"
 { return token::PONTOVIRGULA; } 
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 132 "scanner.ll"
+#line 133 "scanner.ll"
 { return token::ABREPARENTESE; } 
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 134 "scanner.ll"
+#line 135 "scanner.ll"
 { return token::FECHAPARENTESE; } 
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 136 "scanner.ll"
+#line 137 "scanner.ll"
 { return token::ABRECOLCHETE; } 
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 138 "scanner.ll"
+#line 139 "scanner.ll"
 { return token::FECHACOLCHETE; } 
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 140 "scanner.ll"
+#line 141 "scanner.ll"
 { return token::ABRECHAVE; } 
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 142 "scanner.ll"
+#line 143 "scanner.ll"
 { return token::FECHACHAVE; } 
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 144 "scanner.ll"
+#line 145 "scanner.ll"
 { return token::PONTO; } 
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 146 "scanner.ll"
+#line 147 "scanner.ll"
 { return token::ADICAO; } 
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 148 "scanner.ll"
+#line 149 "scanner.ll"
 { return token::SUBTRACAO; } 
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 150 "scanner.ll"
+#line 151 "scanner.ll"
 { return token::MULTIPLICACAO; } 
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 152 "scanner.ll"
+#line 153 "scanner.ll"
 { return token::DIVISAO; } 
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 154 "scanner.ll"
+#line 155 "scanner.ll"
 { return token::IGUALDADE; } 
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 156 "scanner.ll"
+#line 157 "scanner.ll"
 { return token::DIFERENTE; } 
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 158 "scanner.ll"
+#line 159 "scanner.ll"
 { return token::MENOR; } 
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 160 "scanner.ll"
+#line 161 "scanner.ll"
 { return token::MENORIGUAL; } 
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 162 "scanner.ll"
+#line 163 "scanner.ll"
 { return token::MAIOR; } 
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 164 "scanner.ll"
+#line 165 "scanner.ll"
 { return token::MAIORIGUAL; } 
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 166 "scanner.ll"
+#line 167 "scanner.ll"
 { return token::E; } 
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 168 "scanner.ll"
+#line 169 "scanner.ll"
 { return token::OU; } 
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 170 "scanner.ll"
+#line 171 "scanner.ll"
 { return token::ATRIBUICAO; } 
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 172 "scanner.ll"
+#line 173 "scanner.ll"
 { return token::DOISPONTOS; } 
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 174 "scanner.ll"
+#line 175 "scanner.ll"
 { return token::IGUAL; } 
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 176 "scanner.ll"
+#line 177 "scanner.ll"
 {
   yylval->stringVal = new std::string(yytext, yyleng);
   return token::IDENTIFICADOR;
@@ -1265,12 +1264,12 @@ YY_RULE_SETUP
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 181 "scanner.ll"
+#line 182 "scanner.ll"
 { strcpy(string_buffer, ""); BEGIN(cadeia); }
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 182 "scanner.ll"
+#line 183 "scanner.ll"
 { yylval->stringVal = new std::string(string_buffer, strlen(string_buffer)); 
                   BEGIN(INITIAL); 
                   return token::TIPOCADEIA; }
@@ -1278,46 +1277,46 @@ YY_RULE_SETUP
 case 52:
 /* rule 52 can match eol */
 YY_RULE_SETUP
-#line 185 "scanner.ll"
+#line 186 "scanner.ll"
 { strcat(string_buffer, yytext); }
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 187 "scanner.ll"
+#line 188 "scanner.ll"
 { BEGIN(comentario); }
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 188 "scanner.ll"
+#line 189 "scanner.ll"
 { BEGIN(INITIAL); }
 	YY_BREAK
 case 55:
 /* rule 55 can match eol */
 YY_RULE_SETUP
-#line 189 "scanner.ll"
+#line 190 "scanner.ll"
 {}
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 191 "scanner.ll"
+#line 192 "scanner.ll"
 
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 193 "scanner.ll"
+#line 194 "scanner.ll"
 { STEP(); }
 	YY_BREAK
 case 58:
 /* rule 58 can match eol */
 YY_RULE_SETUP
-#line 195 "scanner.ll"
+#line 196 "scanner.ll"
 { LINE(yyleng); }
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 197 "scanner.ll"
+#line 198 "scanner.ll"
 {
-                std::cerr << *driver.location_ << " Unexpected token : "
+                std::cerr << *driver.location_ << " Token não esperado : "
                                               << *yytext << std::endl;
                 driver.error_ = (driver.error_ == 127 ? 127
                                 : driver.error_ + 1);
@@ -1326,10 +1325,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 205 "scanner.ll"
+#line 206 "scanner.ll"
 ECHO;
 	YY_BREAK
-#line 1333 "/home/michely/Documentos/UEM/compiladores/compiladores-trab/build/scanner.cc"
+#line 1332 "/home/hudson/Desktop/Compiladores/compiladores-trab/build/scanner.cc"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(comentario):
 case YY_STATE_EOF(cadeia):
@@ -2458,7 +2457,7 @@ void yyfree (void * ptr )
 
 /* %ok-for-header */
 
-#line 205 "scanner.ll"
+#line 206 "scanner.ll"
 
 
 /* CUSTOM C++ CODE */

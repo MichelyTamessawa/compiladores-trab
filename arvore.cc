@@ -54,8 +54,8 @@ argRegistroVetor ArgRegistroVetor(ArgRegistro head, argRegistroVetor tail) {
 
 exprVetor ExprVetor(NodeExpr head, exprVetor tail) {
   exprVetor p = (exprVetor)malloc(sizeof(*p));
-  p->head = new NodeExpr(head.type, head.listArgRe, head.literal, head.nodeVar,
-                         head.exprEsq, head.Op, head.exprDir, head.exprComParen,
+  p->head = new NodeExpr(head.type, head.listArgRe, head.literal, head.exprEsq,
+                         head.Op, head.exprDir, head.exprComParen,
                          head.localArmazenamento, head.nodeCallFunc,
                          head.nodeCriacaoRegistro);
   p->tail = tail;

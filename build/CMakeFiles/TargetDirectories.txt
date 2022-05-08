@@ -1,1 +1,3 @@
-/home/michely/Documentos/UEM/compiladores/compiladores-trab/build/CMakeFiles/sc.dir
+/home/hudson/Desktop/Compiladores/compiladores-trab/build/CMakeFiles/rebuild_cache.dir
+/home/hudson/Desktop/Compiladores/compiladores-trab/build/CMakeFiles/edit_cache.dir
+/home/hudson/Desktop/Compiladores/compiladores-trab/build/CMakeFiles/sc.dir

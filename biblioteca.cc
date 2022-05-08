@@ -31,16 +31,19 @@ void imprimei(int valor, std::shared_ptr<Module> TheModule,
               std::shared_ptr<LLVMContext> TheContext,
               std::shared_ptr<IRBuilder<>> builder) {
 
+  // Recupera a função "imprimei" declarada lá no início do programa
   Function *function = TheModule->getFunction("imprimei");
   if (!function) {
     std::cout << "Função desconhecida." << std::endl;
     return;
   }
 
+  // Cria um Value* a partir do valor
   Value *v = ConstantInt::get(*TheContext, APInt(32, valor, true));
   std::vector<Value *> args;
   args.push_back(v);
 
+  // Realiza a chamada para a função "imprimei"
   builder->CreateCall(function, args);
 }
 
@@ -48,6 +51,7 @@ void imprimei(Value *valor, std::shared_ptr<Module> TheModule,
               std::shared_ptr<LLVMContext> TheContext,
               std::shared_ptr<IRBuilder<>> builder) {
 
+  // Recupera a função "imprimei" declarada lá no início do programa
   Function *function = TheModule->getFunction("imprimei");
 
   if (!function) {
@@ -58,6 +62,7 @@ void imprimei(Value *valor, std::shared_ptr<Module> TheModule,
   std::vector<Value *> args;
   args.push_back(valor);
 
+  // Realiza a chamada para a função "imprimei"
   builder->CreateCall(function, args);
 }
 } // namespace SimplesBiblioteca
