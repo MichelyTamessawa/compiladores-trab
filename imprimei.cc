@@ -7,7 +7,4 @@
 
 #include "stdio.h"
 
-extern "C" DLLEXPORT int imprimei(int X) {
-  printf("%d\n", X);
-  return 0;
-}
+extern "C" DLLEXPORT void imprimei(int X) { printf("%d\n", X); }

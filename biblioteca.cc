@@ -22,6 +22,7 @@
 #include "llvm/Target/TargetOptions.h"
 #include <iostream>
 #include <llvm-13/llvm/IR/Constant.h>
+#include <llvm-13/llvm/IR/GlobalValue.h>
 
 using namespace llvm;
 
@@ -30,10 +31,8 @@ void imprimei(int valor, std::shared_ptr<Module> TheModule,
               std::shared_ptr<LLVMContext> TheContext,
               std::shared_ptr<IRBuilder<>> builder) {
 
-  FunctionCallee CalleeF =
-      TheModule->getOrInsertFunction("imprimei", Type::getInt32Ty(*TheContext));
-
-  if (!CalleeF) {
+  Function *function = TheModule->getFunction("imprimei");
+  if (!function) {
     std::cout << "Função desconhecida." << std::endl;
     return;
   }
@@ -42,17 +41,16 @@ void imprimei(int valor, std::shared_ptr<Module> TheModule,
   std::vector<Value *> args;
   args.push_back(v);
 
-  builder->CreateCall(CalleeF, args, "calltmp");
+  builder->CreateCall(function, args);
 }
 
 void imprimei(Value *valor, std::shared_ptr<Module> TheModule,
               std::shared_ptr<LLVMContext> TheContext,
               std::shared_ptr<IRBuilder<>> builder) {
 
-  FunctionCallee CalleeF =
-      TheModule->getOrInsertFunction("imprimei", Type::getInt32Ty(*TheContext));
+  Function *function = TheModule->getFunction("imprimei");
 
-  if (!CalleeF) {
+  if (!function) {
     std::cout << "Função desconhecida." << std::endl;
     return;
   }
@@ -60,6 +58,6 @@ void imprimei(Value *valor, std::shared_ptr<Module> TheModule,
   std::vector<Value *> args;
   args.push_back(valor);
 
-  builder->CreateCall(CalleeF, args, "calltmp");
+  builder->CreateCall(function, args);
 }
 } // namespace SimplesBiblioteca

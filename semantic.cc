@@ -20,6 +20,7 @@
 #include <bits/types/FILE.h>
 #include <fstream>
 #include <llvm-13/llvm/ADT/StringRef.h>
+#include <llvm-13/llvm/IR/GlobalValue.h>
 #include <llvm-13/llvm/IR/Use.h>
 #include <llvm-13/llvm/Support/raw_ostream.h>
 #include <ostream>
@@ -131,13 +132,18 @@ void createMainFunction(std::shared_ptr<Module> TheModule,
                         std::shared_ptr<LLVMContext> TheContext,
                         std::shared_ptr<IRBuilder<>> Builder) {
 
-  std::vector<Type *> types;
-  types.push_back(Type::getVoidTy(*TheContext));
-  FunctionType *FT =
-      FunctionType::get(Type::getVoidTy(*TheContext), types, false);
+  FunctionType *FT = FunctionType::get(Type::getVoidTy(*TheContext), false);
 
-  Function *mainFunction =
-      Function::Create(FT, Function::CommonLinkage, "main", TheModule.get());
+  Function *mainFunction = Function::Create(FT, GlobalValue::ExternalLinkage,
+                                            "main", TheModule.get());
+
+  std::vector<Type *> params;
+  params.push_back(Type::getInt32Ty(*TheContext));
+  FunctionType *type =
+      FunctionType::get(Type::getVoidTy(*TheContext), params, false);
+
+  Function::Create(type, Function::ExternalLinkage, "imprimei",
+                   TheModule.get());
 
   BasicBlock *BB = BasicBlock::Create(*TheContext, "main", mainFunction);
   Builder->SetInsertPoint(BB);
@@ -195,6 +201,8 @@ bool Inicializar(Programa *root, std::string filename,
 
   Builder->CreateRetVoid();
 
+  inicializarCodeObject(TheModule, filename);
+
   if (imprimeIntermediario) {
     std::error_code error;
     llvm::raw_fd_ostream file(StringRef(filename + ".ll"), error);
@@ -202,8 +210,6 @@ bool Inicializar(Programa *root, std::string filename,
     std::cout << "Código intermediário salvo no arquvo: " + filename + ".ll"
               << std::endl;
   }
-
-  inicializarCodeObject(TheModule, filename);
 
   return true;
 }

@@ -43,8 +43,6 @@ int main(int argc, char **argv) {
 
   semantic::Inicializar(AST::ast_root, filename, imprimeIntermediario);
 
-  // TODO: Adicionar impressão do código assembly (descobrir como)
-
   if (system("clang++ -c imprimei.cc")) {
     std::cout << "Não foi possível compilar a biblioteca de Simples."
               << std::endl;
@@ -56,8 +54,20 @@ int main(int argc, char **argv) {
 
   if (system(buildCommand.c_str())) {
     std::cout << "Não foi possível compilar o programa." << std::endl;
+    throw;
   };
 
   std::cout << "Arquivo executável salvo como: " + executavelName << std::endl;
+
+  if (imprimeAssembly) {
+    std::string buildCommand = "llc " + filename + ".ll -o " + filename + ".as";
+    if (system(buildCommand.c_str())) {
+      std::cout << "Não foi possível gerar o executável" << std::endl;
+      throw;
+    };
+  }
+
+  std::cout << "Código assembly salvo como: " + filename + ".as" << std::endl;
+
   return 0;
 }
